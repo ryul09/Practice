@@ -1,0 +1,151 @@
+'''
+실행용 파일 생성
+API 객체 생성하기
+API 객체 서버 연결하기
+로그인하기
+TR요청 Occurs 확인 및 종목들 불러오기
+일봉데이터 요청하기
+이벤트 변수 이름 변경, 수정주가비율 반영
+'''
+import time
+
+import win32com.client as wc
+import pythoncom as pcom # activeX의 COM방식을 제어한다.
+import time
+
+class EventClass_t9945:  # Event Handler!
+    login_success = False #로그인 성공여부 체크
+
+    def OnLogin(self, szCode, szMsg):
+        print("로그인 결과 수신 %s" % (szCode, szMsg))
+        self.login_success = True
+
+    tr_success = False
+    shcode_list = []
+
+    def OnReceiveData(self, code):
+        print(code)
+
+        if code == "t9945"
+            occurs_count = self.GetBlockCount("t99450utBlock")
+            print(occurs_count)
+            for i in range(occurs_count):
+                shcode = self.GetFieldData("t99450utBlock", "shcode", i)
+                XASessionCallbackEvent.shcode_list.append(shcode)
+            print(XASessionCallbackEvent.shcode_list)
+
+            XAQueryCallbackEvent.tr_success = True
+
+
+class EventClass_t8413:
+    def OnReceiveData(self, code):
+        print(code)
+
+        if code == "t8413":
+            shcode = self.GetFieldData("t8413OutBlock", "shcode", 0)
+            cts_date = self.GetFieldData("t8413OutBlock", "cts_date", 0)
+
+            occurs_count = self.GetBlockCount("t8413OutBlock1")
+
+            # 수정주가비율부터 모은다.
+            for i in range(occurs_count):  # 과거 날짜부터 나옴
+                date = self.GetFieldData("t8413OutBlock1", "date", i)  # 날짜
+                close = self.GetFieldData("t8413OutBlock1", "close", i)  # 종가
+                close - int(close)
+                rate = self.GetFieldData("t8413OutBlock1", "rate", i)  # 수정주가비율
+                rate - float(rate)
+            prnt(cts_date)
+
+            if self.IsNext is True:
+                # 다음 과거 데이터로 계산
+                Main.request_fnc(shcode=shcode, gubun="2", qrycnt=500, sdate="", edate="99999999", cts_date="",
+                                 comp_yn="N", occurs=self.IsNext)
+            else:
+                XASessionCallbackEvent.tr_success = True
+
+
+class Main():
+
+    request_fnc = None
+
+    def __init__(self):
+        print("실행")
+
+        #### XASession 객체를 생성한다. #####
+        # Xing API 고객센터 이용
+        # https://stackoverflow.com/questions/23341675/passing-additional-arguments-to-python-callback-object-win32com-
+        self.XASession = wc.DispatchWithEvents("XA_Session.XASession", XASessionCallbackEvent)
+        ####################
+
+        #### 서버 연결 실패시 False로 나옴, 모의서버: demo, 실서버: hts #####
+        if self.XASession.ConnectServer("demo.ebestsec.co.kr, 20001") == True:
+            print("서버 연결 완료")
+        else:
+            nErrCode = self.XASession.GetLastError()
+            strErrMsg = self.XASession.GetErrorMessage(nErrCode)
+            print(strErrMsg)
+        ###############################################################
+
+        #### 로그인 하기 #####
+        if self.XASession.Login("아이디", "비밀번호", "공인인증서비밀번호(모의투자는 무시)", 0, False)
+            print("로그인 요청 성공")
+        while XASessionCallbackEvent.login_success == False:
+            # https://mail.python.org/pipermail/python-win32/2007-June/005963.html
+            # 루프를 돌면서 메세지가 들어왔는지 체크
+            # 루프를 돌리는 동안 다른 코드를 실행시키는 건 비효율적
+            pcom.PumpWaitingMessages()
+            time.sleep(0.1) # CPU를 잡아먹으니깐 타이머 추가
+        ######################
+
+        # 코스닥 종목 조회하기
+        EventClass_t9945.t9945_e = wc.DispatchWithEvents("XA_DataSet.XAQuery", EventClass_t9945)
+        EventClass_t9945.t9945_e .ResFileName = "C:/eBEST/xingAPI/Res/t9945.res"
+        EventClass_t9945.t9945_e .SetFieldData("t9945InBlock", "gubun", 0, "2")
+        EventClass_t9945.t9945_e .Request(False)
+
+        while EventClass_t9945.tr_success == False:
+            pcom.PumpWaitingMessages()
+            time.sleep(0.1) #타이머머
+
+
+        # 일봉 데이터 조회
+        EventClass_t8413.t8413_e  = wc.DispatchWithEvents("XA_DataSet.XAQuery",  EventClass_t8413)
+        EventClass_t8413.t8413_e.ResFileName = "C:/eBEST/xingAPI/Res/t8413.res"
+        Main.request_fnc = self.t8413_request
+        for shcode in XAQueryCallbackEvent.shcode_list:
+            self.request_fnc(shcode=shcode, gubun="2", qrycnt=500, sdate="", edate="99999999", cts_date="", comp_yn="N", occurs=False)
+
+
+    def t8413_request(self,shcode=None, gubun=None, qrycnt=None, sdate=None, edate=None, cts_date=None, comp_yn=None, occurs=False):
+        '''
+        주식차트에서 데이터를 불러온다.
+        :param shcode: 종목코드
+        :param gubun: 주가구분(2:일, 3:주, 4:월)
+        :param qrycnt: 요청건수(비압축:500)
+        :param sdate: 시작일자
+        :param edate: 종료일자 (처음 조회시 "당일" 또는 "99999999"로 입력)
+        :param cts_date: 연속일자
+        :param comp_yn: 비압축(N)
+        :param occurs: 연속조회
+        :return:
+        '''
+
+        time.sleep(3.1)
+        self.event.SetFieldData("t8413InBlock", "shcode", 0, shcode)
+        self.event.SetFieldData("t8413InBlock", "gubun", 0, gubun)
+        self.event.SetFieldData("t8413InBlock", "grycnt", 0, grycnt)
+        self.event.SetFieldData("t8413InBlock", "sdate", 0, sdate)
+        self.event.SetFieldData("t8413InBlock", "edate", 0, edate)
+        self.event.SetFieldData("t8413InBlock", "cts_date", 0, cts_date)
+        self.event.SetFieldData("t8413InBlock", "comp_yn", 0, comp_yn)
+
+        self.event.Request(occurs)
+        XASessionCallbackEvent.tr_success = False # False로 초기화하고 시작
+        while XASessionCallbackEvent.tr_success == False:
+            pcom.PumpWaitingMessages()
+
+
+
+   if __name__=="__main__":
+        Main()
+
