@@ -1,0 +1,35 @@
+import csv
+import pyupbit
+import time
+import pandas as pd
+
+## ticker 가져오기
+# data = pyupbit.get_tickers()
+# dataframe = pd.DataFrame(data)
+# dataframe.to_csv('tickers.csv')
+
+dfs = [ ]
+df = pyupbit.get_ohlcv("KRW-ETC", interval="minute1", to="20210504 23:00:00")
+dfs.append(df)
+
+for i in range(60):
+    df = pyupbit.get_ohlcv("KRW-ETC", interval="minute1", to=df.index[0])
+    dfs.append(df)
+    time.sleep(0.2)
+
+df = pd.concat(dfs)
+df = df.sort_index()
+
+
+
+
+
+# csvfile = open("./raw_data_btc.csv","w",newline="")
+#
+# csvwriter = csv.writer(csvfile)
+# for row in df:
+#     csvwriter.writerow(row)
+#
+# csvfile.close()
+
+df.to_csv('raw_data_etc.csv')
