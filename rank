@@ -1,4 +1,12 @@
+find_a = []
+
+# dfs[1]
+df['ticker'] = "BTC"
 df['volume_rank'] = df['volume'].rank(method='min', ascending=False)
 df['volume_rank'] = df['volume_rank'].astype(int)
 df.sort_values(by = 'volume_rank', axis=0, ascending=True, inplace= True)
+
 print(df)
+find_a = df.iloc[0]
+
+print(find_a['ticker'])
