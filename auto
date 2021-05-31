@@ -1,0 +1,273 @@
+import requests
+import pyupbit
+import matplotlib.pyplot as plt
+import time
+import datetime
+import pandas as pd
+from logging.config import dictConfig
+import logging
+import numpy as np
+
+## Log 남기기
+dictConfig({
+    'version': 1,
+    'formatters': {
+        'default': {
+            'format': '[%(asctime)s] %(message)s',
+        }
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+            'formatter': 'default',
+        },
+    },
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['file']
+    }
+})
+
+## 0. 객체 생성
+f = open("upbit.txt")
+lines = f.readlines()
+access = lines[0].strip()
+secret = lines[1].strip()
+f.close()
+upbit = pyupbit.Upbit(access,secret)
+
+## 변수 설정
+# op_mode = False  ## 동작 상태, True : 동작 조건 만족 -> 가능, False : 동작 조건 불만족 -> 불가능
+# hold = False  ## 보유 상태, True : 코인 보유 중 -> 매도 가능, False : 코인 미보유 중 -> 매수 가능
+
+tickers = pyupbit.get_tickers(fiat="KRW")
+target_ticker_list = [] # 매수 가능 Target list
+mesu_target = 1.073
+medo_target = 0.927
+target_rank_list = {}
+
+
+
+# 1. 매수 Target 구하기 -> target_ticker_list
+def cal_target(tickers):
+    for i in tickers:
+        df = pyupbit.get_ohlcv(i, "minute1", count = 1)
+        now_minute = df.iloc[-1]
+        # print(now_minute)
+        target = now_minute['open'] * mesu_target
+        if now_minute['close'] >= target:
+            target_ticker_list.append(i)
+
+        time.sleep(0.32)
+    return
+
+
+while True:
+    now = datetime.datetime.now()
+    krw_balance = upbit.get_balance("KRW")
+    if krw_balance !=0:
+        op_mode = True
+        hold = False
+
+    ## 매수
+
+    if op_mode is True and hold is False and target_ticker_list == None:
+        cal_target(tickers)
+
+        print(target_ticker_list)
+        logging.debug("mesu_target : %s, target list : %s" % (mesu_target, target_ticker_list))
+
+
+    if target_ticker_list != None:
+        dfs = []
+        dfs1 = []
+        dfs2 = []
+
+        for i in target_ticker_list:
+            df2 = pyupbit.get_ohlcv(i, "minute1", count=2)
+
+            for a in range(1, len(df2.close)):
+                df2['change_rate'] = df2.close[a] / df2.close[a - 1]
+                break
+            # dfs = df2.iloc[-1,-1]
+            # print(df2)
+            dfs = df2.iloc[:, 5:6].copy()
+            # print(dfs)
+
+            dfs['ticker'] = pd.Series([i, i], index=dfs.index)
+            dfs1.append(dfs)
+
+            time.sleep(0.05)
+
+        dfs2 = pd.concat(dfs1)
+        # dfs2 = df2.sort_index()
+        print(dfs2)
+
+        find_a = []
+
+        dfs2['change_rate_rank'] = dfs2['change_rate'].rank(method='min', ascending=True)
+        dfs2['change_rate_rank'] = dfs2['change_rate_rank'].astype(int)
+        dfs2.sort_values(by='change_rate_rank', axis=0, ascending=True, inplace=True)
+
+        # print(dfs2)
+        find_a = dfs2.iloc[0]
+        # print(find_a)
+
+        print(find_a['ticker'])
+        logging.debug("target list(rank) : %s(%s)" % (find_a['ticker'], find_a['change_rate']))
+    # print("Ticker:%s, 시가:%s, 고가:%s, 변화율:%s" % (i, df2["open"], df2["high"],df2["change_rate"]))
+
+
+
+        krw_balance = upbit.get_balance("KRW")
+        upbit.buy_market_order(find_a['ticker'], krw_balance)
+        hold = True
+
+        target_price = pyupbit.get_current_price(find_a['ticker'])
+        print(now, target_price)
+        logging.debug("%s 를 매수 했습니다. (%s)" % (find_a['ticker'],target_price ))
+
+
+
+    ## 매도 시도
+    if op_mode is True and hold is True:
+        upbit.get_balance(find_a['ticker'])
+        target_balance = upbit.get_balance(find_a['ticker'])
+
+        while True:
+            df3 = pyupbit.get_ohlcv(find_a['ticker'], "minute1", count=2)
+
+            if df3['close'] <= df3['open'] * medo_target:
+                upbit.sell_market_order(find_a['ticker'], target_balance)
+
+            else:
+                continue
+
+        hold = False
+
+    op_mode = False
+    time.sleep(10)
+
+    ## 상태 출력
+    print(f"현재시간: {now} 목표가:{target} 현재가: {price} 보유상태: {hold} 동작상태: {op_mode}")
+    # print(now, price)
+    time.sleep(0.5)
+
+
+
+
+
+# 1. 매수 Target 구하기 -> target_ticker_list
+# def cal_target(tickers):
+#     for i in tickers:
+#         df = pyupbit.get_ohlcv(i, "minute1", count = 1)
+#         now_minute = df.iloc[-1]
+#         # print(now_minute)
+#         target = now_minute['open'] * mesu_target
+#         if now_minute['close'] >= target:
+#             target_ticker_list.append(i)
+#
+#         time.sleep(0.32)
+#     return
+#
+# cal_target(tickers)
+# if target_ticker_list == None:
+#     cal_target(tickers)
+#
+# print(target_ticker_list)
+# # logging.debug("target list : %s" % target_ticker_list)
+# logging.debug("mesu_target : %s, target list : %s" % (mesu_target, target_ticker_list))
+# #
+#
+# ## 2. 매수 Target 구하기 - 우선 순위 구하기(변화율) -> find_a
+# # target_ticker_list = ['KRW-QKC']
+#
+# dfs = []
+# dfs1 = []
+# dfs2 = []
+# for i in target_ticker_list:
+#     df2 = pyupbit.get_ohlcv(i, "minute1", count = 2)
+#
+#     for a in range(1, len(df2.close)):
+#         df2['change_rate'] = df2.close[a] / df2.close[a - 1]
+#         break
+#     # dfs = df2.iloc[-1,-1]
+#     # print(df2)
+#     dfs = df2.iloc[:,5:6].copy()
+#     # print(dfs)
+#
+#     dfs['ticker'] = pd.Series([i,i], index=dfs.index)
+#     dfs1.append(dfs)
+#
+#     time.sleep(0.05)
+#
+# dfs2 = pd.concat(dfs1)
+# # dfs2 = df2.sort_index()
+# # print(dfs2)
+#
+# find_a = []
+#
+# dfs2['change_rate_rank'] = dfs2['change_rate'].rank(method='min', ascending=True)
+# dfs2['change_rate_rank'] = dfs2['change_rate_rank'].astype(int)
+# dfs2.sort_values(by = 'change_rate_rank', axis=0, ascending=True, inplace= True)
+#
+# # print(dfs2)
+# find_a = dfs2.iloc[0]
+# # print(find_a)
+#
+# print(find_a['ticker'])
+# logging.debug("target list(rank) : %s(%s)" % (find_a['ticker'], find_a['change_rate']))
+#     # print("Ticker:%s, 시가:%s, 고가:%s, 변화율:%s" % (i, df2["open"], df2["high"],df2["change_rate"]))
+#
+# # if find_a['change_rate']:
+#     # buy 현재가
+
+
+
+##  Volume 순위 구하기
+# for i in tickers:
+#     df1 = pyupbit.get_ohlcv(i, "minute60", count= 1)
+#     df1['rank']
+
+
+
+##  매수 Target 구하기 - 예외항목 (10~15원, 100~ 150원 구간)
+# for i in tickers:
+#     df2 = pyupbit.get_ohlcv(i, "minute1", count = 1)
+#     now_minute = df2.iloc[-1]
+#
+#     if 100 <= now_minute['open'] < 150 or 10 <= now_minute['open'] < 15:
+#         # ticker1.append(i)
+#         if now_minute['high'] >= now_minute['open'] * 1.1:
+#             target_ticker_list.append(i)
+#     elif now_minute['high']  > now_minute['open'] * mesu_target:
+#         target_ticker_list.append(i)
+#
+#     time.sleep(0.05)
+# print(ticker1)
+
+# for i in volume_list:
+#     df2 = pyupbit.get_ohlcv(i, "minute1", count= 1)
+#     # now_minute = df2.iloc[-1]  # 가장 최근 분봉
+#     target = df2['open'] * mesu_target
+#
+#     if df2['high'] >= target:
+#         target_ticker_list.append(i)
+#
+#     # print("Ticker:%s, 시가:%s, 고가:%s" % (i, now_minute["open"], now_minute["high"]))
+#     time.sleep(0.04)
+#
+# print("Target_ticker_list: %s" % target_ticker_list)
+
+
+
+
+
+# price = pyupbit.get_ohlcv("KRW-ARDR","minute1") #현재가
+# now_minute = price.iloc[-1]
+# print(now_minute)
+
+#
+## 3. 매수 Target 구하기 - 메인
