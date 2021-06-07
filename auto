@@ -81,6 +81,8 @@ hold = False
 while True:
     now = datetime.datetime.now()
     target_ticker_list = []
+    
+    krw_balance = upbit.get_balance("KRW")
 
     if krw_balance !=0:
         op_mode = True
@@ -152,7 +154,7 @@ while True:
 
     ## 매도 시도
     if op_mode is True and hold is True:
-        time.sleep(1)
+        time.sleep(0.5)
         upbit.get_balance(find_a['ticker'])
         print(upbit.get_balance(find_a['ticker']))
         target_balance = upbit.get_balance(find_a['ticker'])
