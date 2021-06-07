@@ -40,7 +40,7 @@ def cal_target(tickers):
         target = now_minute['open'] * mesu_target
         target_volume = now_minute['close'] * now_minute['volume']
         # if now_minute['close'] >= target and target_volume >= volume_target:
-        if now_minute['close'] >= target:
+        if now_minute['close'] >= target and target_volume >= volume_target:
             target_ticker_list.append(i)
             print("%s target을 추가하였습니다." % target_ticker_list)
         else:
@@ -152,6 +152,7 @@ while True:
 
     ## 매도 시도
     if op_mode is True and hold is True:
+        time.sleep(1)
         upbit.get_balance(find_a['ticker'])
         print(upbit.get_balance(find_a['ticker']))
         target_balance = upbit.get_balance(find_a['ticker'])
