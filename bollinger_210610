@@ -39,19 +39,20 @@ def cal_target(tickers):
         df = pyupbit.get_ohlcv(i, "minute3", count =2)
         # print(df)
         now_minute = df.iloc[-1]
+        now_minute_1ago = df.iloc[0]
         # print(now_minute)
-
+        one_min_ago = now_minute_1ago['close']/now_minute_1ago['open']
         df_1min = pyupbit.get_ohlcv(i, "minute1", count=3)
         now_1minute = df_1min.iloc[1]
         target = now_1minute['close']/now_1minute['open']
 
         target_volume = now_minute['low'] * now_minute['volume']
         # if now_minute['close'] >= target and target_volume >= volume_target:
-        if (15 <= now_minute['close'] < 100 or 150 <= now_minute['close'] < 1000) and  now_minute['close'] >= bollinger_band_higher_line(i) and target >= mesu_target:
+        if (15 <= now_minute['close'] < 100 or 150 <= now_minute['close'] < 1000) and now_minute['close'] >= bollinger_band_higher_line(i) and one_min_ago > 1 and target >= mesu_target:
             target_ticker_list.append(i)
             print("%s target을 추가하였습니다." % target_ticker_list)
 
-        if (10 <= now_minute['close'] < 15 or 100 <= now_minute['close'] < 150) and  now_minute['close'] >= bollinger_band_higher_line(i) and target >= mesu_target_except:
+        if (10 <= now_minute['close'] < 15 or 100 <= now_minute['close'] < 150) and now_minute['close'] >= bollinger_band_higher_line(i) and one_min_ago > 1 and target >= mesu_target_except:
             target_ticker_list.append(i)
             print("%s target을 추가하였습니다." % target_ticker_list)
 
@@ -332,7 +333,7 @@ while True:
             target_volume_medo = medo_3minute['close'] * medo_3minute['volume']
 
             # 익절 추가 설정
-            if medo_3minute['close'] >= mesu_price *1.05 and medo_3minute['close'] > bollinger_band_higher_line(find_a['ticker']) and medo_3minute_latest['close'] < bollinger_band_higher_line(find_a['ticker'])
+            if medo_3minute['close'] >= mesu_price *1.05 and medo_3minute['close'] > bollinger_band_higher_line(find_a['ticker']) and medo_3minute_latest['close'] < bollinger_band_higher_line(find_a['ticker']):
                 upbit.sell_market_order(find_a['ticker'], target_balance)
                 print(upbit.sell_market_order(find_a['ticker'], target_balance))
 
