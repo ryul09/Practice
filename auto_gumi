@@ -91,10 +91,12 @@ while True:
     krw_balance = upbit.get_balance("KRW")
     logging.debug("KRW 금액 : %s" % krw_balance)
 
-    if krw_balance > 1:
+    if krw_balance > 2:
         op_mode = True
         hold = False
 
+    if krw_balance < 2:
+        hold = True
     # if now.hour == 8 and 58<= now.minute <= 59 and 1 <= now.second <= 59:
     #     time.sleep(150)
 
@@ -146,7 +148,7 @@ while True:
         # logging.debug("target list(rank) : %s(%s)" % (find_a['ticker'], find_a['change_rate']))
     # print("Ticker:%s, 시가:%s, 고가:%s, 변화율:%s" % (i, df2["open"], df2["high"],df2["change_rate"]))
         for i in target_ticker_list:
-            df2 = pyupbit.get_ohlcv(i, "day", count=1)
+            df2 = pyupbit.get_ohlcv(i, "minute3", count=1)
             # print(df2)
             # for a in range(1, len(df2.close)):
             #     df2['change_rate'] = df2.close[a] / df2.close[a - 1]
@@ -239,7 +241,7 @@ while True:
             # print(medo_minute)
 
             target_medo = medo_minute['open'] * medo_target
-            target_volume_medo = medo_minute['close']*medo_minute['volume']
+            target_volume_medo = medo_minute['close'] * medo_minute['volume']
 
 
             # if medo_minute['close'] <= target_medo and target_volume_medo >= volume_target :
