@@ -1,0 +1,407 @@
+import requests
+import pyupbit
+import matplotlib.pyplot as plt
+import time
+import datetime
+from datetime import date
+import pandas as pd
+import numpy as np
+import os
+
+
+def cal_target(tickers):
+    for i in tickers:
+        df = pyupbit.get_ohlcv(i, "minute1", count =2)
+
+        target = df.iloc[-1]
+        now_minute_1ago = df.iloc[0]
+
+        target_so = target['close']/target['open']
+
+
+        if target['close'] > bollinger_band_higher_line(i) and bollinger_band_higher_line(i) / bollinger_band_lower_line(i)  > bollinger_target and bollinger_band_higher_line_one_ago / bollinger_band_lower_line_one_ago  < bollinger_target:
+
+            target_ticker_list.append(i)
+            print("%s target을 추가하였습니다." % target_ticker_list)
+
+
+        else:
+            print("target을 찾고 있습니다.")
+
+        time.sleep(0.35)
+    return target_ticker_list
+
+
+def low_price_of_current_candle(ticker):
+    df = pyupbit.get_ohlcv(ticker, interval="minute3")
+    low = df['low']
+    ma = low.rolling(1).mean()
+    return ma[-1]
+
+def high_price_of_current_candle(ticker):
+    df = pyupbit.get_ohlcv(ticker, interval="minute3")
+    high = df['high']
+    ma = low.rolling(1).mean()
+    return ma[-1]
+
+# 1.1 bolliger band 수식 (분봉)
+
+def get_today_ma20(ticker):
+    df = pyupbit.get_ohlcv(ticker, interval="minute1")
+    close = df['close']
+    ma = close.rolling(20).mean()
+    return ma[-1]
+
+def bollinger_band_lower_line(ticker):
+    df = pyupbit.get_ohlcv(ticker, interval="minute1")
+    df = df.iloc[:-1]
+    today_close = pyupbit.get_current_price(ticker)
+    one_day_ago = df.iloc[-2]
+    one_day_ago_close = one_day_ago['close']
+    two_days_ago = df.iloc[-3]
+    two_days_ago_close = two_days_ago['close']
+    three_days_ago = df.iloc[-4]
+    three_days_ago_close = three_days_ago['close']
+    four_days_ago = df.iloc[-5]
+    four_days_ago_close = four_days_ago['close']
+    five_days_ago = df.iloc[-6]
+    five_days_ago_close = five_days_ago['close']
+    six_days_ago = df.iloc[-7]
+    six_days_ago_close = six_days_ago['close']
+    seven_days_ago = df.iloc[-8]
+    seven_days_ago_close = seven_days_ago['close']
+    eight_days_ago = df.iloc[-9]
+    eight_days_ago_close = eight_days_ago['close']
+    nine_days_ago = df.iloc[-10]
+    nine_days_ago_close = nine_days_ago['close']
+    ten_days_ago = df.iloc[-11]
+    ten_days_ago_close = ten_days_ago['close']
+    eleven_days_ago = df.iloc[-12]
+    eleven_days_ago_close = eleven_days_ago['close']
+    twelve_days_ago = df.iloc[-13]
+    twelve_days_ago_close = twelve_days_ago['close']
+    thirteen_days_ago = df.iloc[-14]
+    thirteen_days_ago_close = thirteen_days_ago['close']
+    fourteen_days_ago = df.iloc[-15]
+    fourteen_days_ago_close = fourteen_days_ago['close']
+    fifteen_days_ago = df.iloc[-16]
+    fifteen_days_ago_close = fifteen_days_ago['close']
+    sixteen_days_ago = df.iloc[-17]
+    sixteen_days_ago_close = sixteen_days_ago['close']
+    seventeen_days_ago = df.iloc[-18]
+    seventeen_days_ago_close = seventeen_days_ago['close']
+    eighteen_days_ago = df.iloc[-19]
+    eighteen_days_ago_close = eighteen_days_ago['close']
+    nineteen_days_ago = df.iloc[-20]
+    nineteen_days_ago_close = nineteen_days_ago['close']
+
+    average = get_today_ma20(ticker)
+    standard_deviation = (((today_close - average) ** 2 + (one_day_ago_close - average) ** 2 + (
+                two_days_ago_close - average) ** 2 + (three_days_ago_close - average) ** 2 + (
+                                       four_days_ago_close - average) ** 2 + (five_days_ago_close - average) ** 2 + (
+                                       six_days_ago_close - average) ** 2 + (seven_days_ago_close - average) ** 2 + (
+                                       eight_days_ago_close - average) ** 2 + (nine_days_ago_close - average) ** 2 + (
+                                       ten_days_ago_close - average) ** 2 + (eleven_days_ago_close - average) ** 2 + (
+                                       twelve_days_ago_close - average) ** 2 + (
+                                       thirteen_days_ago_close - average) ** 2 + (
+                                       fourteen_days_ago_close - average) ** 2 + (
+                                       fifteen_days_ago_close - average) ** 2 + (
+                                       sixteen_days_ago_close - average) ** 2 + (
+                                       seventeen_days_ago_close - average) ** 2 + (
+                                       eighteen_days_ago_close - average) ** 2 + (
+                                       nineteen_days_ago_close - average) ** 2) / 20) ** (1 / 2)
+    today_bollinger_band_lower_line = average - standard_deviation * 2
+
+    return today_bollinger_band_lower_line
+
+def bollinger_band_lower_line_one_ago(ticker):
+    df = pyupbit.get_ohlcv(ticker, interval="minute1")
+    df = df.iloc[:-2]
+    today_close = pyupbit.get_current_price(ticker)
+    one_day_ago = df.iloc[-2]
+    one_day_ago_close = one_day_ago['close']
+    two_days_ago = df.iloc[-3]
+    two_days_ago_close = two_days_ago['close']
+    three_days_ago = df.iloc[-4]
+    three_days_ago_close = three_days_ago['close']
+    four_days_ago = df.iloc[-5]
+    four_days_ago_close = four_days_ago['close']
+    five_days_ago = df.iloc[-6]
+    five_days_ago_close = five_days_ago['close']
+    six_days_ago = df.iloc[-7]
+    six_days_ago_close = six_days_ago['close']
+    seven_days_ago = df.iloc[-8]
+    seven_days_ago_close = seven_days_ago['close']
+    eight_days_ago = df.iloc[-9]
+    eight_days_ago_close = eight_days_ago['close']
+    nine_days_ago = df.iloc[-10]
+    nine_days_ago_close = nine_days_ago['close']
+    ten_days_ago = df.iloc[-11]
+    ten_days_ago_close = ten_days_ago['close']
+    eleven_days_ago = df.iloc[-12]
+    eleven_days_ago_close = eleven_days_ago['close']
+    twelve_days_ago = df.iloc[-13]
+    twelve_days_ago_close = twelve_days_ago['close']
+    thirteen_days_ago = df.iloc[-14]
+    thirteen_days_ago_close = thirteen_days_ago['close']
+    fourteen_days_ago = df.iloc[-15]
+    fourteen_days_ago_close = fourteen_days_ago['close']
+    fifteen_days_ago = df.iloc[-16]
+    fifteen_days_ago_close = fifteen_days_ago['close']
+    sixteen_days_ago = df.iloc[-17]
+    sixteen_days_ago_close = sixteen_days_ago['close']
+    seventeen_days_ago = df.iloc[-18]
+    seventeen_days_ago_close = seventeen_days_ago['close']
+    eighteen_days_ago = df.iloc[-19]
+    eighteen_days_ago_close = eighteen_days_ago['close']
+    nineteen_days_ago = df.iloc[-20]
+    nineteen_days_ago_close = nineteen_days_ago['close']
+
+    average = get_today_ma20(ticker)
+    standard_deviation = (((today_close - average) ** 2 + (one_day_ago_close - average) ** 2 + (
+                two_days_ago_close - average) ** 2 + (three_days_ago_close - average) ** 2 + (
+                                       four_days_ago_close - average) ** 2 + (five_days_ago_close - average) ** 2 + (
+                                       six_days_ago_close - average) ** 2 + (seven_days_ago_close - average) ** 2 + (
+                                       eight_days_ago_close - average) ** 2 + (nine_days_ago_close - average) ** 2 + (
+                                       ten_days_ago_close - average) ** 2 + (eleven_days_ago_close - average) ** 2 + (
+                                       twelve_days_ago_close - average) ** 2 + (
+                                       thirteen_days_ago_close - average) ** 2 + (
+                                       fourteen_days_ago_close - average) ** 2 + (
+                                       fifteen_days_ago_close - average) ** 2 + (
+                                       sixteen_days_ago_close - average) ** 2 + (
+                                       seventeen_days_ago_close - average) ** 2 + (
+                                       eighteen_days_ago_close - average) ** 2 + (
+                                       nineteen_days_ago_close - average) ** 2) / 20) ** (1 / 2)
+    today_bollinger_band_lower_line = average - standard_deviation * 2
+
+    return today_bollinger_band_lower_line
+
+def bollinger_band_higher_line(ticker):
+    df = pyupbit.get_ohlcv(ticker, interval="minute1")
+    df = df.iloc[:-1]
+    today_close = pyupbit.get_current_price(ticker)
+    one_day_ago = df.iloc[-2]
+    one_day_ago_close = one_day_ago['close']
+    two_days_ago = df.iloc[-3]
+    two_days_ago_close = two_days_ago['close']
+    three_days_ago = df.iloc[-4]
+    three_days_ago_close = three_days_ago['close']
+    four_days_ago = df.iloc[-5]
+    four_days_ago_close = four_days_ago['close']
+    five_days_ago = df.iloc[-6]
+    five_days_ago_close = five_days_ago['close']
+    six_days_ago = df.iloc[-7]
+    six_days_ago_close = six_days_ago['close']
+    seven_days_ago = df.iloc[-8]
+    seven_days_ago_close = seven_days_ago['close']
+    eight_days_ago = df.iloc[-9]
+    eight_days_ago_close = eight_days_ago['close']
+    nine_days_ago = df.iloc[-10]
+    nine_days_ago_close = nine_days_ago['close']
+    ten_days_ago = df.iloc[-11]
+    ten_days_ago_close = ten_days_ago['close']
+    eleven_days_ago = df.iloc[-12]
+    eleven_days_ago_close = eleven_days_ago['close']
+    twelve_days_ago = df.iloc[-13]
+    twelve_days_ago_close = twelve_days_ago['close']
+    thirteen_days_ago = df.iloc[-14]
+    thirteen_days_ago_close = thirteen_days_ago['close']
+    fourteen_days_ago = df.iloc[-15]
+    fourteen_days_ago_close = fourteen_days_ago['close']
+    fifteen_days_ago = df.iloc[-16]
+    fifteen_days_ago_close = fifteen_days_ago['close']
+    sixteen_days_ago = df.iloc[-17]
+    sixteen_days_ago_close = sixteen_days_ago['close']
+    seventeen_days_ago = df.iloc[-18]
+    seventeen_days_ago_close = seventeen_days_ago['close']
+    eighteen_days_ago = df.iloc[-19]
+    eighteen_days_ago_close = eighteen_days_ago['close']
+    nineteen_days_ago = df.iloc[-20]
+    nineteen_days_ago_close = nineteen_days_ago['close']
+
+    average = get_today_ma20(ticker)
+    standard_deviation = (((today_close - average) ** 2 + (one_day_ago_close - average) ** 2 + (
+                two_days_ago_close - average) ** 2 + (three_days_ago_close - average) ** 2 + (
+                                       four_days_ago_close - average) ** 2 + (five_days_ago_close - average) ** 2 + (
+                                       six_days_ago_close - average) ** 2 + (seven_days_ago_close - average) ** 2 + (
+                                       eight_days_ago_close - average) ** 2 + (nine_days_ago_close - average) ** 2 + (
+                                       ten_days_ago_close - average) ** 2 + (eleven_days_ago_close - average) ** 2 + (
+                                       twelve_days_ago_close - average) ** 2 + (
+                                       thirteen_days_ago_close - average) ** 2 + (
+                                       fourteen_days_ago_close - average) ** 2 + (
+                                       fifteen_days_ago_close - average) ** 2 + (
+                                       sixteen_days_ago_close - average) ** 2 + (
+                                       seventeen_days_ago_close - average) ** 2 + (
+                                       eighteen_days_ago_close - average) ** 2 + (
+                                       nineteen_days_ago_close - average) ** 2) / 20) ** (1 / 2)
+    today_bollinger_band_higher_line = average + standard_deviation * 2
+
+    return today_bollinger_band_higher_line
+
+def bollinger_band_higher_line_one_ago(ticker):
+    df = pyupbit.get_ohlcv(ticker, interval="minute1")
+    df = df.iloc[:-2]
+    today_close = pyupbit.get_current_price(ticker)
+    one_day_ago = df.iloc[-2]
+    one_day_ago_close = one_day_ago['close']
+    two_days_ago = df.iloc[-3]
+    two_days_ago_close = two_days_ago['close']
+    three_days_ago = df.iloc[-4]
+    three_days_ago_close = three_days_ago['close']
+    four_days_ago = df.iloc[-5]
+    four_days_ago_close = four_days_ago['close']
+    five_days_ago = df.iloc[-6]
+    five_days_ago_close = five_days_ago['close']
+    six_days_ago = df.iloc[-7]
+    six_days_ago_close = six_days_ago['close']
+    seven_days_ago = df.iloc[-8]
+    seven_days_ago_close = seven_days_ago['close']
+    eight_days_ago = df.iloc[-9]
+    eight_days_ago_close = eight_days_ago['close']
+    nine_days_ago = df.iloc[-10]
+    nine_days_ago_close = nine_days_ago['close']
+    ten_days_ago = df.iloc[-11]
+    ten_days_ago_close = ten_days_ago['close']
+    eleven_days_ago = df.iloc[-12]
+    eleven_days_ago_close = eleven_days_ago['close']
+    twelve_days_ago = df.iloc[-13]
+    twelve_days_ago_close = twelve_days_ago['close']
+    thirteen_days_ago = df.iloc[-14]
+    thirteen_days_ago_close = thirteen_days_ago['close']
+    fourteen_days_ago = df.iloc[-15]
+    fourteen_days_ago_close = fourteen_days_ago['close']
+    fifteen_days_ago = df.iloc[-16]
+    fifteen_days_ago_close = fifteen_days_ago['close']
+    sixteen_days_ago = df.iloc[-17]
+    sixteen_days_ago_close = sixteen_days_ago['close']
+    seventeen_days_ago = df.iloc[-18]
+    seventeen_days_ago_close = seventeen_days_ago['close']
+    eighteen_days_ago = df.iloc[-19]
+    eighteen_days_ago_close = eighteen_days_ago['close']
+    nineteen_days_ago = df.iloc[-20]
+    nineteen_days_ago_close = nineteen_days_ago['close']
+
+    average = get_today_ma20(ticker)
+    standard_deviation = (((today_close - average) ** 2 + (one_day_ago_close - average) ** 2 + (
+                two_days_ago_close - average) ** 2 + (three_days_ago_close - average) ** 2 + (
+                                       four_days_ago_close - average) ** 2 + (five_days_ago_close - average) ** 2 + (
+                                       six_days_ago_close - average) ** 2 + (seven_days_ago_close - average) ** 2 + (
+                                       eight_days_ago_close - average) ** 2 + (nine_days_ago_close - average) ** 2 + (
+                                       ten_days_ago_close - average) ** 2 + (eleven_days_ago_close - average) ** 2 + (
+                                       twelve_days_ago_close - average) ** 2 + (
+                                       thirteen_days_ago_close - average) ** 2 + (
+                                       fourteen_days_ago_close - average) ** 2 + (
+                                       fifteen_days_ago_close - average) ** 2 + (
+                                       sixteen_days_ago_close - average) ** 2 + (
+                                       seventeen_days_ago_close - average) ** 2 + (
+                                       eighteen_days_ago_close - average) ** 2 + (
+                                       nineteen_days_ago_close - average) ** 2) / 20) ** (1 / 2)
+    today_bollinger_band_higher_line = average + standard_deviation * 2
+
+    return today_bollinger_band_higher_line
+
+
+
+
+def short_trading_for_1percent(ticker):
+    dfs = [ ]
+    df = pyupbit.get_ohlcv(ticker, interval="minute15", to="20210605 00:00:00")
+    dfs.append(df)
+
+    for i in range(15):
+        df = pyupbit.get_ohlcv(ticker, interval="minute15", to=df.index[0])
+        dfs.append(df)
+        time.sleep(0.2)
+
+    df = pd.concat(dfs)
+    df = df.sort_index()
+
+
+    ##변수 설정
+
+    df['ma20'] = df['close'].rolling(window=20).mean()  # 20일 이동평균
+    df['stddev'] = df['close'].rolling(window=20).std()  # 20일 이동표준편차
+    df['upper'] = df['ma20'] + 2 * df['stddev']  # 상단밴드
+    df['lowwer'] = df['ma20'] - 2 * df['stddev']  # 하단밴드
+
+    df = df[19:]  # 20일
+    print(df)
+    mesu_target = 1.01  # 매수 진입 기준
+    medo_target = 0.99  # 매수가 대비 매도 기준
+    sonjul_target = 0.95  # 손절가
+    susuryo = 0.998  # 수수료 제외
+    results = []
+    # print("매수 타겟: %s, 매도 타겟: %s, 손절 타겟: %s, 수수료: %s" % (mesu_target, medo_target, sonjul_target, susuryo))
+
+    # 1) 매수 일자 판별
+    cond = (df['close'] >= df['ma20'])
+           # & (df['volume'] * df['close'] >= 100000000)
+    cnt_buy_possible = len(df.index[cond])
+    print("매수 후보 갯수",cnt_buy_possible)
+
+    acc_ror = 1
+    sell_date = None
+    cnt_buy = 0
+
+    # 2) 매도 조건 탐색 및 수익률 계산
+    for buy_date in df.index[cond]:
+        if sell_date != None and buy_date <= sell_date:
+            continue
+
+        target = df.loc[ buy_date :  ]
+
+        cond = (target['close'] <= target['ma20']) & (target['close'] > df.loc[buy_date, 'close'])
+        sell_candidate = target.index[cond]
+        cnt_sell_possible = len(sell_candidate)
+        print("매도 후보 갯수" ,cnt_sell_possible)
+        try:
+
+            if len(sell_candidate) == 0:
+                buy_price = df.loc[buy_date, 'close']
+                sell_price = target.loc[buy_date, 'close']
+                acc_ror *= (sell_price / buy_price) * susuryo
+                break
+            else:
+                sell_date = sell_candidate[0]
+                buy_price = df.loc[buy_date, 'close']
+                sell_price = target.loc[sell_date, 'close']
+                acc_ror *= (sell_price / buy_price) * susuryo
+
+                result = (ticker, buy_price, sell_price, acc_ror, cnt_buy)
+                results.append(result)
+                # acc_ror *= 1.005
+                # 수수료 0.001 + 슬리피지 0.004
+                if sell_price > buy_price:
+                    print("매수: %s(%s), 매도: %s(%s)," % (buy_price,buy_date, sell_price, sell_date))
+                # print("중간 정산", acc_ror)
+                cnt_buy += 1
+        except KeyError:
+            print("key error occured")
+
+
+
+    print("수익율", acc_ror)
+    print("cnt_buy", cnt_buy)
+
+    data = pd.DataFrame(results)
+    data.columns = ['ticker', 'buy_price', 'sell_price', '수익', 'cnt_buy']
+    data.head()
+
+    if not os.path.exists('bolinger_15min_targeting.csv'):
+        data.to_csv('bolinger_15min_targeting.csv', index=False, mode='w', encoding='utf-8-sig')
+    else:
+        data.to_csv('bolinger_15min_targeting.csv', index=False, mode='a', encoding='utf-8-sig', header=False)
+
+    time.sleep(3)
+
+    return acc_ror
+
+# bollinger_middle_test_1min
+
+# for ticker in ["KRW-ONG", "KRW-POLY", "KRW-OMG", "KRW-ENJ", "KRW-EMC2", "KRW-UPP"]:
+
+
+for ticker in ["KRW-BTC", "KRW-ETH", "KRW-NEO", "KRW-MTL", "KRW-LTC", "KRW-XRP", "KRW-ETC", "KRW-OMG", "KRW-SNT", "KRW-WAVES", "KRW-XEM", "KRW-QTUM", "KRW-LSK", "KRW-STEEM", "KRW-XLM", "KRW-ARDR", "KRW-KMD", "KRW-ARK", "KRW-STORJ", "KRW-GRS", "KRW-REP", "KRW-EMC2", "KRW-ADA", "KRW-SBD", "KRW-POWR", "KRW-BTG", "KRW-ICX", "KRW-EOS", "KRW-TRX", "KRW-SC", "KRW-IGNIS", "KRW-ONT", "KRW-ZIL", "KRW-POLY", "KRW-ZRX", "KRW-LOOM", "KRW-BCH", "KRW-ADX", "KRW-BAT", "KRW-IOST", "KRW-DMT", "KRW-RFR", "KRW-CVC", "KRW-IQ", "KRW-IOTA", "KRW-MFT", "KRW-ONG", "KRW-GAS", "KRW-UPP", "KRW-ELF", "KRW-KNC", "KRW-BSV", "KRW-THETA", "KRW-EDR", "KRW-QKC", "KRW-BTT", "KRW-MOC", "KRW-ENJ", "KRW-TFUEL", "KRW-MANA", "KRW-ANKR", "KRW-AERGO", "KRW-ATOM", "KRW-TT", "KRW-CRE", "KRW-SOLVE", "KRW-MBL", "KRW-TSHP", "KRW-WAXP", "KRW-HBAR", "KRW-MED", "KRW-MLK", "KRW-STPT", "KRW-ORBS", "KRW-VET", "KRW-CHZ", "KRW-PXL", "KRW-STMX", "KRW-DKA", "KRW-HIVE", "KRW-KAVA", "KRW-AHT", "KRW-LINK", "KRW-XTZ", "KRW-BORA", "KRW-JST", "KRW-CRO", "KRW-TON", "KRW-SXP", "KRW-LAMB", "KRW-HUNT", "KRW-MARO", "KRW-PLA", "KRW-DOT", "KRW-SRM", "KRW-MVL", "KRW-PCI", "KRW-STRAX", "KRW-AQT", "KRW-BCHA", "KRW-GLM", "KRW-QTCON", "KRW-SSX", "KRW-META", "KRW-OBSR", "KRW-FCT2", "KRW-LBC", "KRW-CBK", "KRW-SAND", "KRW-HUM", "KRW-DOGE", "KRW-STRK", "KRW-PUNDIX", "KRW-FLOW", "KRW-DAWN", "KRW-AXS", "KRW-STX"]:
+# for ticker in ["KRW-ENJ"]:
+    ror = short_trading_for_1percent(ticker)
+    print(ticker, ror)
