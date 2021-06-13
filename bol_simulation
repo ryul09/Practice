@@ -1,6 +1,5 @@
 import requests
 import pyupbit
-import matplotlib.pyplot as plt
 import time
 import datetime
 from datetime import date
@@ -9,27 +8,27 @@ import numpy as np
 import os
 
 
-def cal_target(tickers):
-    for i in tickers:
-        df = pyupbit.get_ohlcv(i, "minute1", count =2)
-
-        target = df.iloc[-1]
-        now_minute_1ago = df.iloc[0]
-
-        target_so = target['close']/target['open']
-
-
-        if target['close'] > bollinger_band_higher_line(i) and bollinger_band_higher_line(i) / bollinger_band_lower_line(i)  > bollinger_target and bollinger_band_higher_line_one_ago / bollinger_band_lower_line_one_ago  < bollinger_target:
-
-            target_ticker_list.append(i)
-            print("%s target을 추가하였습니다." % target_ticker_list)
-
-
-        else:
-            print("target을 찾고 있습니다.")
-
-        time.sleep(0.35)
-    return target_ticker_list
+# def cal_target(tickers):
+#     for i in tickers:
+#         df = pyupbit.get_ohlcv(i, "minute1", count =2)
+#
+#         target = df.iloc[-1]
+#         now_minute_1ago = df.iloc[0]
+#
+#         target_so = target['close']/target['open']
+#
+#
+#         if target['close'] > bollinger_band_higher_line(i) and bollinger_band_higher_line(i) / bollinger_band_lower_line(i)  > bollinger_target and bollinger_band_higher_line_one_ago / bollinger_band_lower_line_one_ago  < bollinger_target:
+#
+#             target_ticker_list.append(i)
+#             print("%s target을 추가하였습니다." % target_ticker_list)
+#
+#
+#         else:
+#             print("target을 찾고 있습니다.")
+#
+#         time.sleep(0.35)
+#     return target_ticker_list
 
 
 def low_price_of_current_candle(ticker):
@@ -305,11 +304,11 @@ def bollinger_band_higher_line_one_ago(ticker):
 
 def short_trading_for_1percent(ticker):
     dfs = [ ]
-    df = pyupbit.get_ohlcv(ticker, interval="minute15", to="20210605 00:00:00")
+    df = pyupbit.get_ohlcv(ticker, interval="minute1", to="20210613 00:00:00")
     dfs.append(df)
 
-    for i in range(15):
-        df = pyupbit.get_ohlcv(ticker, interval="minute15", to=df.index[0])
+    for i in range(50):
+        df = pyupbit.get_ohlcv(ticker, interval="minute1", to=df.index[0])
         dfs.append(df)
         time.sleep(0.2)
 
@@ -323,9 +322,12 @@ def short_trading_for_1percent(ticker):
     df['stddev'] = df['close'].rolling(window=20).std()  # 20일 이동표준편차
     df['upper'] = df['ma20'] + 2 * df['stddev']  # 상단밴드
     df['lowwer'] = df['ma20'] - 2 * df['stddev']  # 하단밴드
+    df['bol_range'] = df['upper'] / df['lowwer']
+
 
     df = df[19:]  # 20일
     print(df)
+    bol_range_target = 1.025
     mesu_target = 1.01  # 매수 진입 기준
     medo_target = 0.99  # 매수가 대비 매도 기준
     sonjul_target = 0.95  # 손절가
@@ -334,10 +336,10 @@ def short_trading_for_1percent(ticker):
     # print("매수 타겟: %s, 매도 타겟: %s, 손절 타겟: %s, 수수료: %s" % (mesu_target, medo_target, sonjul_target, susuryo))
 
     # 1) 매수 일자 판별
-    cond = (df['close'] >= df['ma20'])
+    cond = (df['close'] >= df['upper']) & (df['bol_range'] >= bol_range_target)
            # & (df['volume'] * df['close'] >= 100000000)
     cnt_buy_possible = len(df.index[cond])
-    print("매수 후보 갯수",cnt_buy_possible)
+    # print("매수 후보 갯수",cnt_buy_possible)
 
     acc_ror = 1
     sell_date = None
@@ -350,10 +352,10 @@ def short_trading_for_1percent(ticker):
 
         target = df.loc[ buy_date :  ]
 
-        cond = (target['close'] <= target['ma20']) & (target['close'] > df.loc[buy_date, 'close'])
+        cond = (target['close'] <= target['ma20'])
         sell_candidate = target.index[cond]
         cnt_sell_possible = len(sell_candidate)
-        print("매도 후보 갯수" ,cnt_sell_possible)
+        # print("매도 후보 갯수" ,cnt_sell_possible)
         try:
 
             if len(sell_candidate) == 0:
@@ -387,10 +389,10 @@ def short_trading_for_1percent(ticker):
     data.columns = ['ticker', 'buy_price', 'sell_price', '수익', 'cnt_buy']
     data.head()
 
-    if not os.path.exists('bolinger_15min_targeting.csv'):
-        data.to_csv('bolinger_15min_targeting.csv', index=False, mode='w', encoding='utf-8-sig')
+    if not os.path.exists('bolinger_targeting.csv'):
+        data.to_csv('bolinger_targeting.csv', index=False, mode='w', encoding='utf-8-sig')
     else:
-        data.to_csv('bolinger_15min_targeting.csv', index=False, mode='a', encoding='utf-8-sig', header=False)
+        data.to_csv('bolinger_targeting.csv', index=False, mode='a', encoding='utf-8-sig', header=False)
 
     time.sleep(3)
 
