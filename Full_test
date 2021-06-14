@@ -1,0 +1,492 @@
+import requests
+import pyupbit
+import matplotlib.pyplot as plt
+import time
+import datetime
+import pandas as pd
+from logging.config import dictConfig
+import logging
+import numpy as np
+
+
+my_data = pyupbit.get_ohlcv("KRW-BTC", "minute5")
+lookback = 100
+rsi_lookback = 14
+what1 = 70
+waht2 = 30
+
+## 출처 : https://python.plainenglish.io/creating-the-rsi-stochastic-indicator-and-back-testing-it-in-python-9e696d8a6bfe
+
+def rsi(Data, rsi_lookback, what1, what2):
+    # From exponential to smoothed
+    rsi_lookback = (rsi_lookback * 2) - 1
+
+    # Get the difference in price from previous step
+    delta = []
+
+    for i in range(len(Data)):
+        try:
+            diff = Data[i, what1] - Data[i - 1, what1]
+            delta = np.append(delta, diff)
+        except IndexError:
+            pass
+
+    delta = np.insert(delta, 0, 0, axis=0)
+    delta = delta[1:]
+
+    # Make the positive gains (up) and negative gains (down) Series
+    up, down = delta.copy(), delta.copy()
+    up[up < 0] = 0
+    down[down > 0] = 0
+
+    up = np.array(up)
+    down = np.array(down)
+
+    roll_up = up
+    roll_down = down
+
+    roll_up = np.reshape(roll_up, (-1, 1))
+    roll_down = np.reshape(roll_down, (-1, 1))
+
+    roll_up = adder(roll_up, 3)
+    roll_down = adder(roll_down, 3)
+
+    roll_up = ema(roll_up, 2, rsi_lookback, what2, 1)
+    roll_down = ema(abs(roll_down), 2, rsi_lookback, what2, 1)
+
+    roll_up = roll_up[rsi_lookback:, 1:2]
+    roll_down = roll_down[rsi_lookback:, 1:2]
+    Data = Data[rsi_lookback + 1:, ]
+
+    # Calculate the RS & RSI
+    RS = roll_up / roll_down
+    RSI = (100.0 - (100.0 / (1.0 + RS)))
+    RSI = np.array(RSI)
+    RSI = np.reshape(RSI, (-1, 1))
+    RSI = RSI[1:, ]
+
+    Data = np.concatenate((Data, RSI), axis=1)
+
+    return Data
+
+# Using the funtion on OHLC Data
+my_data = rsi(my_data, lookback, 70, 30)
+
+
+def ma(Data, lookback, what, where):
+    for i in range(len(Data)):
+        try:
+            Data[i, where] = (Data[i - lookback + 1:i + 1, what].mean())
+
+        except IndexError:
+            pass
+
+
+    return Data
+
+def ema(Data, alpha, lookback, what, where):
+
+    # alpha is the smoothing factor
+    # window is the lookback period
+    # what is the column that needs to have its average calculated
+    # where is where to put the exponential moving average
+
+    alpha = alpha / (lookback + 1.0)
+    beta = 1 - alpha
+
+    # First value is a simple SMA
+    Data = ma(Data, lookback, what, where)
+
+    # Calculating first EMA
+    Data[lookback + 1, where] = (Data[lookback + 1, what] * alpha) + (Data[lookback, where] * beta)
+    # Calculating the rest of EMA
+    for i in range(lookback + 2, len(Data)):
+        try:
+            Data[i, where] = (Data[i, what] * alpha) + (Data[i - 1, where] * beta)
+
+        except IndexError:
+            pass
+    return Data
+
+
+def macd(Data, what, long_ema, short_ema, signal_ema, where):
+    Data = ema(Data, 2, long_ema, what, where)
+    Data = ema(Data, 2, short_ema, what, where + 1)
+
+    Data[:, where + 2] = Data[:, where + 1] - Data[:, where]
+    Data = jump(Data, long_ema)
+    Data = ema(Data, 2, signal_ema, where + 2, where + 3)
+
+    Data = deleter(Data, where, 2)
+    Data = jump(Data, signal_ema)
+
+    return Data
+
+
+# The function to add a certain number of columns
+def adder(Data, times):
+    for i in range(1, times + 1):
+        z = np.zeros((len(Data), 1), dtype=float)
+        Data = np.append(Data, z, axis=1)
+    return Data
+
+
+# The function to deleter a certain number of columns
+def deleter(Data, index, times):
+    for i in range(1, times + 1):
+        Data = np.delete(Data, index, axis=1)
+
+    return Data
+
+
+# The function to delete a certain number of rows from the beginning
+def jump(Data, jump):
+    Data = Data[jump:, ]
+
+    return Data
+
+## MACD
+def indicator_plot_double_macd(Data, first, second, name='', name_ind='', window=250):
+    fig, ax = plt.subplots(2, figsize=(10, 5))
+
+    Chosen = Data[-window:, ]
+
+    for i in range(len(Chosen)):
+        ax[0].vlines(x=i, ymin=Chosen[i, 2], ymax=Chosen[i, 1], color='black', linewidth=1)
+
+    ax[0].grid()
+
+    for i in range(len(Chosen)):
+
+        if Chosen[i, 5] > 0:
+            ax[1].vlines(x=i, ymin=0, ymax=Chosen[i, 5], color='green', linewidth=1)
+
+        if Chosen[i, 5] < 0:
+            ax[1].vlines(x=i, ymin=Chosen[i, 5], ymax=0, color='red', linewidth=1)
+
+        if Chosen[i, 5] == 0:
+            ax[1].vlines(x=i, ymin=Chosen[i, 5], ymax=0, color='black', linewidth=1)
+
+    ax[1].grid()
+    ax[1].axhline(y=0, color='black', linewidth=0.5, linestyle='--')
+
+
+# Using the function
+indicator_plot_double_macd(my_data, closing_price, macd_column_first, name='', name_ind='MACD', window=500)
+plt.plot(my_data[-500:, macd_column_second], color='blue', linestyle='--', linewidth=0.5)
+
+def stochastic(Data, lookback, what, high, low, where):
+    for i in range(len(Data)):
+
+        try:
+            Data[i, where] = (Data[i, what] - min(Data[i - lookback + 1:i + 1, low])) / (
+                        max(Data[i - lookback + 1:i + 1, high]) - min(Data[i - lookback + 1:i + 1, low]))
+
+        except ValueError:
+            pass
+
+    Data[:, where] = Data[:, where] * 100
+    return Data
+# The Data variable refers to the OHLC array
+# The lookback variable refers to the period (5, 14, 21, etc.)
+# The what variable refers to the closing price
+# The high variable refers to the high price
+# The low variable refers to the low price
+# The where variable refers to where to put the Oscillator
+
+## STOCH_RSI
+def rsi_stoch(Data, lookback, high, low, close, where):
+    # Adding a column
+    Data = adder(Data, 1)
+
+    for i in range(len(Data)):
+
+        try:
+            Data[i, where] = (Data[i, close] - min(Data[i - lookback + 1:i + 1, low])) / (
+                        max(Data[i - lookback + 1:i + 1, high]) - min(Data[i - lookback + 1:i + 1, low]))
+
+        except ValueError:
+            pass
+
+    Data[:, where] = Data[:, where] * 100
+    Data = jump(Data, lookback)
+
+    # Calculating RSI of the Closing prices
+    Data = rsi(Data, lookback, where, 0)
+    # Cleaning
+    Data = deleter(Data, where, 1)
+
+    return Data
+
+
+my_data = rsi_stoch(my_data, 5, 1, 2, 3, 4)
+
+
+def signal(Data, what, buy, sell):
+    for i in range(len(Data)):
+
+        if Data[i, what] < lower_barrier and Data[i - 1, what] > lower_barrier and Data[i - 2, what] > lower_barrier:
+            Data[i, buy] = 1
+
+        if Data[i, what] > upper_barrier and Data[i - 1, what] < upper_barrier and Data[i - 2, what] < upper_barrier:
+            Data[i, sell] = -1
+
+
+
+## SUPER TREND
+def atr(Data, lookback, high, low, close, where):
+    # TR
+    for i in range(len(Data)):
+        try:
+            Data[i, where] = max(Data[i, high] - Data[i, low],
+                                 abs(Data[i, high] - Data[i - 1, close]),
+                                 abs(Data[i, low] - Data[i - 1, close]))
+
+        except ValueError:
+            pass
+
+
+    Data[0, where] = 0
+    Data = ema(Data, 2, lookback, where, where + 1)
+    Data = deleter(Data, where, 1)
+    Data = jump(Data, lookback)
+    return Data
+
+
+
+def supertrend(Data, multiplier, lookback):
+
+    for i in range(len(Data)):
+        # Average Price
+        Data[i, 5] = (Data[i, 1] + Data[i, 2]) / 2
+        # Basic Upper Band
+        Data[i, 6] = Data[i, 5] + (multiplier * Data[i, 4])
+        # Lower Upper Band
+        Data[i, 7] = Data[i, 5] - (multiplier * Data[i, 4])
+
+    # Final Upper Band
+    for i in range(len(Data)):
+
+        if i == 0:
+            Data[i, 8] = 0
+
+        else:
+            if (Data[i, 6] < Data[i - 1, 8]) or (Data[i - 1, 3] > Data[i - 1, 8]):
+                Data[i, 8] = Data[i, 6]
+
+            else:
+                Data[i, 8] = Data[i - 1, 8]
+
+    # Final Lower Band
+    for i in range(len(Data)):
+
+        if i == 0:
+            Data[i, 9] = 0
+
+        else:
+            if (Data[i, 7] > Data[i - 1, 9]) or (Data[i - 1, 3] < Data[i - 1, 9]):
+                Data[i, 9] = Data[i, 7]
+
+            else:
+                Data[i, 9] = Data[i - 1, 9]
+
+    # SuperTrend
+    for i in range(len(Data)):
+
+        if i == 0:
+            Data[i, 10] = 0
+
+        elif (Data[i - 1, 10] == Data[i - 1, 8]) and (Data[i, 3] <= Data[i, 8]):
+            Data[i, 10] = Data[i, 8]
+
+        elif (Data[i - 1, 10] == Data[i - 1, 8]) and (Data[i, 3] > Data[i, 8]):
+            Data[i, 10] = Data[i, 9]
+
+        elif (Data[i - 1, 10] == Data[i - 1, 9]) and (Data[i, 3] >= Data[i, 9]):
+            Data[i, 10] = Data[i, 9]
+
+        elif (Data[i - 1, 10] == Data[i - 1, 9]) and (Data[i, 3] < Data[i, 9]):
+            Data[i, 10] = Data[i, 8]
+
+            # Cleaning columns
+    Data = deleter(Data, 5, 5)
+
+    return Data
+
+
+def signal(Data, close, macd_col, super_trend_col, buy, sell):
+    Data = adder(Data, 10)
+
+    for i in range(len(Data)):
+        if Data[i, macd_col] > 0 and Data[i, close] > Data[i, super_trend_col] and Data[i - 1, macd_col] < 0:
+            Data[i, buy] = 1
+
+        elif Data[i, macd_col] < 0 and Data[i, close] < Data[i, super_trend_col] and Data[i - 1, macd_col] > 0:
+            Data[i, sell] = -1
+
+    return Data
+
+
+def holding(Data, buy, sell, buy_return, sell_return):
+    for i in range(len(Data)):
+        try:
+            if Data[i, buy] == 1:
+                for a in range(i + 1, i + 1000):
+                    if Data[a, buy] != 0 or Data[a, sell] != 0:
+                        Data[a, buy_return] = (Data[a, 3] - Data[i, 3])
+                        break
+                else:
+                    continue
+
+            elif Data[i, sell] == -1:
+                for a in range(i + 1, i + 1000):
+                    if Data[a, buy] != 0 or Data[a, sell] != 0:
+                        Data[a, sell_return] = (Data[i, 3] - Data[a, 3])
+                        break
+                    else:
+                        continue
+        except IndexError:
+            pass
+# Using the function
+holding(my_data, 6, 7, 8, 9)
+
+
+def indexer(Data, expected_cost, lot, investment):
+    # Charting portfolio evolution
+    indexer = Data[:, 8:10]
+
+    # Creating a combined array for long and short returns
+    z = np.zeros((len(Data), 1), dtype=float)
+    indexer = np.append(indexer, z, axis=1)
+
+    # Combining Returns
+    for i in range(len(indexer)):
+        try:
+            if indexer[i, 0] != 0:
+                indexer[i, 2] = indexer[i, 0] - (expected_cost / lot)
+
+            if indexer[i, 1] != 0:
+                indexer[i, 2] = indexer[i, 1] - (expected_cost / lot)
+        except IndexError:
+            pass
+
+    # Switching to monetary values
+    indexer[:, 2] = indexer[:, 2] * lot
+
+    # Creating a portfolio balance array
+    indexer = np.append(indexer, z, axis=1)
+    indexer[:, 3] = investment
+
+    # Adding returns to the balance
+    for i in range(len(indexer)):
+        indexer[i, 3] = indexer[i - 1, 3] + (indexer[i, 2])
+
+    indexer = np.array(indexer)
+
+    return np.array(indexer)
+
+
+# Using the function for a 0.1 lot strategy on $10,000 investment
+expected_cost = 0.5 * (lot / 10000)  # 0.5 pip spread
+investment = 10000
+lot = 10000
+equity_curve = indexer(my_data, expected_cost, lot, investment)
+
+plt.plot(equity_curve[:, 3], linewidth = 1, label = 'EURUSD')
+plt.grid()
+plt.legend()
+plt.axhline(y = investment, color = 'black', linewidth = 1)
+plt.title('Strategy', fontsize = 20)
+
+def performance(indexer, Data, name):
+    # Profitability index
+    indexer = np.delete(indexer, 0, axis=1)
+    indexer = np.delete(indexer, 0, axis=1)
+
+    profits = []
+    losses = []
+    np.count_nonzero(Data[:, 7])
+    np.count_nonzero(Data[:, 8])
+
+    for i in range(len(indexer)):
+
+        if indexer[i, 0] > 0:
+            value = indexer[i, 0]
+            profits = np.append(profits, value)
+
+        if indexer[i, 0] < 0:
+            value = indexer[i, 0]
+            losses = np.append(losses, value)
+
+    # Hit ratio calculation
+    hit_ratio = round((len(profits) / (len(profits) + len(losses))) * 100, 2)
+
+    realized_risk_reward = round(abs(profits.mean() / losses.mean()), 2)
+
+    # Expected and total profits / losses
+    expected_profits = np.mean(profits)
+    expected_losses = np.abs(np.mean(losses))
+    total_profits = round(np.sum(profits), 3)
+    total_losses = round(np.abs(np.sum(losses)), 3)
+
+    # Expectancy
+    expectancy = round((expected_profits * (hit_ratio / 100)) \
+                       - (expected_losses * (1 - (hit_ratio / 100))), 2)
+
+    # Largest Win and Largest Loss
+    largest_win = round(max(profits), 2)
+    largest_loss = round(min(losses), 2)
+    # Total Return
+    indexer = Data[:, 10:12]
+
+    # Creating a combined array for long and short returns
+    z = np.zeros((len(Data), 1), dtype=float)
+    indexer = np.append(indexer, z, axis=1)
+
+    # Combining Returns
+    for i in range(len(indexer)):
+        try:
+            if indexer[i, 0] != 0:
+                indexer[i, 2] = indexer[i, 0] - (expected_cost / lot)
+
+            if indexer[i, 1] != 0:
+                indexer[i, 2] = indexer[i, 1] - (expected_cost / lot)
+        except IndexError:
+            pass
+
+    # Switching to monetary values
+    indexer[:, 2] = indexer[:, 2] * lot
+
+    # Creating a portfolio balance array
+    indexer = np.append(indexer, z, axis=1)
+    indexer[:, 3] = investment
+
+    # Adding returns to the balance
+    for i in range(len(indexer)):
+        indexer[i, 3] = indexer[i - 1, 3] + (indexer[i, 2])
+
+    indexer = np.array(indexer)
+
+    total_return = (indexer[-1, 3] / indexer[0, 3]) - 1
+    total_return = total_return * 100
+
+    print('-----------Performance-----------', name)
+    print('Hit ratio       = ', hit_ratio, '%')
+    print('Net profit      = ', '$', round(indexer[-1, 3] - indexer[0, 3], 2))
+    print('Expectancy      = ', '$', expectancy, 'per trade')
+    print('Profit factor   = ', round(total_profits / total_losses, 2))
+    print('Total Return    = ', round(total_return, 2), '%')
+    print('')
+    print('Average Gain    = ', '$', round((expected_profits), 2), 'per trade')
+    print('Average Loss    = ', '$', round((expected_losses * -1), 2), 'per trade')
+    print('Largest Gain    = ', '$', largest_win)
+    print('Largest Loss    = ', '$', largest_loss)
+    print('')
+    print('Realized RR     = ', realized_risk_reward)
+    print('Minimum         =', '$', round(min(indexer[:, 3]), 2))
+    print('Maximum         =', '$', round(max(indexer[:, 3]), 2))
+    print('Trades          =', len(profits) + len(losses))
+
+
+# Using the function
+performance(equity_curve, my_data, 'EURUSD')
