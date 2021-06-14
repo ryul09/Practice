@@ -106,3 +106,33 @@ def supertrend(Data, multiplier, lookback):
             Data[i, 10] = Data[i, 8]
 
     return Data
+
+
+Data = pyupbit.get_ohlcv("KRW-BTC", "minute5")
+# supertrend(Data,2,7)
+
+
+df = pyupbit.get_ohlcv("KRW-BTC")
+df.tail()
+
+# True Range = Max( Abs(High-Low), Abs(Previous Close - High), Abs(Previous Close - Low))
+
+
+df['pclose'] = df['close'].shift(1)
+df['diff1'] = abs(df['high'] - df['low'])
+df['diff2'] = abs(df['pclose'] - df['high'])
+df['diff3'] = abs(df['pclose'] - df['low'])
+df['TR'] = df[['diff1', 'diff2', 'diff3']].max(axis=1)
+print(df)
+
+# N = (19 * PDN + TR) / 20
+# PDN: 이전 거래일의 N
+# TR: 현재 거래일의 N
+
+
+data = np.array(df['TR'])    # no previous day's N
+for i in range(1, len(df)):
+    data[i] = (19 * data[i-1] + df['TR'].iloc[i]) / 20
+
+df['N'] = data
+print(data)
