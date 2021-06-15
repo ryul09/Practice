@@ -1,0 +1,91 @@
+import requests
+import pyupbit
+import matplotlib.pyplot as plt
+import time
+import datetime
+import pandas as pd
+from logging.config import dictConfig
+import logging
+import numpy as np
+
+## 0. 객체 생성
+f = open("upbit.txt")
+lines = f.readlines()
+access = lines[0].strip()
+secret = lines[1].strip()
+f.close()
+upbit = pyupbit.Upbit(access, secret)
+
+target_ticker = ["KRW-MVL"]
+mesu_range_target = 0.01  # 1% 하락마다 매수
+mesu_volume_target = 10  # 10분할
+krw_balance = upbit.get_balance("KRW")
+mesu_balance = krw_balance * 0.98
+mesu_volume = mesu_balance / mesu_volume_target
+target_name = []
+
+now = datetime.datetime.now()
+
+## 타겟 설정
+while True:
+    df = pyupbit.get_ohlcv(target_ticker, "minute240", count=3)
+
+    target = df.iloc[-1]
+    # print(df)
+    # print(target)
+    target_value = target['close']
+    print(target_value)
+
+    hold = False
+
+
+    ## 지정 시간 시장가 매도
+    if hold is True:
+        # if now.hour == 1 or 5 or 9 or 13 or 17 or 21 and now.minute = 1:
+        if now.hour == 1 or now.hour == 5 or now.hour == 9 \
+            or now.hour == 13 or now.hour == 17 or now.hour == 21 and now.minute == 1:
+        ## 매수 평균가 구하기
+            ticker_information = upbit.get_balances()
+            # print(ticker_information)
+            print("매도 시작")
+            search = 'KRW-'
+            target_name = target_ticker
+
+            for i, word in enumerate(target_name):
+                if search in word:
+                    print('>> modify: ' + word)
+                    target_name[i] = word.strip(search)
+
+            for ticker in range(len(ticker_information)):
+                if ticker_information[ticker] == target_name:
+                    avg_price = ticker_information[ticker]['avg_buy_price']
+                    # find_ticker.append(find_ticker)
+                    print("매수 평균가는 %s입니다." % avg_price)
+
+            ## 매도
+            target_balance = upbit.get_balance(target_ticker)
+            upbit.sell_market_order(target_ticker, target_balance)
+            print(upbit.sell_market_order(target_ticker, target_balance))
+
+            hold = True
+            time.sleep(2)
+
+    ## 분할 매수
+    if hold is False:
+        print("매수 시작")
+
+        for i in range(1, 1 + mesu_volume_target):
+
+            if (now.hour == 1 and now.minute == 0) or (now.hour == 5 and now.minute == 0) or (now.hour == 9 and now.minute
+            == 0) \
+                    or (now.hour == 13 and now.minute == 0) or (now.hour == 17 and now.minute == 0) or (
+                    now.hour == 21 and now.minute == 0):
+                break
+            if upbit.get_order(target_ticker) == {'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+                print("%s번째 매수를 시작합니다. Target : %s" % (i, target_value * (1 - (i * mesu_range_target))))
+                upbit.buy_limit_order(target_ticker, target_value * (1 - (i * mesu_range_target)), mesu_volume)
+                print(upbit.buy_limit_order(target_ticker, target_value * (1 - (i * mesu_range_target)), mesu_volume))
+                hold = True
+          
+
+            time.sleep(1)
