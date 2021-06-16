@@ -428,28 +428,32 @@ while True:
             now_mesu = df.iloc[0]
             mesu_criteria = ma20(mesu_find)
 
-            for a in range(1,(1/mesu_percentage))
+            for a in range(1, (1 / mesu_percentage))
+                if upbit.get_order(mesu_find) == {'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+                    mesu_target_1 = mesu_criteria * (1 - mesu_target_range * a)
+                    mesu_number = mesu_target_1 / mesu_criteria
+                    if now_mesu['close'] <= mesu_target_1
+                        upbit.buy_limit_order(mesu_find, mesu_target_1, mesu_number)
+                        print(upbit.buy_limit_order(mesu_find, mesu_target_1, mesu_number)
 
-                mesu_target_1 = mesu_criteria * (1 - mesu_target_range * a)
-                mesu_number = mesu_target_1 / mesu_criteria
-                if now_mesu['close'] <= mesu_1
-                    upbit.buy_limit_order(mesu_find, mesu_target_1, mesu_number)
-                    print(upbit.buy_limit_order(mesu_find, mesu_target_1, mesu_number)
+                        while True:
+                            if upbit.get_order(mesu_find) == {'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+                                break
 
-                    print(f"현재시간: {now} 목표가:{mesu_1} 현재가: {mesu_price} 보유상태: {hold} 동작상태: {op_mode}")
-                    logging.debug("%s의 %s번째 taregt 매수 (현재가 : %s, ma20 : %s )" % (mesu_find, a, mesu_target_1, mesu_criteria))
-
-                else:
-                    
+                        print(f"현재시간: {now} 목표가:{mesu_target_1} ma20: {mesu_criteria} 보유상태: {hold} 동작상태: {op_mode}")
+                        logging.debug("%s의 %s번째 target 매수 (현재가 : %s, ma20 : %s )" % (mesu_find, a, mesu_target_1, mesu_criteria))
 
 
-            hold = True
-            time.sleep(2)
-            ticker_information = upbit.get_balances()
-            mesu_price = ticker_information[-1]['avg_buy_price']
-            # print(now, target_price)
-            print(f"현재시간: {now} 목표가:{target} 현재가: {mesu_price} 보유상태: {hold} 동작상태: {op_mode}")
-            logging.debug("%s 를 매수 했습니다. (%s)" % (find_a['ticker'],mesu_price ))
+                 elif upbit.get_order(mesu_find) != {'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+                    continue
+
+                hold = True
+                time.sleep(2)
+                ticker_information = upbit.get_balances()
+                mesu_price = ticker_information[-1]['avg_buy_price']
+                # print(now, target_price)
+                print(f"현재시간: {now} 목표가:{target} 현재가: {mesu_price} 보유상태: {hold} 동작상태: {op_mode}")
+                logging.debug("%s 를 매수 했습니다. (%s)" % (find_a['ticker'],mesu_price ))
 
     ## 매도 시도
     if op_mode is True and hold is True:
