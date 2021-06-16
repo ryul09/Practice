@@ -7,6 +7,7 @@ import pandas as pd
 from logging.config import dictConfig
 import logging
 import numpy as np
+import sys
 
 ## Log 남기기
 dictConfig({
@@ -20,7 +21,7 @@ dictConfig({
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'debug_bollinger.log',
+            'filename': 'debug_gaduri.log',
             'formatter': 'default',
         },
     },
@@ -38,9 +39,6 @@ def cal_target(tickers):
     for i in tickers:
         df = pyupbit.get_ohlcv(i, time_interval, count =2)
         target = df.iloc[-1]
-
-        target_so = target['close']/target['open']
-
 
         if  bbh(i) / bbl(i)  <= bollinger_target:
 
@@ -338,11 +336,26 @@ tickers = pyupbit.get_tickers(fiat="KRW")
 target_ticker_list = [] # 매수 가능 Target list
 find_ticker = [] # 매수 했던 coin 찾기
 bollinger_target = 1.05 # bollinger_target range 가 해당 값 이내의 타겟
-mesu_target_range = 0.005 # 매수 구간 비율 간격
+range_target = 3 # 범위 설정(%)
 medo_target = 1.03 # 매수 no. 기준 매도 target 값
-time_interval = ("minute60")
+time_interval = "minute60"
+mesu_check_time = "minute3"
 mesu_percentage = 0.1  #10% 분할 매수
+mesu_target_range = np.trunc(range_target/200 * mesu_percentage * 10000) / 10000 # 매수 구간 비율 간격(소수점 넷째자리)
 slippage = 0.02
+mod = sys.modules[__name__]
+mesu_1 = False
+mesu_2 = False
+mesu_3 = False
+mesu_4 = False
+mesu_5 = False
+mesu_6 = False
+mesu_7 = False
+mesu_8 = False
+mesu_9 = False
+mesu_10 = False
+val = int((1 / mesu_percentage) + 1)
+
 
 mesu_target = 1.008
 mesu_target_except = 1.022
@@ -419,100 +432,365 @@ while True:
         logging.debug("target list(rank) : %s(%s)" % (find_a['ticker'], find_a['volume_amount']))
     # print("Ticker:%s, 시가:%s, 고가:%s, 변화율:%s" % (i, df2["open"], df2["high"],df2["change_rate"]))
 
-        ## 매수 시작
+        ## 매수, 매도 동시 시작
         while True:
             krw_balance = upbit.get_balance("KRW")
             balance = krw_balance * (1 - slippage)
-
-            df3 = pyupbit.get_ohlcv(mesu_find, "3minute", count=2)
-            now_mesu = df.iloc[0]
-            mesu_criteria = ma20(mesu_find)
-
-            for a in range(1, (1 / mesu_percentage))
-                if upbit.get_order(mesu_find) == {'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
-                    mesu_target_1 = mesu_criteria * (1 - mesu_target_range * a)
-                    mesu_number = mesu_target_1 / mesu_criteria
-                    if now_mesu['close'] <= mesu_target_1
-                        upbit.buy_limit_order(mesu_find, mesu_target_1, mesu_number)
-                        print(upbit.buy_limit_order(mesu_find, mesu_target_1, mesu_number)
-
-                        while True:
-                            if upbit.get_order(mesu_find) == {'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
-                                break
-
-                        print(f"현재시간: {now} 목표가:{mesu_target_1} ma20: {mesu_criteria} 보유상태: {hold} 동작상태: {op_mode}")
-                        logging.debug("%s의 %s번째 target 매수 (현재가 : %s, ma20 : %s )" % (mesu_find, a, mesu_target_1, mesu_criteria))
+            mesu_criteria = ma20(mesu_find) #기준값!
 
 
-                 elif upbit.get_order(mesu_find) != {'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
-                    continue
+            for a in range(1,val):
+                mesu_target_1 = mesu_criteria * (1 - mesu_target_range * a)
 
-                hold = True
-                time.sleep(2)
-                ticker_information = upbit.get_balances()
-                mesu_price = ticker_information[-1]['avg_buy_price']
-                # print(now, target_price)
-                print(f"현재시간: {now} 목표가:{target} 현재가: {mesu_price} 보유상태: {hold} 동작상태: {op_mode}")
-                logging.debug("%s 를 매수 했습니다. (%s)" % (find_a['ticker'],mesu_price ))
+                medo_target_1 = mesu_criteria * (1 + mesu_target_range * a)
+                medo_number = balance / mesu_percentage / mesu_target_1
 
-    ## 매도 시도
-    if op_mode is True and hold is True:
+                setattr(mod, 'buy_target_{}'.format(a), mesu_target_1)
+                setattr(mod, 'buy_number_{}'.format(a), mesu_number)
 
-        ticker_information = upbit.get_balances()
-        print(ticker_information)
-        for ticker in range(len(ticker_information)):
-            if float(ticker_information[ticker]['balance']) > 3:
-                find_ticker = ticker_information[ticker]['currency']
-                # find_ticker.append(find_ticker)
-                print("KRW-%s를 가지고있습니다." % find_ticker)
+                setattr(mod, 'sell_target_{}'.format(val-a), medo_target_1)
+                setattr(mod, 'sell_number_{}'.format(val-a), medo_number)
 
-        find_b = "KRW-"
-        find_b += find_ticker
-        # print(find_b)
-        print(find_b)
-
-        mesu_price = ticker_information[-1]['avg_buy_price']
-        mesu_price = float(mesu_price)
-        # print(mesu_price)
-        upbit.get_balance(find_b)
-        print(upbit.get_balance(find_b))
-        target_balance = upbit.get_balance(find_b)
-
-        while True:
-            df4 = pyupbit.get_ohlcv(find_b, "minute1", count=2)
-            df5 = pyupbit.get_ohlcv(find_b, "minute1", count=1)
-
-            medo_1minute = df4.iloc[0]   # -1 번째 data
-            medo_1minute_latest = df4.iloc[-1]  #가장 최근 것
-
-            medo_1minute = df5.iloc[0]
-            # print(medo_minute)
-
-            # target_medo = medo_minute['ma20']
-            target_volume_medo = medo_3minute['close'] * medo_3minute['volume']
+            df3 = pyupbit.get_ohlcv(mesu_find, mesu_check_time, count=2)
+            now_mesu = df3.iloc[0]
 
 
-            if medo_1minute['close'] < get_today_ma20(find_b):
-                upbit.sell_market_order(find_b, target_balance)
-                print(upbit.sell_market_order(find_b, target_balance))
+            if mesu_1 is False and buy_target_2 < now_mesu['close'] <= buy_target_1:
+                upbit.buy_limit_order(mesu_find, buy_target_1, buy_number_1)
+                print(upbit.buy_limit_order(mesu_find, buy_target_1, buy_number_1)
 
-                krw_balance = upbit.get_balance("KRW")
-                medo_price = pyupbit.get_current_price(find_b)
-                print("%s를 매도하였습니다." % find_b)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
 
-                logging.debug("%s 를 매도 했습니다. 판매 금액: %s, 수익:%s" % (find_b, medo_price, medo_price/mesu_price))
-                time.sleep(5)
-                break
+                        print(
+                            f"현재시간: {now} 목표가:{buy_target_1} ma20: {mesu_criteria} 보유 개수 : {buy_number_1} 형태 : {'매수1'}")
+                        logging.debug("%s의 %s번째 target 매수 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 1, buy_target_1, mesu_criteria, now))
+                        mesu_1 = True
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
 
-            target_balance = upbit.get_balance(find_b)
-            if target_balance == 0:
-                time.sleep(5)
-                break
+            if mesu_2 is False and buy_target_3 < now_mesu['close'] <= buy_target_2:
+                upbit.buy_limit_order(mesu_find, buy_target_2, buy_number_2)
+                print(upbit.buy_limit_order(mesu_find, buy_target_2, buy_number_2)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
 
-            else:
-                print("매도 target을 찾고 있습니다.")
-                time.sleep(3)
-                continue
+                        print(
+                            f"현재시간: {now} 목표가:{buy_target_2} ma20: {mesu_criteria} 보유 개수 : {buy_number_2} 형태 : {'매수2'}")
+                        logging.debug("%s의 %s번째 target 매수 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 2, buy_target_2, mesu_criteria, now))
+                        mesu_2 = True
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+
+            if mesu_3 is False and buy_target_4 < now_mesu['close'] <= buy_target_3:
+                upbit.buy_limit_order(mesu_find, buy_target_3, buy_number_3)
+                print(upbit.buy_limit_order(mesu_find, buy_target_3, buy_number_3)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{buy_target3} ma20: {mesu_criteria} 보유 개수 : {buy_number_3} 형태 : {'매수3'}")
+                        logging.debug("%s의 %s번째 target 매수 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 3, buy_target_3, mesu_criteria, now))
+                        mesu_3 = True
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+
+            if mesu_4 is False and buy_target_5 < now_mesu['close'] <= buy_target_4:
+                upbit.buy_limit_order(mesu_find, buy_target_4, buy_number_4)
+                print(upbit.buy_limit_order(mesu_find, buy_target_4, buy_number_4)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{buy_target_4} ma20: {mesu_criteria} 보유 개수 : {buy_number_4} 형태 : {'매수4'}")
+                        logging.debug("%s의 %s번째 target 매수 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 4, buy_target_2, mesu_criteria, now))
+                        mesu_4 = True
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+
+            if mesu_5 is False and buy_target_6 < now_mesu['close'] <= buy_target_5:
+                upbit.buy_limit_order(mesu_find, buy_target_5, buy_number_5)
+                print(upbit.buy_limit_order(mesu_find, buy_target_5, buy_number_5)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{buy_target_5} ma20: {mesu_criteria} 보유 개수 : {buy_number_5} 형태 : {'매수5'}")
+                        logging.debug("%s의 %s번째 target 매수 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 5, buy_target_5, mesu_criteria, now))
+                        mesu_5 = True
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+
+            if mesu_6 is False and buy_target_7 < now_mesu['close'] <= buy_target_6:
+                upbit.buy_limit_order(mesu_find, buy_target_6, buy_number_6)
+                print(upbit.buy_limit_order(mesu_find, buy_target_6, buy_number_6)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{buy_target_6} ma20: {mesu_criteria} 보유 개수 : {buy_number_6} 형태 : {'매수6'}")
+                        logging.debug("%s의 %s번째 target 매수 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 6, buy_target_6, mesu_criteria, now))
+                        mesu_6 = True
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+
+            if mesu_7 is False and buy_target_8 < now_mesu['close'] <= buy_target_7:
+                upbit.buy_limit_order(mesu_find, buy_target_7, buy_number_7)
+                print(upbit.buy_limit_order(mesu_find, buy_target_7, buy_number_7)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{buy_target_7} ma20: {mesu_criteria} 보유 개수 : {buy_number_7} 형태 : {'매수7'}")
+                        logging.debug("%s의 %s번째 target 매수 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 7, buy_target_7, mesu_criteria, now))
+                        mesu_7 = True
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+
+            if mesu_8 is False and buy_target_9 < now_mesu['close'] <= buy_target_8:
+                upbit.buy_limit_order(mesu_find, buy_target_8, buy_number_8)
+                print(upbit.buy_limit_order(mesu_find, buy_target_8, buy_number_8)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{buy_target_8} ma20: {mesu_criteria} 보유 개수 : {buy_number_8} 형태 : {'매수8'}")
+                        logging.debug("%s의 %s번째 target 매수 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 8, buy_target_8, mesu_criteria, now))
+                        mesu_8 = True
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+
+            if mesu_9 is False and buy_target_10 < now_mesu['close'] <= buy_target_9:
+                upbit.buy_limit_order(mesu_find, buy_target_9, buy_number_9)
+                print(upbit.buy_limit_order(mesu_find, buy_target_9, buy_number_9)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{buy_target_9} ma20: {mesu_criteria} 보유 개수 : {buy_number_2} 형태 : {'매수9'}")
+                        logging.debug("%s의 %s번째 target 매수 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 9, buy_target_9, mesu_criteria, now))
+                        mesu_9 = True
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+
+            if mesu_10 is False and now_mesu['close'] <= buy_target_10:
+                upbit.buy_limit_order(mesu_find, buy_target_10, buy_number_10)
+                print(upbit.buy_limit_order(mesu_find, buy_target_10, buy_number_10)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{buy_target_10} ma20: {mesu_criteria} 보유 개수 : {buy_number_10} 형태 : {'매수10'}")
+                        logging.debug("%s의 %s번째 target 매수 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 10, buy_target_10, mesu_criteria, now))
+                        mesu_10 = True
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+            ## 매도 구간
+
+
+            if mesu_10 is True and sell_target_10 <= now_mesu['close'] < sell_target_9:
+                upbit.sell_limit_order(mesu_find, sell_target_10, sell_number_10)
+                print(upbit.sell_limit_order(mesu_find, sell_target_10, sell_number_10)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{sell_target_10} ma20: {mesu_criteria} 보유 개수 : {sell_number_10} 형태 : {'매도10'}")
+                        logging.debug("%s의 %s번째 target 매도 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 10, sell_target_10, mesu_criteria, now))
+                        mesu_10 = False
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+
+            if mesu_9 is True and sell_target_9 <= now_mesu['close'] < sell_target_8:
+                upbit.sell_limit_order(mesu_find, sell_target_9, sell_number_9)
+                print(upbit.sell_limit_order(mesu_find, sell_target_9, sell_number_9)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{sell_target_9} ma20: {mesu_criteria} 보유 개수 : {sell_number_9} 형태 : {'매도9'}")
+                        logging.debug("%s의 %s번째 target 매도 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 9, sell_target_9, mesu_criteria, now))
+                        mesu_9 = False
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+
+            if mesu_8 is True and sell_target_8 <= now_mesu['close'] < sell_target_7:
+                upbit.sell_limit_order(mesu_find, sell_target_8, sell_number_8)
+                print(upbit.sell_limit_order(mesu_find, sell_target_8, sell_number_8)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{sell_target_8} ma20: {mesu_criteria} 보유 개수 : {sell_number_8} 형태 : {'매도8'}")
+                        logging.debug("%s의 %s번째 target 매도 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 8, sell_target_8, mesu_criteria, now))
+                        mesu_8 = False
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+
+            if mesu_7 is True and sell_target_7 <= now_mesu['close'] < sell_target_6:
+                upbit.sell_limit_order(mesu_find, sell_target_7, sell_number_7)
+                print(upbit.sell_limit_order(mesu_find, sell_target_7, sell_number_7)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{sell_target_7} ma20: {mesu_criteria} 보유 개수 : {sell_number_7} 형태 : {'매도7'}")
+                        logging.debug("%s의 %s번째 target 매도 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 7, sell_target_7, mesu_criteria, now))
+                        mesu_7 = False
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+            if mesu_6 is True and sell_target_6 <= now_mesu['close'] < sell_target_5:
+                upbit.sell_limit_order(mesu_find, sell_target_6, sell_number_6)
+                print(upbit.sell_limit_order(mesu_find, sell_target_6, sell_number_6)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{sell_target_6} ma20: {mesu_criteria} 보유 개수 : {sell_number_6} 형태 : {'매도6'}")
+                        logging.debug("%s의 %s번째 target 매도 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 6, sell_target_6, mesu_criteria, now))
+                        mesu_6 = False
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+            if mesu_5 is True and sell_target_5 <= now_mesu['close'] < sell_target_6:
+                upbit.sell_limit_order(mesu_find, sell_target_5, sell_number_5)
+                print(upbit.sell_limit_order(mesu_find, sell_target_5, sell_number_5)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{sell_target_5} ma20: {mesu_criteria} 보유 개수 : {sell_number_5} 형태 : {'매도5'}")
+                        logging.debug("%s의 %s번째 target 매도 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 5, sell_target_5, mesu_criteria, now))
+                        mesu_5 = False
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+            if mesu_4 is True and sell_target_4 <= now_mesu['close'] < sell_target_5:
+                upbit.sell_limit_order(mesu_find, sell_target_4, sell_number_4)
+                print(upbit.sell_limit_order(mesu_find, sell_target_4, sell_number_4)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{sell_target_4} ma20: {mesu_criteria} 보유 개수 : {sell_number_4} 형태 : {'매도4'}")
+                        logging.debug("%s의 %s번째 target 매도 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 4, sell_target_4, mesu_criteria, now))
+                        mesu_4 = False
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+            if mesu_3 is True and sell_target_3 <= now_mesu['close'] < sell_target_4:
+                upbit.sell_limit_order(mesu_find, sell_target_3, sell_number_3)
+                print(upbit.sell_limit_order(mesu_find, sell_target_3, sell_number_3)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{sell_target_3} ma20: {mesu_criteria} 보유 개수 : {sell_number_3} 형태 : {'매도3'}")
+                        logging.debug("%s의 %s번째 target 매도 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find,3, sell_target_3, mesu_criteria, now))
+                        mesu_3 = False
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+            if mesu_2 is True and sell_target_2 <= now_mesu['close'] < sell_target_3:
+                upbit.sell_limit_order(mesu_find, sell_target_2, sell_number_2)
+                print(upbit.sell_limit_order(mesu_find, sell_target_2, sell_number_2)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{sell_target_2} ma20: {mesu_criteria} 보유 개수 : {sell_number_2} 형태 : {'매도2'}")
+                        logging.debug("%s의 %s번째 target 매도 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 2, sell_target_2, mesu_criteria, now))
+                        mesu_2 = False
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
+            if mesu_1 is True and sell_target_1 <= now_mesu['close'] < sell_target_2:
+                upbit.sell_limit_order(mesu_find, sell_target_1, sell_number_1)
+                print(upbit.sell_limit_order(mesu_find, sell_target_1, sell_number_1)
+                while True:
+                    if upbit.get_order(mesu_find) == {
+                        'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}:
+
+                        print(
+                            f"현재시간: {now} 목표가:{sell_target_1} ma20: {mesu_criteria} 보유 개수 : {sell_number_1} 형태 : {'매도1'}")
+                        logging.debug("%s의 %s번째 target 매도 (현재가 : %s, ma20 : %s ) %s" % (
+                            mesu_find, 1, sell_target_1, mesu_criteria, now))
+                        mesu_1 = False
+                        break
+                    else:
+                        print("매수 타겟 미체결")
+                        time.sleep(1)
 
         hold = False
 
