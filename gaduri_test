@@ -1,0 +1,40 @@
+import numpy as np
+import sys
+import pandas as pd
+
+mod = sys.modules[__name__]
+
+
+mesu_1 = True
+buy_target_1 = 25
+val = 11
+
+devide = list(range(1, val))
+try:
+    for i in range(len(devide)):
+        temp_mesu = 'mesu_{}'.format(devide[i])
+        temp_buy = 'buy_target_{}'.format(devide[i])
+        temp_buy_1 = 'buy_target_{}'.format(devide[i + 1])
+        temp_buy_number = 'buy_number_{}'.format(devide[i])
+        temp_mesu = bool(temp_mesu) # str -> bool 변경 필요
+        # temp_buy = int(temp_buy) # str -> int 변경 필요
+        # int(temp_buy[, base])
+        # if temp_mesu == True:
+        #     print("type 상관 없음")
+
+        # if temp_buy > 20:
+        #     print("와우 정말 필요없음!")
+        #     break
+
+        print(temp_mesu)
+        print(temp_buy)
+        print(temp_buy_1)
+        print(temp_buy_number)
+        print(type(temp_mesu))
+        print(mesu_1)
+        print(type(mesu_1))
+        print(type(temp_buy))
+        print(buy_target_1)
+        print(type(buy_target_1))
+except:
+    print("error occured")
