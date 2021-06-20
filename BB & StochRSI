@@ -1,0 +1,176 @@
+##출처 : https://nakyup.tistory.com/13?category=926880
+
+
+import requests
+import pyupbit
+import matplotlib.pyplot as plt
+import time
+import datetime
+import pandas as pd
+from logging.config import dictConfig
+import logging
+import numpy as np
+import sys
+import matplotlib
+
+
+
+df = pd.read_csv('C:\\Users\\2065930\\PycharmProjects\\PatternAnalysis\\csv file\\raw_data_etc.csv')
+
+
+### 1. RSI
+
+# 상승, 하락분을 알기위해 현재 종가에서 전일 종가를 빼서 데이터프레임에 추가하겠습니다.
+RSI_n = 14
+df["change_rate"] = [df.loc[i, 'close'] - df.loc[i - 1, "close"] if i > 0 else 0 for i in range(len(df))]
+# i가 0일때는 전일값이 없어서 제외함, i는 데이터프레임의 index값
+
+# U(up): n일 동안의 종가 상승 분
+df["RSI_U"] = df["change_rate"].apply(lambda x: x if x > 0 else 0)
+
+# D(down): n일 동안의 종가 하락 분 --> 음수를 양수로 바꿔줌
+df["RSI_D"] = df["change_rate"].apply(lambda x: x * (-1) if x < 0 else 0)
+
+# AU(average ups): U값의 평균
+df["RSI_AU"] = df["RSI_U"].rolling(RSI_n).mean()
+
+# DU(average downs): D값의 평균
+df["RSI_AD"] = df["RSI_D"].rolling(RSI_n).mean()
+df["RSI"] = df.apply(lambda x: x["RSI_AU"] / (x["RSI_AU"] + x["RSI_AD"]) * 100, 1)
+
+# df[["등락","RSI_U","RSI_D","RSI_AU","RSI_AD","RSI"]].fillna(0, inplace=True)
+
+# RSI값이 30 이하일 때 매수, 80 이상일 때 매도하도록 설정해보겠습니다.
+# 좀 더 최적화된 값은 다음 시간에 찾아보께요.
+df["RSI_sign"] = df["RSI"].apply(lambda x: "매수" if x < 20 else ("매도" if x > 80 else "대기"))
+
+df[['RSI']].plot.line(subplots=False, figsize=(15, 5))
+
+
+### 2. STOCHASTIC
+
+
+sto_N = 14
+sto_m = 3
+sto_t = 3
+df['MA50'] =df['close'].rolling(50).mean()
+# 스토캐스틱 %K (fast %K) = (현재가격-N일중 최저가)/(N일중 최고가-N일중 최저가) ×100
+df["max%d" % sto_N] = df['high'].rolling(sto_N).max()
+df["min%d" % sto_N] = df['low'].rolling(sto_N).min()
+df["stochastic%K"] = df.apply(lambda x: 1 * (x['close'] - x["min%d" % sto_N]) /
+                                        (x["max%d" % sto_N] - x["min%d" % sto_N])
+if (x["max%d" % sto_N] - x["min%d" % sto_N]) != 0 else 50, 1)
+# 스토캐스틱 %D (fast %D) = m일 동안 %K 평균 = Slow %K
+# slow %K = 위에서 구한 스토캐스틱 %D
+df["slow_%K"] = df["stochastic%K"].rolling(sto_m).mean()
+# slow %D = t일 동안의 slow %K 평균
+df["slow_%D"] = df["slow_%K"].rolling(sto_t).mean()
+stochastic_sign = []
+for i in range(len(df)):
+    if df.loc[i, "slow_%K"] > df.loc[i, "slow_%D"] and df.loc[i, "close"] > df.loc[i, "MA50"]:
+        if df.loc[i, "slow_%K"] < 0.2:
+            stochastic_sign.append("대기")
+        else:
+            stochastic_sign.append("매수")
+    elif df.loc[i, "slow_%K"] < df.loc[i, "slow_%D"] and df.loc[i, "close"] < df.loc[i, "MA50"]:
+        if df.loc[i, "slow_%K"] > 0.8:
+            stochastic_sign.append("대기")
+        else:
+            stochastic_sign.append("매도")
+    else:
+        stochastic_sign.append("대기")
+df["stochastic_sign"] = stochastic_sign
+df[['slow_%K', 'slow_%D']].plot.line(subplots=False, figsize=(15, 5))
+print(df)
+
+
+### STOCHASTIC RSI
+
+
+# 스토캐스틱 %K (fast %K) = (현재가격-N일중 최저가)/(N일중 최고가-N일중 최저가) ×100
+df["max_RSI%d" % sto_N] = df['RSI'].rolling(sto_N).max()
+df["min_RSI%d" % sto_N] = df['RSI'].rolling(sto_N).min()
+df["STOCHRSI%K"] = df.apply(lambda x: 1 * (x['RSI'] - x["min_RSI%d" % sto_N]) /
+                                        (x["max_RSI%d" % sto_N] - x["min_RSI%d" % sto_N])
+if (x["max_RSI%d" % sto_N] - x["min_RSI%d" % sto_N]) != 0 else 50, 1)
+# 스토캐스틱 %D (fast %D) = m일 동안 %K 평균 = Slow %K
+# slow %K = 위에서 구한 스토캐스틱 %D
+df["STOCHRSI_slow_%K"] = df["STOCHRSI%K"].rolling(sto_m).mean()
+# slow %D = t일 동안의 slow %K 평균
+df["STOCHRSI_slow_%D"] = df["STOCHRSI_slow_%K"].rolling(sto_t).mean()
+
+## 기존 매수/매도 공식
+# STOCHRSI_sign = []
+# for i in range(len(df)):
+#     if df.loc[i, "STOCHRSI_slow_%K"] > df.loc[i, "STOCHRSI_slow_%D"] and df.loc[i, "close"] > df.loc[i, "MA50"]:
+#         if df.loc[i, "STOCHRSI_slow_%K"] < 0.2:
+#             STOCHRSI_sign.append("대기")
+#         else:
+#             STOCHRSI_sign.append("매수")
+#     elif df.loc[i, "STOCHRSI_slow_%K"] < df.loc[i, "STOCHRSI_slow_%D"] and df.loc[i, "close"] < df.loc[i, "MA50"]:
+#         if df.loc[i, "STOCHRSI_slow_%K"] > 0.8:
+#             STOCHRSI_sign.append("대기")
+#         else:
+#             STOCHRSI_sign.append("매도")
+#     else:
+#         STOCHRSI_sign.append("대기")
+# df["STOCHRSI_sign"] = STOCHRSI_sign
+# df[['STOCHRSI_slow_%K', 'STOCHRSI_slow_%D']].plot.line(subplots=False, figsize=(15, 5))
+
+## 신규 매수/매도 공식 K>D 매수가능, K<D 매도
+STOCHRSI_sign = []
+for i in range(len(df)):
+    if df.loc[i, "STOCHRSI_slow_%K"] > df.loc[i, "STOCHRSI_slow_%D"] and df.loc[i, "close"] > df.loc[i, "MA50"]:
+        STOCHRSI_sign.append("매수가능")
+    elif df.loc[i, "STOCHRSI_slow_%K"] < df.loc[i, "STOCHRSI_slow_%D"] :
+        if df.loc[i, "STOCHRSI_slow_%K"] > 0.75:
+            STOCHRSI_sign.append("매도")
+        else:
+            STOCHRSI_sign.append("대기")
+    else:
+        STOCHRSI_sign.append("대기")
+df["STOCHRSI_sign"] = STOCHRSI_sign
+
+
+
+
+w = 20  # 기준 이동평균일
+k = 2  # 기준 상수
+
+# 중심선 (MBB) : n일 이동평균선
+df["mbb"] = df["close"].rolling(w).mean()
+df["MA20_std"] = df["close"].rolling(w).std()
+
+# 상한선 (UBB) : 중심선 + (표준편차 × K)
+# 하한선 (LBB) : 중심선 - (표준편차 × K)
+df["ubb"] = df.apply(lambda x: x["mbb"] + k * x["MA20_std"], 1)
+df["lbb"] = df.apply(lambda x: x["mbb"] - k * x["MA20_std"], 1)
+df["bb_range"] =df["ubb"]/df["lbb"]
+
+# df[['종가','mbb', 'ubb', 'lbb']][-200:].plot.line()
+
+# df[["mbb","MA20_std","ubb","lbb"]].fillna(0, inplace=True)
+
+# 밴드를 이탈했다가 진입할 때 거래
+# 상향 돌파 & 변동폭 커질 때 매수
+bb_sign = []
+bb_range_target = 1.015
+
+for i in range(len(df)):
+    if i < 20:
+        bb_sign.append("대기")
+    # elif df.loc[i - 1, "close"] >= df.loc[i - 1, "ubb"] and df.loc[i, "close"] < df.loc[i, "ubb"]:
+    #     bb_sign.append("매도")
+    # elif df.loc[i - 1, "close"] < df.loc[i - 1, "lbb"] and df.loc[i, "close"] < df.loc[i, "lbb"]:
+    #     bb_sign.append("매수")
+    elif df.loc[i - 1, "close"] >= df.loc[i - 1, "ubb"] and df.loc[i, "bb_range"] / df.loc[i-1 , "bb_range"] > bb_range_target:
+        bb_sign.append("매수")
+    else:
+        bb_sign.append("대기")
+
+df["bb_sign"] = bb_sign
+df[['mbb','ubb','lbb','close']].plot.line(subplots=False)
+
+# plt.show
+
+df.to_excel(excel_writer= 'test9.xlsx')
