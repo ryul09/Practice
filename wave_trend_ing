@@ -1,0 +1,85 @@
+import ccxt
+import time
+import datetime
+import numpy as np
+import talib as ta
+import sys
+import matplotlib.pyplot as plt
+
+## 참고 : https://www.onbirkod.com/wavetrend-oscillator-wt-lazybear-nedir-python-cctx-ile-yazalim/
+
+df['sma5'] = df['close'].rolling(5).mean()
+df['sma20'] = df['close'].rolling(20).mean()
+df['sma100'] = df['close'].rolling(100).mean()
+df['sma200'] = df['close'].rolling(200).mean()
+
+df['ema5'] = df['close'].ewm(5).mean()
+df['ema10'] = df['close'].ewm(10).mean()
+# df['ema20'] = df['close'].ewm(20).mean()
+# df['ema100'] = df['close'].ewm(100).mean()
+# df['ema200'] = df['close'].ewm(200).mean()
+
+
+# high = [float(entry[2]) for entry in ohlcv]
+# low = [float(entry[3]) for entry in ohlcv]
+# close = [float(entry[4]) for entry in ohlcv]
+
+close_array = np.asarray(close)
+high_array = np.asarray(high)
+low_array = np.asarray(low)
+
+# tradingview pine scriptini nerdeyse birebir uyguluyorum, numpy arraylerini kullanarak.
+# ap, esa, d vs... değerlerini hesapla
+
+ap = (high_array + low_array + close_array) / 3
+
+channel_length = 10
+
+# esa = ta.EMA(ap, channel_length)
+esa = df['ema10']
+d = ta.EMA(abs(ap - esa), channel_length)
+
+
+ci = (ap - esa) / (0.015 * d)
+
+average_length = 21
+
+tci = ta.EMA(ci, average_length)
+
+wt1 = tci
+
+wt2 = ta.SMA(wt1, 4)
+
+open_time = [int(entry[0]) for entry in ohlcv]
+
+new_time = [datetime.datetime.fromtimestamp(time / 1000) for time in open_time]
+
+new_time_x = [date.strftime("%y-%m-%d") for date in new_time]
+
+area_wt1_w2 = wt1 - wt2
+
+obLevel1 = 60
+obLevel2 = 53
+
+osLevel1 = -60
+osLevel2 = -53
+
+plt.figure(figsize=(11, 6))
+plt.axhline(y=0, color='gray', linestyle='-')
+
+plt.axhline(y=obLevel1, color='red', linestyle='-')
+plt.axhline(y=obLevel2, color='red', linestyle='dotted')
+
+plt.axhline(y=osLevel1, color='green', linestyle='-')
+plt.axhline(y=osLevel2, color='green', linestyle='dotted')
+
+plt.plot(new_time_x[400:], wt1[400:], label='wt1', color='green')
+plt.plot(new_time_x[400:], wt2[400:], label='wt2', color='red')
+
+plt.fill_between(new_time_x[400:], 0, area_wt1_w2[400:], facecolor='lavender', interpolate=True)
+plt.xticks(rotation=90, fontsize=5)
+plt.title("Wavetrend Oscillator (LazyBear)) for BTC/USDT")
+plt.xlabel("Open Time")
+plt.ylabel("Value")
+plt.legend()
+plt.show()
