@@ -1,0 +1,8 @@
+def cal_ATR(df, n_days):
+    df = df.sort_values('Unnamed: 0').reset_index(drop=True)
+
+    tr_data = pd.concat([df[['high', 'low']], df['close'].shift(1)], axis=1)
+    tr = tr_data.max(axis=1) - tr_data.min(axis=1)
+
+    df['atr'] =tr.rolling(min_periods= n_days, window= n_days, center=False).mean()
+    return df
