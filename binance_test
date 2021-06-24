@@ -1,0 +1,46 @@
+import ccxt
+import pprint
+import pandas as pd
+
+
+
+## API
+with open("binance.txt") as f:
+    lines = f.readlines()
+    api_key = lines[0].strip()
+    secret = lines[1].strip()
+## 선물
+binance = ccxt.binance(config={'apiKey':api_key, 'secret':secret, 'enableRateLimit':True, 'options':{'defaultType':'future'}})
+
+## 잔고 조회
+balance = binance.fetch_balance()
+pprint.pprint(balance['total'])
+pprint.pprint(balance['total']['USDT'])
+
+## 마켓 data
+# markets = binance.load_markets()
+# type(markets)
+# len(markets)
+# for m in markets:
+#     print(m)
+#
+# pprint.pprint(markets)
+
+btc = binance.fetch_ticker("BTC/USDT")
+pprint.pprint(btc['last'])
+
+btc_ohlcv = binance.fetch_ohlcv("BTC/USDT") # 1분봉
+
+df = pd.DataFrame(btc_ohlcv,columns= ['datetime', 'open', 'high', 'low','close','volume'])
+df['datetime'] = pd.to_datetime(df['datetime'], unit='ms')
+df.set_index('datetime', inplace= True)
+df['change_rate'] = df['close'] / df['open']
+
+if df['close'] < df['open']:
+    df['low_tail'] = df['close'] / df['low']
+if df['close'] > df['open']:
+    df['high_tail'] = df['close'] / df['high']
+if df['close'] == df['open']:
+    df['no_change'] = "NC"
+df.to_excel(excel_writer='binance_future_1min_1.xlsx')
+print(df)
