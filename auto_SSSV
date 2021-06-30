@@ -1,0 +1,361 @@
+import numpy as np
+import requests
+import pyupbit
+import matplotlib.pyplot as plt
+import time
+import datetime
+import pandas as pd
+from logging.config import dictConfig
+import logging
+
+
+## Log 남기기
+dictConfig({
+    'version': 1,
+    'formatters': {
+        'default': {
+            'format': '[%(asctime)s] %(message)s',
+        }
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug_SSSV.log',
+            'formatter': 'default',
+        },
+    },
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['file']
+    }
+})
+
+## 0. 객체 생성
+f = open("upbit.txt")
+lines = f.readlines()
+access = lines[0].strip()
+secret = lines[1].strip()
+f.close()
+upbit = pyupbit.Upbit(access,secret)
+
+# df =yf.download("ACC.NS", period="1d",interval="5m")
+# df=df.reset_index(drop=True)
+
+
+tickers = pyupbit.get_tickers(fiat="KRW")
+
+
+def cal_target(tickers):
+    for i in tickers:
+        df = pyupbit.get_ohlcv(i, "minute1", count =25)
+
+        df['tr0'] = abs(df["high"] - df["low"])
+        df['tr1'] = abs(df["high"] - df["close"].shift(1))
+        df['tr2'] = abs(df["low"] - df["close"].shift(1))
+        df["TR"] = round(df[['tr0', 'tr1', 'tr2']].max(axis=1), 2)
+        df["ATR"] = 0.00
+        df['BUB'] = 0.00
+        df["BLB"] = 0.00
+        df["FUB"] = 0.00
+        df["FLB"] = 0.00
+        df["ST"] = 0.00
+
+        # Calculating ATR
+        for i, row in df.iterrows():
+            if i == 0:
+                df.loc[i, 'ATR'] = 0.00  # df['ATR'].iat[0]
+            else:
+                df.loc[i, 'ATR'] = ((df.loc[i - 1, 'ATR'] * 13) + df.loc[i, 'TR']) / 14
+
+        df['BUB'] = round(((df["high"] + df["low"]) / 2) + (2 * df["ATR"]), 2)
+        df['BLB'] = round(((df["high"] + df["low"]) / 2) - (2 * df["ATR"]), 2)
+
+        for i, row in df.iterrows():
+            if i == 0:
+                df.loc[i, "FUB"] = 0.00
+            else:
+                if (df.loc[i, "BUB"] < df.loc[i - 1, "FUB"]) | (df.loc[i - 1, "close"] > df.loc[i - 1, "FUB"]):
+                    df.loc[i, "FUB"] = df.loc[i, "BUB"]
+                else:
+                    df.loc[i, "FUB"] = df.loc[i - 1, "FUB"]
+
+        for i, row in df.iterrows():
+            if i == 0:
+                df.loc[i, "FLB"] = 0.00
+            else:
+                if (df.loc[i, "BLB"] > df.loc[i - 1, "FLB"]) | (df.loc[i - 1, "close"] < df.loc[i - 1, "FLB"]):
+                    df.loc[i, "FLB"] = df.loc[i, "BLB"]
+                else:
+                    df.loc[i, "FLB"] = df.loc[i - 1, "FLB"]
+
+        for i, row in df.iterrows():
+            if i == 0:
+                df.loc[i, "ST"] = 0.00
+            elif (df.loc[i - 1, "ST"] == df.loc[i - 1, "FUB"]) & (df.loc[i, "close"] <= df.loc[i, "FUB"]):
+                df.loc[i, "ST"] = df.loc[i, "FUB"]
+            elif (df.loc[i - 1, "ST"] == df.loc[i - 1, "FUB"]) & (df.loc[i, "close"] > df.loc[i, "FUB"]):
+                df.loc[i, "ST"] = df.loc[i, "FLB"]
+            elif (df.loc[i - 1, "ST"] == df.loc[i - 1, "FLB"]) & (df.loc[i, "close"] >= df.loc[i, "FLB"]):
+                df.loc[i, "ST"] = df.loc[i, "FLB"]
+            elif (df.loc[i - 1, "ST"] == df.loc[i - 1, "FLB"]) & (df.loc[i, "close"] < df.loc[i, "FLB"]):
+                df.loc[i, "ST"] = df.loc[i, "FUB"]
+
+        # Buy Sell Indicator
+        for i, row in df.iterrows():
+            if i == 0:
+                df["ST_BUY_SELL"] = "NA"
+            elif (df.loc[i, "ST"] < df.loc[i, "close"]):
+                df.loc[i, "ST_BUY_SELL"] = "buy"
+            else:
+                df.loc[i, "ST_BUY_SELL"] = "sell"
+
+        ### 1. RSI
+
+        RSI_n = 14
+        df["change_rate"] = [df.loc[i, 'close'] - df.loc[i - 1, "close"] if i > 0 else 0 for i in range(len(df))]
+        df["RSI_U"] = df["change_rate"].apply(lambda x: x if x > 0 else 0)
+        df["RSI_D"] = df["change_rate"].apply(lambda x: x * (-1) if x < 0 else 0)
+        df["RSI_AU"] = df["RSI_U"].rolling(RSI_n).mean()
+        df["RSI_AD"] = df["RSI_D"].rolling(RSI_n).mean()
+        df["RSI"] = df.apply(lambda x: x["RSI_AU"] / (x["RSI_AU"] + x["RSI_AD"]) * 100, 1)
+
+        # df[["등락","RSI_U","RSI_D","RSI_AU","RSI_AD","RSI"]].fillna(0, inplace=True)
+        df["RSI_sign"] = df["RSI"].apply(lambda x: "buy" if x < 20 else ("sell" if x > 80 else "no"))
+
+        ### 2. STOCHASTIC
+
+        sto_N = 14
+        sto_m = 3
+        sto_t = 3
+        df['MA50'] = df['close'].rolling(50).mean()
+        df["max%d" % sto_N] = df['high'].rolling(sto_N).max()
+        df["min%d" % sto_N] = df['low'].rolling(sto_N).min()
+        df["stochastic%K"] = df.apply(lambda x: 1 * (x['close'] - x["min%d" % sto_N]) /
+                                                (x["max%d" % sto_N] - x["min%d" % sto_N])
+        if (x["max%d" % sto_N] - x["min%d" % sto_N]) != 0 else 50, 1)
+        df["slow_%K"] = df["stochastic%K"].rolling(sto_m).mean()
+        df["slow_%D"] = df["slow_%K"].rolling(sto_t).mean()
+        stochastic_sign = []
+        for i in range(len(df)):
+            if df.loc[i, "slow_%K"] > df.loc[i, "slow_%D"] and df.loc[i, "close"] > df.loc[i, "MA50"]:
+                if df.loc[i, "slow_%K"] < 0.2:
+                    stochastic_sign.append("no")
+                else:
+                    stochastic_sign.append("buy")
+            elif df.loc[i, "slow_%K"] < df.loc[i, "slow_%D"] and df.loc[i, "close"] < df.loc[i, "MA50"]:
+                if df.loc[i, "slow_%K"] > 0.8:
+                    stochastic_sign.append("no")
+                else:
+                    stochastic_sign.append("sell")
+            else:
+                stochastic_sign.append("no")
+        df["stochastic_sign"] = stochastic_sign
+
+        ### STOCHASTIC RSI
+
+        df["max_RSI%d" % sto_N] = df['RSI'].rolling(sto_N).max()
+        df["min_RSI%d" % sto_N] = df['RSI'].rolling(sto_N).min()
+        df["STOCHRSI%K"] = df.apply(lambda x: 1 * (x['RSI'] - x["min_RSI%d" % sto_N]) /
+                                              (x["max_RSI%d" % sto_N] - x["min_RSI%d" % sto_N])
+        if (x["max_RSI%d" % sto_N] - x["min_RSI%d" % sto_N]) != 0 else 50, 1)
+        df["STOCHRSI_slow_%K"] = df["STOCHRSI%K"].rolling(sto_m).mean()
+        df["STOCHRSI_slow_%D"] = df["STOCHRSI_slow_%K"].rolling(sto_t).mean()
+
+        STOCHRSI_sign = []
+        for i in range(len(df)):
+            if df.loc[i, "STOCHRSI_slow_%K"] > df.loc[i, "STOCHRSI_slow_%D"] and df.loc[i, "close"] > df.loc[i, "MA50"]:
+                STOCHRSI_sign.append("buy")
+            elif df.loc[i, "STOCHRSI_slow_%K"] < df.loc[i, "STOCHRSI_slow_%D"]:
+                if df.loc[i, "STOCHRSI_slow_%K"] > 0.75:
+                    STOCHRSI_sign.append("sell")
+                else:
+                    STOCHRSI_sign.append("no")
+            else:
+                STOCHRSI_sign.append("no")
+        df["STOCHRSI_sign"] = STOCHRSI_sign
+        df["real_volume"] = df["volume"] * df["close"]
+
+        target = df.iloc[-2]
+        now_minute_1ago = df.iloc[0]
+
+        if target["ST_BUY_SELL"] == "buy" and target["stochastic_sign"] == "buy" and target["STOCHRSI_sign"] == "buy" and target["real_volume"] >= 1000000000:
+
+            target_ticker_list.append(i)
+            print("%s target을 추가하였습니다." % target_ticker_list)
+
+
+        else:
+            print("target을 찾고 있습니다.")
+
+        time.sleep(0.1)
+    return target_ticker_list
+
+
+def get_today_ma20(ticker):
+    df = pyupbit.get_ohlcv(ticker, interval="minute1")
+    close = df['close']
+    ma = close.rolling(20).mean()
+    return ma[-1]
+
+
+# df=df.reset_index(drop=True)
+
+op_mode = True
+hold = False
+
+
+while True:
+    now = datetime.datetime.now()
+    target_ticker_list = []
+    krw_balance = upbit.get_balance("KRW")
+
+    if krw_balance > 2:
+        op_mode = True
+        hold = False
+
+    if krw_balance < 2:
+        hold = True
+
+    if now.hour == 8 and 58<= now.minute <= 59 and 1 <= now.second <= 59:
+        time.sleep(150)
+
+    ## 매수
+    if op_mode is True and hold is False:
+        target_ticker_list = cal_target(tickers)
+        if target_ticker_list == []:
+            continue
+        print(target_ticker_list)
+
+        logging.debug("target list : %s" % target_ticker_list)
+
+        dfs = []
+        dfs1 = []
+        dfs2 = []
+        krw_balance = upbit.get_balance("KRW")
+        logging.debug("KRW 금액 : %s" % krw_balance)
+
+        for i in target_ticker_list:
+            df3 = pyupbit.get_ohlcv(i, "minute1", count=1)
+            # print(df3)
+            # for a in range(1, len(df3.close)):
+            #     df3['change_rate'] = df3.close[a] / df3.close[a - 1]
+            #     break
+            df3['volume_amount'] = df3['close'] * df3['volume']
+            # dfs = df2.iloc[-1,-1]
+            # print(df2)
+            dfs = df3.iloc[:, 5:6].copy()
+            # print(dfs)
+
+            dfs['ticker'] = pd.Series([i], index=dfs.index)
+            dfs1.append(dfs)
+
+            time.sleep(0.05)
+
+        dfs2 = pd.concat(dfs1)
+        # dfs2 = df3.sort_index()
+        # print(dfs2)
+
+        find_a = []
+
+        dfs2['volume_amount_rank'] = dfs2['volume_amount'].rank(method='min', ascending=False)
+        dfs2['volume_amount_rank'] = dfs2['volume_amount_rank'].astype(int)
+        dfs2.sort_values(by='volume_amount_rank', axis=0, ascending=True, inplace=True)
+
+        # print(dfs2)
+        find_a = dfs2.iloc[0]
+        # print(find_a)
+
+        print(find_a['ticker'])
+        logging.debug("target list(rank) : %s(%s)" % (find_a['ticker'], find_a['volume_amount']))
+    # print("Ticker:%s, 시가:%s, 고가:%s, 변화율:%s" % (i, df2["open"], df2["high"],df2["change_rate"]))
+
+
+        krw_balance = upbit.get_balance("KRW")
+        upbit.buy_market_order(find_a['ticker'], krw_balance*0.99949)
+        print(upbit.buy_market_order(find_a['ticker'], krw_balance*0.99949))
+
+        hold = True
+        time.sleep(2)
+        ticker_information = upbit.get_balances()
+        mesu_price = ticker_information[-1]['avg_buy_price']
+        # print(now, target_price)
+        print(f"현재시간: {now} 목표가:{target} 현재가: {mesu_price} 보유상태: {hold} 동작상태: {op_mode}")
+        logging.debug("%s 를 매수 했습니다. (%s)" % (find_a['ticker'],mesu_price ))
+
+    ## 매도 시도
+    if op_mode is True and hold is True:
+
+        ticker_information = upbit.get_balances()
+        print(ticker_information)
+        for ticker in range(len(ticker_information)):
+            if float(ticker_information[ticker]['balance']) > 0.0005:
+                find_ticker = ticker_information[ticker]['currency']
+                # find_ticker.append(find_ticker)
+                print("KRW-%s를 가지고있습니다." % find_ticker)
+
+        find_b = "KRW-"
+        find_b += find_ticker
+        # print(find_b)
+        print(find_b)
+
+        mesu_price = ticker_information[-1]['avg_buy_price']
+        mesu_price = float(mesu_price)
+        # print(mesu_price)
+        upbit.get_balance(find_b)
+        print(upbit.get_balance(find_b))
+        target_balance = upbit.get_balance(find_b)
+
+        while True:
+            df4 = pyupbit.get_ohlcv(find_b, "minute1", count=2)
+            df5 = pyupbit.get_ohlcv(find_b, "minute1", count=1)
+
+            medo_1minute = df4.iloc[0]   # -1 번째 data
+            medo_1minute_latest = df4.iloc[-1]  #가장 최근 것
+
+            medo_1minute = df5.iloc[0]
+            # print(medo_minute)
+
+            # target_medo = medo_minute['ma20']
+            target_volume_medo = medo_3minute['close'] * medo_3minute['volume']
+
+            # 익절 추가 설정
+            # if medo_3minute['close'] >= mesu_price * 1.05 and medo_3minute['close'] > bollinger_band_higher_line('find_b') and medo_3minute_latest['close'] < bollinger_band_higher_line('find_b') and (medo_1minute['close'] / medo_1minute['open']) <= ikjul_target:
+            #     upbit.sell_market_order(find_b, target_balance)
+            #     print(upbit.sell_market_order(find_b, target_balance))
+            #
+            #     krw_balance = upbit.get_balance("KRW")
+            #     medo_price = pyupbit.get_current_price(find_b)
+            #     print("%s를 매도하였습니다." % find_b)
+            #
+            #     logging.debug("%s 를 매도 했습니다. 매수 평균: %s, 판매 금액: %s, 수익:%s" % (find_b, mesu_price, medo_price, medo_price/mesu_price))
+            #     time.sleep(5)
+            #     break
+
+            # if medo_minute['close'] <= target_medo and target_volume_medo >= volume_target :
+            if medo_1minute['close'] < get_today_ma20(find_b):
+                # upbit.sell_market_order(find_b, target_balance)
+                print(upbit.sell_market_order(find_b, target_balance))
+
+                krw_balance = upbit.get_balance("KRW")
+                medo_price = pyupbit.get_current_price(find_b)
+                print("%s를 매도하였습니다." % find_b)
+
+                logging.debug("%s 를 매도 했습니다. 판매 금액: %s, 수익:%s" % (find_b, medo_price, medo_price/mesu_price))
+                time.sleep(5)
+                break
+
+            target_balance = upbit.get_balance(find_b)
+            if target_balance == 0:
+                time.sleep(5)
+                break
+
+            else:
+                print("매도 target을 찾고 있습니다.")
+                time.sleep(3)
+                continue
+
+        hold = False
+
+    op_mode = False
+    time.sleep(10)
