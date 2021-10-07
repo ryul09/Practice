@@ -335,6 +335,8 @@ danta_mesu_target = 1.02
 volume_target = 2
 target_rank_list = {}
 bitcoin_out_signal = 0.995
+coin_fee_BTC = 0.25
+coin_fee_KRW = 0.05
 
 btc_balance = upbit.get_balance("BTC")
 
@@ -405,9 +407,12 @@ while True:
             logging.debug("main_target list(rank) : %s(%s)" % (find_a['ticker'], find_a['change_rate']))
 
             btc_balance = upbit.get_balance("BTC")
-            print(upbit.buy_market_order(find_a['ticker'], btc_balance * 0.99949))
-            hold = True
-            mesu_price = pyupbit.get_current_price(find_a['ticker'])
+            print(upbit.buy_market_order(find_a['ticker'], btc_balance * (1-coin_fee_BTC-(coin_fee_BTC*0.1))))
+            target_balance = upbit.get_balance(find_a['ticker'])
+            if target_balance >0:
+                mesu_price = pyupbit.get_current_price(find_a['ticker'])
+                hold = True   
+            
             # print(now, target_price)
             print(f"현재시간: {now} 현재가: {mesu_price} 보유상태: {hold} 동작상태: {op_mode}")
             logging.debug("%s 를 매수 했습니다. (%s)" % (find_a['ticker'], mesu_price))
@@ -421,17 +426,17 @@ while True:
             logging.debug("target list(rank) : %s(%s)" % (find_a['ticker'], find_a['change_rate']))
 
             btc_balance = upbit.get_balance("BTC")
-            print(upbit.buy_market_order(find_a['ticker'], btc_balance * 0.99949))
-            hold = True
-            #  mesu_price = upbit.get_balance(find_a['ticker'])
+            print(upbit.buy_market_order(find_a['ticker'], btc_balance * (1-coin_fee_BTC-(coin_fee_BTC*0.1)))
+            target_balance = upbit.get_balance(find_a['ticker'])
+            if target_balance >0:
+                mesu_price = pyupbit.get_current_price(find_a['ticker'])
+                hold = True  
 
-            mesu_price = pyupbit.get_current_price(find_a['ticker'])
-            mesu_number = upbit.get_balance(find_a['ticker'])
             # print(now, target_price)
             print(f"현재시간: {now} 목표가:{target} 현재가: {mesu_price} 보유상태: {hold} 동작상태: {op_mode}")
             logging.debug("%s 를 매수 했습니다. (%s)" % (find_a['ticker'], mesu_price))
 
-            print(upbit.sell_limit_order(find_a['ticker'], mesu_price * danta_mesu_target, mesu_number))
+            print(upbit.sell_limit_order(find_a['ticker'], mesu_price * danta_mesu_target, target_balance))
 
             while True:
                 time.sleep(1)
