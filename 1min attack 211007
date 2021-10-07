@@ -9,8 +9,6 @@ import logging
 import numpy as np
 import threading
 
-
-
 ## Log 남기기
 dictConfig({
     'version': 1,
@@ -33,6 +31,7 @@ dictConfig({
     }
 })
 
+
 ## First
 ## 거래 조건 : BTC 4시간봉 20일선 상향일 때
 ## 거래 불가 : BTC 1분봉 -0.5% 이상 일 때 모든 거래 청산
@@ -49,7 +48,7 @@ dictConfig({
 
 def condition_check():
     time.sleep(1)
-    df = pyupbit.get_ohlcv("KRW-BTC", interval= "minute240")
+    df = pyupbit.get_ohlcv("KRW-BTC", interval="minute240")
     try:
         df['MA20'] = df['close'].rolling(20).mean()
         df['change_rate'] = df['close'] / df['open']
@@ -62,7 +61,7 @@ def condition_check():
             op_mode = False
         else:
             op_mode = True
-        df1 = pyupbit.get_ohlcv("KRW-BTC", interval= "minute1")
+        df1 = pyupbit.get_ohlcv("KRW-BTC", interval="minute1")
         df1['MA20'] = df1['close'].rolling(20).mean()
         df1['change_rate'] = df1['close'] / df1['open']
         now_minute = df.iloc[-1]
@@ -73,6 +72,7 @@ def condition_check():
     except:
         pass
     return df, op_mode
+
 
 # 1. 매수 Target 구하기 -> target_ticker_list
 def main_cal_target(tickers):
@@ -98,9 +98,10 @@ def main_cal_target(tickers):
         time.sleep(0.3)
     return target_ticker_list, main_target_ticker_list
 
+
 def sub_cal_target(tickers):
     for i in tickers:
-        df = pyupbit.get_ohlcv(i, "minute1", count = 2)
+        df = pyupbit.get_ohlcv(i, "minute1", count=2)
         now_minute = df.iloc[0]
         # print(now_minute)
         target = now_minute['open'] * mesu_target
@@ -115,14 +116,17 @@ def sub_cal_target(tickers):
         time.sleep(0.3)
     return target_ticker_list
 
+
 def mesu_priority(list):
+
+    global find_a
     dfs = []
     dfs1 = []
     dfs2 = []
 
     btc_balance = upbit.get_balance("BTC")
     logging.debug("BTC 금액 : %s" % btc_balance)
-    
+
     if main_target_ticker_list != []:
         for i in main_target_ticker_list:
             df2 = pyupbit.get_ohlcv(i, "minute1", count=2)
@@ -133,10 +137,11 @@ def mesu_priority(list):
                 break
             # dfs = df2.iloc[-1,-1]
             print(df2)
-            dfs = df2.iloc[:, 5:6].copy()
+            dfs = df2.iloc[:, 6:7].copy()
             print(dfs)
             dfs['ticker'] = pd.Series([i, i], index=dfs.index)
             dfs1.append(dfs)
+            print(dfs1)
             time.sleep(0.05)
 
         dfs2 = pd.concat(dfs1)
@@ -151,9 +156,9 @@ def mesu_priority(list):
 
         print(dfs2)
         find_a = dfs2.iloc[0]
-        # print(find_a)
+        print(find_a)
     if target_ticker_list != []:
-    
+
         for i in target_ticker_list:
             df2 = pyupbit.get_ohlcv(i, "minute1", count=2)
 
@@ -163,14 +168,15 @@ def mesu_priority(list):
                 break
             # dfs = df2.iloc[-1,-1]
             # print(df2)
-            dfs = df2.iloc[:, 5:6].copy()
+            dfs = df2.iloc[:, 6:7].copy()
             print(dfs)
             dfs['ticker'] = pd.Series([i, i], index=dfs.index)
             dfs1.append(dfs)
+            print(dfs1)
             time.sleep(0.05)
 
         dfs2 = pd.concat(dfs1)
-        dfs2 = df2.sort_index()
+        # dfs2 = df2.sort_index()
         print(dfs2)
 
         find_a = []
@@ -181,8 +187,10 @@ def mesu_priority(list):
 
         print(dfs2)
         find_a = dfs2.iloc[0]
-        # print(find_a)
-    return find_a,df2,dfs,dfs1,dfs2
+
+        print(find_a)
+    return find_a, df2, dfs, dfs1, dfs2
+
 
 def stoch_rsi():
     RSI_n = 14
@@ -222,6 +230,7 @@ def stoch_rsi():
     df["STOCHRSI_sign"] = STOCHRSI_sign
 
     return df
+
 
 def supertrend():
     df['tr0'] = abs(df["high"] - df["low"])
@@ -286,9 +295,10 @@ def supertrend():
 
     return df
 
+
 def bitcoin_status():
     while True:
-        df = pyupbit.get_ohlcv("KRW-BTC", interval= "minute1")
+        df = pyupbit.get_ohlcv("KRW-BTC", interval="minute1")
         df['close_change_rate'] = df['close'] / df['open']
         now_minute = df.iloc[-2]
         global op_mode
@@ -307,7 +317,7 @@ lines = f.readlines()
 access = lines[0].strip()
 secret = lines[1].strip()
 f.close()
-upbit = pyupbit.Upbit(access,secret)
+upbit = pyupbit.Upbit(access, secret)
 
 ## 변수 설정
 # op_mode = False  ## 동작 상태, True : 동작 조건 만족 -> 가능, False : 동작 조건 불만족 -> 불가능
@@ -316,17 +326,17 @@ upbit = pyupbit.Upbit(access,secret)
 # tickers = pyupbit.get_tickers(fiat="KRW")
 tickers = pyupbit.get_tickers(fiat="BTC")
 
-dfs2 =[]
-target_ticker_list = [] # 매수 가능 Target list (Second)
-main_target_ticker_list = [] # 매수 가능 Target list (Third)
-mesu_target = 1.02
+
+find_a = {}
+target_ticker_list = []  # 매수 가능 Target list (Second)
+main_target_ticker_list = []  # 매수 가능 Target list (Third)
+mesu_target = 1.03
 danta_mesu_target = 1.02
 volume_target = 2
 target_rank_list = {}
 bitcoin_out_signal = 0.995
 
 btc_balance = upbit.get_balance("BTC")
-
 
 op_mode = True
 hold = False
@@ -343,10 +353,9 @@ while True:
         condition_check()
         hold = False
         print(f'시간 : {now:%Y-%m-%d %H:%M}, op_mode: {op_mode}')
-    if now.hour == 8 and 58<= now.minute <= 59 and 30 <= now.second <= 59:
+    if now.hour == 8 and 58 <= now.minute <= 59 and 30 <= now.second <= 59:
         time.sleep(150)
     ## 비트코인 변동성 확인 threding
-
 
     ## 매수
     if op_mode is True and hold is False:
@@ -365,18 +374,20 @@ while True:
                 target = now_minute['open'] * mesu_target
                 target_volume = now_minute['close'] * now_minute['volume']
                 # if now_minute['close'] >= target and target_volume >= volume_target:
-                if now_minute['close'] >= target and target_volume >= volume_target:
+                if now_minute['close'] >= now_minute['open'] * mesu_target and target_volume >= volume_target:
                     target_ticker_list.append(i)
                     print("%s target을 추가하였습니다." % target_ticker_list)
                     if now_minute['STOCHRSI_sign'] == 'BUY' and now_minute['ST_BUY_SELL'] == 'BUY':
                         main_target_ticker_list.append(i)
+                        print("%s main target으로 추가하였습니다." % main_target_ticker_list)
                 else:
-                    print("target을 찾고 있습니다.")
+                    target_change_rate = now_minute['close']/now_minute['open']
+                    print(f'{i} {target_change_rate :.3f}')
+                    # print("target을 찾고 있습니다.")
 
                 time.sleep(0.36)
             except:
                 pass
-
 
         # th = threading.Thread(target=sub_cal_target)
         # th.daemon = True
@@ -404,7 +415,7 @@ while True:
             print(target_ticker_list)
             logging.debug("mesu_target : %s, target list : %s" % (mesu_target, target_ticker_list))
 
-            # mesu_priority(target_ticker_list)
+            mesu_priority(target_ticker_list)
 
             print(find_a['ticker'])
             logging.debug("target list(rank) : %s(%s)" % (find_a['ticker'], find_a['change_rate']))
@@ -433,12 +444,10 @@ while True:
                     hold = False
                     break
 
-
     ## 매도 시도p
     if op_mode is True and hold is True:
         time.sleep(1)
         print(upbit.get_balance(find_a['ticker']))
-
 
         ## 목표 도달 시 바로 매도
 
@@ -459,7 +468,7 @@ while True:
 
             # if medo_minute['close'] <= target_medo and target_volume_medo >= volume_target :
             if op_mode is True:
-                df= pyupbit.get_ohlcv(i, "minute1")
+                df = pyupbit.get_ohlcv(i, "minute1")
                 df.reset_index(inplace=True)
                 stoch_rsi()
                 supertrend()
@@ -470,7 +479,8 @@ while True:
                     medo_price = pyupbit.get_current_price(find_a['ticker'])
                     print(upbit.sell_market_order(find_a['ticker'], target_balance))
                     print("%s를 매도하였습니다." % find_a['ticker'])
-                    logging.debug("%s 를 매도 했습니다. 판매 금액: %s, 수익:%s" % (find_a['ticker'], medo_price, medo_price/mesu_price))
+                    logging.debug(
+                        "%s 를 매도 했습니다. 판매 금액: %s, 수익:%s" % (find_a['ticker'], medo_price, medo_price / mesu_price))
                     time.sleep(5)
                     break
 
@@ -482,7 +492,6 @@ while True:
                 print("매도 target을 찾고 있습니다.")
                 time.sleep(0.3)
                 continue
-
 
     if op_mode is False:
         time.sleep(60)
