@@ -427,7 +427,7 @@ while True:
             logging.debug("target list(rank) : %s(%s)" % (find_a['ticker'], find_a['change_rate']))
 
             btc_balance = upbit.get_balance("BTC")
-            print(upbit.buy_market_order(find_a['ticker'], btc_balance * (1-coin_fee_BTC-(coin_fee_BTC*0.1)))
+            print(upbit.buy_market_order(find_a['ticker'], btc_balance * (1-coin_fee_BTC-(coin_fee_BTC*0.1))))
             target_balance = upbit.get_balance(find_a['ticker'])
             if target_balance >0:
                 mesu_price = pyupbit.get_current_price(find_a['ticker'])
