@@ -319,7 +319,7 @@ tickers = pyupbit.get_tickers(fiat="BTC")
 dfs2 =[]
 target_ticker_list = [] # 매수 가능 Target list (Second)
 main_target_ticker_list = [] # 매수 가능 Target list (Third)
-mesu_target = 1.03
+mesu_target = 1.02
 danta_mesu_target = 1.02
 volume_target = 2
 target_rank_list = {}
