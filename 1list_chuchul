@@ -34,3 +34,29 @@ for i in target_balance_detail:
         test = list(a['currency'])
         if test == target2:
             print(a['balance'])
+
+
+
+#최종
+
+target_balance_detail = ([{'currency': 'KRW', 'balance': '10145.32276052', 'locked': '0.0', 'avg_buy_price': '0', 'avg_buy_price_modified': True, 'unit_currency': 'KRW'}, {'currency': 'BTC', 'balance': '0.00000138', 'locked': '0.0', 'avg_buy_price': '64555200.3679', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'XRP', 'balance': '0.00000085', 'locked': '0.0', 'avg_buy_price': '1191.3061', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'BTT', 'balance': '92546.22655005', 'locked': '0.0', 'avg_buy_price': '5.6024', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'QTUM', 'balance': '23.56249708', 'locked': '0.0', 'avg_buy_price': '16976.1294', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'IOTA', 'balance': '0.0', 'locked': '2.0', 'avg_buy_price': '1569.0941', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'GAS', 'balance': '0.0', 'locked': '0.00283259', 'avg_buy_price': '15121.3054', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'KNC', 'balance': '395.3858069', 'locked': '0.0', 'avg_buy_price': '2276.2577', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'ARK', 'balance': '73.56296398', 'locked': '0.0', 'avg_buy_price': '4866.306', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'APENFT', 'balance': '46740.05063377', 'locked': '0.0', 'avg_buy_price': '0', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}], {'group': 'default', 'min': 899, 'sec': 29})
+
+
+target = ['BTC-XRP']
+target_coin = []
+
+for i in target:
+    temp = i.replace('BTC-', '')
+    target_coin.append(temp)
+target_coin_tup = tuple(target_coin)
+
+target_detail_list = list(target_balance_detail)
+del target_detail_list[1]
+target_detail_list_short = sum(target_detail_list, [])
+
+
+for i in range(len(target_detail_list_short)):
+    if target_detail_list_short[i]['currency'] == target_coin_tup[0]:
+        target_final =target_detail_list_short[i]['balance']
+
+print(target_final)
