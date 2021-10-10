@@ -1,0 +1,36 @@
+target_balance_detail = ([{'currency': 'KRW', 'balance': '10145.32276052', 'locked': '0.0', 'avg_buy_price': '0', 'avg_buy_price_modified': True, 'unit_currency': 'KRW'}, {'currency': 'BTC', 'balance': '0.00000138', 'locked': '0.0', 'avg_buy_price': '64555200.3679', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'XRP', 'balance': '0.00000085', 'locked': '0.0', 'avg_buy_price': '1191.3061', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'BTT', 'balance': '92546.22655005', 'locked': '0.0', 'avg_buy_price': '5.6024', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'QTUM', 'balance': '23.56249708', 'locked': '0.0', 'avg_buy_price': '16976.1294', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'IOTA', 'balance': '0.0', 'locked': '2.0', 'avg_buy_price': '1569.0941', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'GAS', 'balance': '0.0', 'locked': '0.00283259', 'avg_buy_price': '15121.3054', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'KNC', 'balance': '395.3858069', 'locked': '0.0', 'avg_buy_price': '2276.2577', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'ARK', 'balance': '73.56296398', 'locked': '0.0', 'avg_buy_price': '4866.306', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'APENFT', 'balance': '46740.05063377', 'locked': '0.0', 'avg_buy_price': '0', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}], {'group': 'default', 'min': 899, 'sec': 29})
+
+
+target = ['BTC-ARK']
+target1 = []
+target2 = []
+for i in target:
+    temp = i.replace('BTC', 'KRW')
+    target1.append(temp)
+print(target)
+print(target1)
+
+for i in target:
+    temp = i.replace('BTC-', '')
+    target2.append(temp)
+print(target2)
+target3 = tuple(target2)
+print(target3)
+
+
+
+print(target_balance_detail[0][8]['balance'])
+
+
+
+for i in target_balance_detail:
+    print("첫번쨰 i")
+    print(i)
+    print(len(i))
+    for a in i:
+        print("두번쨰 i")
+        print(a)
+        print(a['currency'])
+        test = list(a['currency'])
+        if test == target2:
+            print(a['balance'])
