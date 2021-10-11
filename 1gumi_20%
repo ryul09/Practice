@@ -1,0 +1,213 @@
+import requests
+import pyupbit
+import matplotlib.pyplot as plt
+import time
+import datetime
+import pandas as pd
+from logging.config import dictConfig
+import logging
+import numpy as np
+
+## Log 남기기
+dictConfig({
+    'version': 1,
+    'formatters': {
+        'default': {
+            'format': '[%(asctime)s] %(message)s',
+        }
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug_gumi_20percent.log',
+            'formatter': 'default',
+        },
+    },
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['file']
+    }
+})
+
+
+# 1. 매수 Target 구하기 -> target_ticker_list
+def cal_target(tickers):
+    try:
+
+        for i in tickers:
+            df = pyupbit.get_ohlcv(i, "day", count = 2)
+            now_minute = df.iloc[-1]
+
+            target = now_minute['close'] / first_minute['open']
+
+            if target >= mesu_target:
+                target_ticker_list.append(i)
+                print("%s target을 추가하였습니다." % target_ticker_list)
+            else:
+                print("target을 찾고 있습니다.")
+
+            time.sleep(0.36)
+
+    except:
+        pass
+    return target_ticker_list,target
+
+## 0. 객체 생성
+f = open("upbit_gumi.txt")
+lines = f.readlines()
+access = lines[0].strip()
+secret = lines[1].strip()
+f.close()
+upbit = pyupbit.Upbit(access,secret)
+
+## 변수 설정
+# op_mode = False  ## 동작 상태, True : 동작 조건 만족 -> 가능, False : 동작 조건 불만족 -> 불가능
+# hold = False  ## 보유 상태, True : 코인 보유 중 -> 매도 가능, False : 코인 미보유 중 -> 매수 가능
+
+tickers = pyupbit.get_tickers(fiat="KRW")
+# tickers = ["KRW-BTC", "KRW-ETH", "KRW-NEO", "KRW-MTL", "KRW-LTC", "KRW-ETC", "KRW-OMG", "KRW-WAVES", "KRW-XEM", "KRW-QTUM", "KRW-LSK", "KRW-STEEM", "KRW-XLM", "KRW-ARDR", "KRW-KMD", "KRW-ARK", "KRW-STORJ", "KRW-REP", "KRW-EMC2", "KRW-ADA", "KRW-SBD", "KRW-POWR", "KRW-BTG", "KRW-ICX", "KRW-EOS", "KRW-TRX", "KRW-SC", "KRW-ONT",  "KRW-POLY", "KRW-ZRX", "KRW-LOOM", "KRW-BCH", "KRW-BAT", "KRW-IOST", "KRW-DMT", "KRW-CVC", "KRW-IQ", "KRW-IOTA", "KRW-ONG", "KRW-GAS", "KRW-ELF", "KRW-KNC", "KRW-BSV", "KRW-THETA", "KRW-EDR", "KRW-QKC", "KRW-BTT", "KRW-ENJ", "KRW-TFUEL", "KRW-MANA", "KRW-AERGO", "KRW-ATOM", "KRW-SOLVE", "KRW-WAXP", "KRW-HBAR", "KRW-MED", "KRW-MLK", "KRW-STPT",  "KRW-CHZ", "KRW-PXL", "KRW-STMX", "KRW-DKA", "KRW-HIVE", "KRW-KAVA", "KRW-LINK", "KRW-XTZ", "KRW-BORA", "KRW-JST", "KRW-TON", "KRW-SXP", "KRW-LAMB", "KRW-HUNT", "KRW-MARO", "KRW-PLA", "KRW-DOT", "KRW-SRM", "KRW-MVL", "KRW-PCI", "KRW-STRAX", "KRW-AQT", "KRW-BCHA", "KRW-GLM", "KRW-QTCON", "KRW-SSX", "KRW-OBSR", "KRW-CBK", "KRW-SAND", "KRW-DOGE", "KRW-STRK", "KRW-PUNDIX", "KRW-FLOW", "KRW-DAWN", "KRW-AXS"]
+
+target_ticker_list = [] # 매수 가능 Target list
+mesu_target = 1.2
+medo_target = 1.2
+medo_target_sonjul = 0.95
+volume_target = 100000000
+target_rank_list = {}
+coin_fee_KRW = 0.0005
+target = 0
+target_balance = 0
+target_price = 0
+
+
+krw_balance = upbit.get_balance("KRW")
+
+op_mode = True
+hold = False
+
+
+while True:
+    now = datetime.datetime.now()
+    target_ticker_list = []
+    krw_balance = upbit.get_balance("KRW")
+    logging.debug("KRW 금액 : %s" % krw_balance)
+
+    if krw_balance >= 100000:
+        op_mode = True
+        hold = False
+        print(f'op_mode : {op_mode}')
+    if krw_balance < 100000:
+        op_mode = False
+        hold = False
+        print(f'op_mode : {op_mode}')
+        time.sleep(60)
+
+
+
+    ## 매수
+    if op_mode is True and hold is False:
+        target = cal_target(tickers)
+        if target_ticker_list == []:
+            continue
+        print(target_ticker_list)
+
+        logging.debug(f'{target_ticker_list}({target})')
+
+        dfs = []
+        dfs1 = []
+        dfs2 = []
+
+
+        for i in target_ticker_list:
+            df2 = pyupbit.get_ohlcv(i, "minute3", count=1)
+
+            df2['volume_amount'] = df2['close'] * df2['volume']
+            # dfs = df2.iloc[-1,-1]
+            # print(df2)
+            dfs = df2.iloc[:, 5:6].copy()
+            # print(dfs)
+
+            dfs['ticker'] = pd.Series([i], index=dfs.index)
+            dfs1.append(dfs)
+
+            time.sleep(0.05)
+
+        dfs2 = pd.concat(dfs1)
+
+        find_a = []
+
+        dfs2['volume_amount_rank'] = dfs2['volume_amount'].rank(method='min', ascending=False)
+        dfs2['volume_amount_rank'] = dfs2['volume_amount_rank'].astype(int)
+        dfs2.sort_values(by='volume_amount_rank', axis=0, ascending=True, inplace=True)
+
+
+        find_a = dfs2.iloc[0]
+
+        print(find_a['ticker'])
+        logging.debug("target list(rank) : %s(%s)" % (find_a['ticker'], find_a['volume_amount']))
+
+        target_coin_name = find_a['ticker']
+        krw_balance = upbit.get_balance("KRW")
+        print(upbit.buy_market_order(target_coin_name, (1 - coin_fee_KRW - (coin_fee_KRW * 0.1))))
+
+        target_coin = []
+
+        for i in target_coin_name:
+            temp = i.replace('KRW-', '')
+            target_coin.append(temp)
+        target_coin_tup = tuple(target_coin)
+
+        target_detail_list = list(upbit.get_balances(target_coin_name))
+        del target_detail_list[1]
+        target_detail_list_short = sum(target_detail_list, [])
+
+        for i in range(len(target_detail_list_short)):
+            if target_detail_list_short[i]['currency'] == target_coin_tup[0]:
+                target_balance = target_detail_list_short[i]['balance']
+                target_price = target_detail_list_short[i]['avg_buy_price']
+
+        if target_balance > 0:
+            print(target_balance)
+            logging.debug(f'{target_coin_name} 매수 단가 : {target_price} 수량 : {target_balance} ')
+            hold = True
+        # mesu_price = upbit.get_balance(target_coin_name)
+
+        # print(now, target_price)
+        print(f"현재시간: {now}  현재가: {target_price} 보유상태: {hold} 동작상태: {op_mode}")
+
+
+    ## 매도 시도
+    if op_mode is True and hold is True:
+        time.sleep(1)
+        upbit.get_balance(target_coin_name)
+        print(upbit.get_balance(target_coin_name))
+
+        #특정 매도 기준
+        while True:
+            current_price = pyupbit.get_current_price(target_coin_name)
+            print(current_price)
+
+
+            # if medo_minute['close'] <= target_medo and target_volume_medo >= volume_target :
+            if current_price >= target_price * medo_target or current_price <= target_price * medo_target_sonjul:
+                print(upbit.sell_market_order(target_coin_name, target_balance))
+
+                krw_balance = upbit.get_balance("KRW")
+                if krw_balance >= 100000:
+                    print("%s를 매도하였습니다." % target_coin_name)
+                    logging.debug(f'{target_coin_name} 매도 단가(수익) : {current_price}({medo_target})')
+
+                time.sleep(5)
+                break
+
+
+            else:
+                print("매도 target을 찾고 있습니다.")
+                time.sleep(3)
+                continue
+
+        hold = False
+
+    op_mode = False
+    time.sleep(10)
+
