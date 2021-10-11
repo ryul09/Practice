@@ -330,11 +330,12 @@ target_ticker_list = []  # 매수 가능 Target list (Second)
 main_target_ticker_list = []  # 매수 가능 Target list (Third)
 mesu_target = 1.03
 danta_mesu_target = 1.02
-volume_target = 2
+volume_target = 0.5
 target_rank_list = {}
 bitcoin_out_signal = 0.995
-coin_fee_BTC = 0.25
-coin_fee_KRW = 0.05
+coin_fee_BTC = 0.0025
+coin_fee_KRW = 0.0005
+target_balance = 0
 
 btc_balance = upbit.get_balance("BTC")
 
@@ -379,11 +380,14 @@ while True:
                 target_volume = now_minute['close'] * now_minute['volume']
                 # if now_minute['close'] >= target and target_volume >= volume_target:
                 if now_minute['close'] >= now_minute['open'] * mesu_target and target_volume >= volume_target:
+                    nmc = now_minute['close']/ now_minute['open']
                     target_ticker_list.append(i)
                     print("%s target을 추가하였습니다." % target_ticker_list)
+                    logging.debug(f' target_ticker_list : {i} ({nmc}) ')
                     if now_minute['STOCHRSI_sign'] == 'BUY' and now_minute['ST_BUY_SELL'] == 'BUY':
                         main_target_ticker_list.append(i)
                         print("%s main target으로 추가하였습니다." % main_target_ticker_list)
+                        logging.debug(f' main_target_ticker_list : {i} ({nmc}) ')
                 else:
                     target_change_rate = now_minute['close'] / now_minute['open']
                     # print(f'{i} {target_change_rate :.3f}')
@@ -405,22 +409,21 @@ while True:
             logging.debug("mesu_target : %s, main_target_ticker_list : %s" % (mesu_target, target_ticker_list))
 
             mesu_priority(main_target_ticker_list)
-
-            print(find_a['ticker'])
-            logging.debug("main_target list(rank) : %s(%s)" % (find_a['ticker'], find_a['change_rate']))
+            target_coin_name = find_a['ticker']
+            print(target_coin_name)
+            logging.debug("main_target list(rank) : %s(%s)" % (target_coin_name, find_a['change_rate']))
 
             btc_balance = upbit.get_balance("BTC")
-            print(upbit.buy_market_order(find_a['ticker'], btc_balance * (1 - coin_fee_BTC - (coin_fee_BTC * 0.1))))
-            
-            coin_name = find_a['ticker']
+            print(upbit.buy_market_order(target_coin_name, btc_balance * (1 - coin_fee_BTC - (coin_fee_BTC * 0.1))))
+
             target_coin = []
 
-            for i in coin_name:
+            for i in target_coin_name:
                 temp = i.replace('BTC-', '')
                 target_coin.append(temp)
             target_coin_tup = tuple(target_coin)
 
-            target_detail_list = list(target_balance_detail)
+            target_detail_list = list(upbit.get_balances(target_coin_name))
             del target_detail_list[1]
             target_detail_list_short = sum(target_detail_list, [])
 
@@ -430,35 +433,34 @@ while True:
 
             print(target_balance)
 
-            # target_balance = upbit.get_balance(find_a['ticker'])
+            # target_balance = upbit.get_balance(target_coin_name)
             if target_balance > 0:
-                mesu_price = pyupbit.get_current_price(find_a['ticker'])
+                mesu_price = pyupbit.get_current_price(target_coin_name)
                 hold = True
 
                 # print(now, target_price)
             print(f"현재시간: {now} 현재가: {mesu_price} 보유상태: {hold} 동작상태: {op_mode}")
-            logging.debug("%s 를 매수 했습니다. (%s)" % (find_a['ticker'], mesu_price))
+            logging.debug(f' {target_coin_name} 매수 완료 : {mesu_price} ')
         if main_target_ticker_list == [] and target_ticker_list != []:
             print(target_ticker_list)
             logging.debug("mesu_target : %s, target list : %s" % (mesu_target, target_ticker_list))
 
             mesu_priority(target_ticker_list)
-
-            print(find_a['ticker'])
-            logging.debug("target list(rank) : %s(%s)" % (find_a['ticker'], find_a['change_rate']))
+            target_coin_name = find_a['ticker']
+            print(target_coin_name)
+            logging.debug("target list(rank) : %s(%s)" % (target_coin_name, find_a['change_rate']))
 
             btc_balance = upbit.get_balance("BTC")
-            print(upbit.buy_market_order(find_a['ticker'], btc_balance * (1 - coin_fee_BTC - (coin_fee_BTC * 0.1))))
-                        
-            coin_name = find_a['ticker']
+            print(upbit.buy_market_order(target_coin_name, btc_balance * (1 - coin_fee_BTC - (coin_fee_BTC * 0.1))))
+
             target_coin = []
 
-            for i in coin_name:
+            for i in target_coin_name:
                 temp = i.replace('BTC-', '')
                 target_coin.append(temp)
             target_coin_tup = tuple(target_coin)
 
-            target_detail_list = list(target_balance_detail)
+            target_detail_list = list(upbit.get_balances(target_coin_name))
             del target_detail_list[1]
             target_detail_list_short = sum(target_detail_list, [])
 
@@ -467,24 +469,26 @@ while True:
                     target_balance = target_detail_list_short[i]['balance']
 
             print(target_balance)
-            # target_balance = upbit.get_balance(find_a['ticker'])
+            # target_balance = upbit.get_balance(target_coin_name)
             if target_balance > 0:
-                mesu_price = pyupbit.get_current_price(find_a['ticker'])
+                mesu_price = pyupbit.get_current_price(target_coin_name)
                 hold = True
 
                 # print(now, target_price)
-                print(f"현재시간: {now} 목표가:{mesu_price*danta_mesu_target} 현재가: {mesu_price} 보유상태: {hold} 동작상태: {op_mode}")
-                logging.debug("%s 를 매수 했습니다. (%s)" % (find_a['ticker'], mesu_price))
-    
-                print(upbit.sell_limit_order(find_a['ticker'], mesu_price * danta_mesu_target, target_balance))
-    
+                print(f"현재시간: {now} 목표가:{mesu_price * danta_mesu_target} 현재가: {mesu_price} 보유상태: {hold} 동작상태: {op_mode}")
+                logging.debug(f'{target_coin_name} 매수 완료 : {mesu_price} ')
+                medo_price =mesu_price * danta_mesu_target
+                print(upbit.sell_limit_order(target_coin_name, medo_price, target_balance))
+
                 while True:
                     time.sleep(1)
-                    if mesu_number == 0:
+                    btc_balance = upbit.get_balance("BTC")
+                    if btc_balance >= 0.0015:
                         hold = False
+                        logging.debug(f'{target_coin_name} 매도 완료 : {medo_price}({danta_mesu_target})')
                         break
                     if op_mode is False:
-                        coin_uuid = upbit.get_order(find_a['ticker'])[0]['uuid']
+                        coin_uuid = upbit.get_order(target_coin_name)[0]['uuid']
                         print(upbit.cancel_order(coin_uuid))
                         hold = False
                         break
@@ -492,21 +496,20 @@ while True:
     ## 매도 시도
     if op_mode is True and hold is True:
         time.sleep(1)
-        print(upbit.get_balance(find_a['ticker']))
+        print(upbit.get_balance(target_coin_name))
 
         ## 목표 도달 시 바로 매도
 
         while True:
-            now_price = pyupbit.get_current_price(find_a['ticker'])
-            coin_name = find_a['ticker']
+            now_price = pyupbit.get_current_price(target_coin_name)
             target_coin = []
 
-            for i in coin_name:
+            for i in target_coin_name:
                 temp = i.replace('BTC-', '')
                 target_coin.append(temp)
             target_coin_tup = tuple(target_coin)
 
-            target_detail_list = list(target_balance_detail)
+            target_detail_list = list(upbit.get_balances(target_coin_name))
             del target_detail_list[1]
             target_detail_list_short = sum(target_detail_list, [])
 
@@ -515,17 +518,17 @@ while True:
                     target_balance = target_detail_list_short[i]['balance']
 
             print(target_balance)
-            
-            # target_balance = upbit.get_balance(find_a['ticker'])
+
+            # target_balance = upbit.get_balance(target_coin_name)
             condition_check()
             if op_mode is False:
-                medo_price = pyupbit.get_current_price(find_a['ticker'])
-                print(upbit.sell_market_order(find_a['ticker'], target_balance))
+                print(upbit.sell_market_order(target_coin_name, target_balance))
+                medo_price = pyupbit.get_current_price(target_coin_name)
                 hold = False
-                print(upbit.sell_market_order(find_a['ticker'], target_balance))
-                print("%s를 매도하였습니다." % find_a['ticker'])
-                logging.debug(
-                    "%s 를 매도 했습니다. 판매 금액: %s, 수익:%s" % (find_a['ticker'], medo_price, medo_price / mesu_price))
+                print("%s를 매도하였습니다." % target_coin_name)
+                profit = medo_price / mesu_price
+                logging.debug(f'{target_coin_name} 매도 완료 : {medo_price}({profit})')
+
                 time.sleep(5)
                 break
 
@@ -539,11 +542,11 @@ while True:
                 now_medo = df_medo.iloc[-1]
 
                 if now_medo['STOCHRSI_sign'] == 'SELL':
-                    medo_price = pyupbit.get_current_price(find_a['ticker'])
-                    print(upbit.sell_market_order(find_a['ticker'], target_balance))
-                    print("%s를 매도하였습니다." % find_a['ticker'])
+                    medo_price = pyupbit.get_current_price(target_coin_name)
+                    print(upbit.sell_market_order(target_coin_name, target_balance))
+                    print("%s를 매도하였습니다." % target_coin_name)
                     logging.debug(
-                        "%s 를 매도 했습니다. 판매 금액: %s, 수익:%s" % (find_a['ticker'], medo_price, medo_price / mesu_price))
+                        "%s 를 매도 했습니다. 판매 금액: %s, 수익:%s" % (target_coin_name, medo_price, medo_price / mesu_price))
                     time.sleep(5)
                     break
 
