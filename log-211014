@@ -1,0 +1,333 @@
+C:\Users\jigang_work\miniconda3\python.exe C:/Users/jigang_work/PycharmProjects/upbit/upbit/auto_1min_attack.py
+close : 67837000,MA20 : 69253900
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 19:37, 동작상태: True, 보유상태 : False
+close : 67801000,MA20 : 69252100
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 19:39, 동작상태: True, 보유상태 : False
+close : 67640000,MA20 : 69244050
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 19:40, 동작상태: True, 보유상태 : False
+close : 67614000,MA20 : 69242750
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 19:42, 동작상태: True, 보유상태 : False
+close : 67516000,MA20 : 69237850
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 19:43, 동작상태: True, 보유상태 : False
+close : 67663000,MA20 : 69245200
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 19:45, 동작상태: True, 보유상태 : False
+close : 67480000,MA20 : 69236050
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 19:47, 동작상태: True, 보유상태 : False
+close : 67469000,MA20 : 69235500
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 19:48, 동작상태: True, 보유상태 : False
+close : 67363000,MA20 : 69230200
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 19:50, 동작상태: True, 보유상태 : False
+close : 67300000,MA20 : 69227050
+bitcoin 순간 변화율 : 0.99
+시간 : 2021-10-13 19:51, 동작상태: False, 보유상태 : False
+close : 67296000,MA20 : 69226850
+bitcoin 순간 변화율 : 0.99
+시간 : 2021-10-13 19:53, 동작상태: False, 보유상태 : False
+close : 67338000,MA20 : 69228950
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 19:54, 동작상태: True, 보유상태 : False
+close : 67262000,MA20 : 69225150
+bitcoin 순간 변화율 : 0.99
+시간 : 2021-10-13 19:55, 동작상태: False, 보유상태 : False
+It failed ConnectionError
+TypeError
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "C:\Users\jigang_work\miniconda3\lib\threading.py", line 973, in _bootstrap_inner
+    self.run()
+  File "C:\Users\jigang_work\miniconda3\lib\threading.py", line 910, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\jigang_work\PycharmProjects\upbit\upbit\auto_1min_attack.py", line 301, in bitcoin_status
+    df['close_change_rate'] = df['close'] / df['open']
+TypeError: 'NoneType' object is not subscriptable
+close : 67338000,MA20 : 69228950
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 19:56, 동작상태: True, 보유상태 : False
+close : 67399000,MA20 : 69232000
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 19:58, 동작상태: True, 보유상태 : False
+close : 67450000,MA20 : 69234550
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:00, 동작상태: True, 보유상태 : False
+close : 67491000,MA20 : 69236600
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:01, 동작상태: True, 보유상태 : False
+close : 67418000,MA20 : 69232950
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:03, 동작상태: True, 보유상태 : False
+close : 67346000,MA20 : 69229350
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:04, 동작상태: True, 보유상태 : False
+close : 67327000,MA20 : 69228400
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:06, 동작상태: True, 보유상태 : False
+close : 67490000,MA20 : 69236550
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:08, 동작상태: True, 보유상태 : False
+close : 67528000,MA20 : 69238450
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:09, 동작상태: True, 보유상태 : False
+close : 67535000,MA20 : 69238800
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:11, 동작상태: True, 보유상태 : False
+close : 67485000,MA20 : 69236300
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:12, 동작상태: True, 보유상태 : False
+close : 67498000,MA20 : 69236950
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:14, 동작상태: True, 보유상태 : False
+close : 67543000,MA20 : 69239200
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:16, 동작상태: True, 보유상태 : False
+It failed ConnectionError
+TypeError
+close : 67505000,MA20 : 69237300
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:17, 동작상태: True, 보유상태 : False
+close : 67457000,MA20 : 69234900
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:19, 동작상태: True, 보유상태 : False
+close : 67475000,MA20 : 69235800
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:21, 동작상태: True, 보유상태 : False
+close : 67476000,MA20 : 69235850
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:22, 동작상태: True, 보유상태 : False
+close : 67442000,MA20 : 69234150
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:24, 동작상태: True, 보유상태 : False
+close : 67374000,MA20 : 69230750
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:25, 동작상태: True, 보유상태 : False
+close : 67484000,MA20 : 69236250
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:27, 동작상태: True, 보유상태 : False
+close : 67550000,MA20 : 69239550
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:29, 동작상태: True, 보유상태 : False
+close : 67555000,MA20 : 69239800
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:30, 동작상태: True, 보유상태 : False
+close : 67591000,MA20 : 69241600
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:32, 동작상태: True, 보유상태 : False
+close : 67578000,MA20 : 69240950
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:34, 동작상태: True, 보유상태 : False
+close : 67591000,MA20 : 69241600
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:35, 동작상태: True, 보유상태 : False
+close : 67621000,MA20 : 69243100
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:37, 동작상태: True, 보유상태 : False
+close : 67851000,MA20 : 69254600
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:38, 동작상태: True, 보유상태 : False
+close : 68001000,MA20 : 69262100
+bitcoin 순간 변화율 : 1.01
+시간 : 2021-10-13 20:40, 동작상태: True, 보유상태 : False
+close : 67875000,MA20 : 69255800
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:42, 동작상태: True, 보유상태 : False
+close : 67879000,MA20 : 69256000
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:43, 동작상태: True, 보유상태 : False
+close : 67828000,MA20 : 69253450
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:45, 동작상태: True, 보유상태 : False
+close : 67712000,MA20 : 69247650
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:46, 동작상태: True, 보유상태 : False
+close : 67739000,MA20 : 69249000
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:48, 동작상태: True, 보유상태 : False
+close : 67742000,MA20 : 69249150
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:50, 동작상태: True, 보유상태 : False
+close : 67740000,MA20 : 69249050
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:51, 동작상태: True, 보유상태 : False
+close : 67950000,MA20 : 69259550
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:53, 동작상태: True, 보유상태 : False
+close : 67943000,MA20 : 69259200
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:54, 동작상태: True, 보유상태 : False
+close : 67933000,MA20 : 69258700
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:56, 동작상태: True, 보유상태 : False
+close : 67912000,MA20 : 69257650
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:58, 동작상태: True, 보유상태 : False
+close : 67900000,MA20 : 69257050
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 20:59, 동작상태: True, 보유상태 : False
+close : 67936000,MA20 : 69259250
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:01, 동작상태: True, 보유상태 : False
+close : 67996000,MA20 : 69262250
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:02, 동작상태: True, 보유상태 : False
+close : 68043000,MA20 : 69264600
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:04, 동작상태: True, 보유상태 : False
+close : 68061000,MA20 : 69265500
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:06, 동작상태: True, 보유상태 : False
+close : 68090000,MA20 : 69266950
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:07, 동작상태: True, 보유상태 : False
+close : 68118000,MA20 : 69268350
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:09, 동작상태: True, 보유상태 : False
+close : 68020000,MA20 : 69263450
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:11, 동작상태: True, 보유상태 : False
+close : 68004000,MA20 : 69262650
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:12, 동작상태: True, 보유상태 : False
+close : 68000000,MA20 : 69262450
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:14, 동작상태: True, 보유상태 : False
+close : 67998000,MA20 : 69262350
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:15, 동작상태: True, 보유상태 : False
+close : 68028000,MA20 : 69263850
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:17, 동작상태: True, 보유상태 : False
+close : 67920000,MA20 : 69258450
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:19, 동작상태: True, 보유상태 : False
+close : 67928000,MA20 : 69258850
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:20, 동작상태: True, 보유상태 : False
+close : 67908000,MA20 : 69257850
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:22, 동작상태: True, 보유상태 : False
+close : 67812000,MA20 : 69253050
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:23, 동작상태: True, 보유상태 : False
+close : 67928000,MA20 : 69258850
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:25, 동작상태: True, 보유상태 : False
+close : 67912000,MA20 : 69258050
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:27, 동작상태: True, 보유상태 : False
+close : 67928000,MA20 : 69258850
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:28, 동작상태: True, 보유상태 : False
+close : 67957000,MA20 : 69260300
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:30, 동작상태: True, 보유상태 : False
+close : 68002000,MA20 : 69262550
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:31, 동작상태: True, 보유상태 : False
+close : 68001000,MA20 : 69262500
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:33, 동작상태: True, 보유상태 : False
+close : 67997000,MA20 : 69262300
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:35, 동작상태: True, 보유상태 : False
+close : 67989000,MA20 : 69261900
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:36, 동작상태: True, 보유상태 : False
+close : 68023000,MA20 : 69263600
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:38, 동작상태: True, 보유상태 : False
+close : 67941000,MA20 : 69259500
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:40, 동작상태: True, 보유상태 : False
+close : 67948000,MA20 : 69259850
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:41, 동작상태: True, 보유상태 : False
+close : 67859000,MA20 : 69255400
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:43, 동작상태: True, 보유상태 : False
+close : 67811000,MA20 : 69253000
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:44, 동작상태: True, 보유상태 : False
+close : 67774000,MA20 : 69251150
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:46, 동작상태: True, 보유상태 : False
+close : 67889000,MA20 : 69256900
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:48, 동작상태: True, 보유상태 : False
+close : 67799000,MA20 : 69252400
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:49, 동작상태: True, 보유상태 : False
+close : 67799000,MA20 : 69252400
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:51, 동작상태: True, 보유상태 : False
+close : 67790000,MA20 : 69251950
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:52, 동작상태: True, 보유상태 : False
+close : 67779000,MA20 : 69251400
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:54, 동작상태: True, 보유상태 : False
+close : 67837000,MA20 : 69254300
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:56, 동작상태: True, 보유상태 : False
+close : 67855000,MA20 : 69255200
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:57, 동작상태: True, 보유상태 : False
+close : 67788000,MA20 : 69251850
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 21:59, 동작상태: True, 보유상태 : False
+close : 67783000,MA20 : 69251600
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 22:00, 동작상태: True, 보유상태 : False
+close : 67861000,MA20 : 69255500
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 22:02, 동작상태: True, 보유상태 : False
+close : 67928000,MA20 : 69258850
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 22:04, 동작상태: True, 보유상태 : False
+close : 67940000,MA20 : 69259450
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 22:05, 동작상태: True, 보유상태 : False
+close : 67910000,MA20 : 69257950
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 22:07, 동작상태: True, 보유상태 : False
+close : 67911000,MA20 : 69258000
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 22:09, 동작상태: True, 보유상태 : False
+close : 67927000,MA20 : 69258800
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 22:10, 동작상태: True, 보유상태 : False
+close : 67915000,MA20 : 69258200
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 22:12, 동작상태: True, 보유상태 : False
+close : 67958000,MA20 : 69260350
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 22:13, 동작상태: True, 보유상태 : False
+close : 67967000,MA20 : 69260800
+bitcoin 순간 변화율 : 1.00
+시간 : 2021-10-13 22:15, 동작상태: True, 보유상태 : False
+['BTC-SOLVE'] target을 추가하였습니다.
+['BTC-SOLVE'] main target으로 추가하였습니다.
+['BTC-SOLVE']
+                         open      high  ...     value  change_rate
+2021-10-13 22:16:00  0.000001  0.000001  ...  1.508585     0.992701
+2021-10-13 22:17:00  0.000001  0.000001  ...  0.073710     0.992701
+
+[2 rows x 7 columns]
+['BTC-SOLVE']
+{'error': {'message': 'Jwt의 query를 검증하는데 실패하였습니다.', 'name': 'invalid_query_payload'}}
+('SOLVE',)
+Traceback (most recent call last):
+  File "C:\Users\jigang_work\PycharmProjects\upbit\upbit\auto_1min_attack.py", line 448, in <module>
+    print(f"현재시간: {now} 현재가: {mesu_price} 보유상태: {hold} 동작상태: {op_mode}")
+NameError: name 'mesu_price' is not defined
+[{'currency': 'KRW', 'balance': '10145.32276052', 'locked': '0.0', 'avg_buy_price': '0', 'avg_buy_price_modified': True, 'unit_currency': 'KRW'}, {'currency': 'BTC', 'balance': '0.00238495', 'locked': '0.0', 'avg_buy_price': '70946853.3682', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'XRP', 'balance': '0.00000085', 'locked': '0.0', 'avg_buy_price': '1191.3061', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'BTT', 'balance': '92546.22655005', 'locked': '0.0', 'avg_buy_price': '5.6024', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'QTUM', 'balance': '23.56249708', 'locked': '0.0', 'avg_buy_price': '16976.1294', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'IOTA', 'balance': '0.0', 'locked': '2.0', 'avg_buy_price': '1569.0941', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'GAS', 'balance': '0.0', 'locked': '0.00283259', 'avg_buy_price': '15121.3054', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'KNC', 'balance': '395.3858069', 'locked': '0.0', 'avg_buy_price': '2276.2577', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}, {'currency': 'APENFT', 'balance': '46740.05063377', 'locked': '0.0', 'avg_buy_price': '0', 'avg_buy_price_modified': False, 'unit_currency': 'KRW'}]
+0
+
+Process finished with exit code 1
