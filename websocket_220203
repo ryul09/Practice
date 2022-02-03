@@ -1,0 +1,46 @@
+import datetime
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from pyupbit import WebSocketManager
+import sys
+
+class WebSocket(QThread):
+    recv = pyqtSignal(dict)
+
+    def run(self):
+        codelist = ['KRW-BTC','KRW-SAND']
+        wm = WebSocketManager('ticker', codelist)
+
+        while True:
+            item = {}
+            data = wm.get()
+            hour = int(int(data['trade_time'])/10000)+9    #UTC 시간을 한국 시간으로 변경.
+            hour = int(hour % 24)*10000
+            minsec = int(data['trade_time'])%10000      
+
+            item['time'] = hour+minsec
+            item['cur'] = float(data['trade_price'])
+            item['vol'] = float(data['trade_volume'])
+            item['code'] = data['code']
+            item['name'] = data['code']
+            self.recv.emit(item)
+
+class MyWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.eventmaker = WebSocket()
+        self.eventmaker.recv.connect(self.receive_msg)
+        self.start()
+
+    @pyqtSlot(dict)
+    def receive_msg(self, data):
+        print(data)
+
+    def start(self):
+        self.eventmaker.run()
+
+if __name__ == "__main__":
+
+    app = QApplication(sys.argv)
+    myWindow = MyWindow()
+    myWindow.show()
