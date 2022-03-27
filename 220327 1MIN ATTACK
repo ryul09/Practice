@@ -1,0 +1,511 @@
+import requests
+import pyupbit
+import matplotlib.pyplot as plt
+import time
+import datetime
+import pandas as pd
+from logging.config import dictConfig
+import logging
+import numpy as np
+import threading
+
+## Log 남기기
+dictConfig({
+    'version': 1,
+    'formatters': {
+        'default': {
+            'format': '[%(asctime)s] %(message)s',
+        }
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug_1min_attack.log',
+            'formatter': 'default',
+        },
+    },
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['file']
+    }
+})
+
+
+## First
+## 거래 조건 : BTC 4시간봉 20일선 상향일 때
+## 거래 불가 : BTC 1분봉 -0.5% 이상 일 때 모든 거래 청산
+
+
+## Third(Main)
+## 매수 전략 : 1분봉 5%이상 상승 + 거래액 1억 이상 + STOCHRSI 매수신호 + SUPER TREND 매수신호
+## 매도 전략 : STOCHRSI 매수가능 -> 매도 전환 시점 청산
+## STOCHRSI 매수조건 : 1. STOCHRSI_slow_%K > STOCHRSI_slow_%D 전환 시점 2. close > MA50
+## STOCHRSI 매도조건 : 1. STOCHRSI_slow_%K < STOCHRSI_slow_%D 전환 시점 2. STOCHRSI_slow_%K >0.75
+
+
+def condition_check():
+    time.sleep(1)
+    df = pyupbit.get_ohlcv("KRW-BTC", interval="minute240")
+    try:
+        df['MA20'] = df['close'].rolling(20).mean()
+        df['change_rate'] = df['close'] / df['open']
+        now_condition = df.iloc[-1]
+        global op_mode
+        ncc = now_condition['close']
+        ma20 = now_condition['MA20']
+        print(f'close : {ncc:.0f},MA20 : {ma20:.0f}')
+        if now_condition['close'] < now_condition['MA20']*0.97:
+            op_mode = False
+        else:
+            op_mode = True
+        df1 = pyupbit.get_ohlcv("KRW-BTC", interval="minute1")
+        df1['MA20'] = df1['close'].rolling(20).mean()
+        df1['change_rate'] = df1['close'] / df1['open']
+        now_minute = df.iloc[-1]
+        nmc = now_minute['change_rate']
+        print(f'bitcoin 순간 변화율 : {nmc:.2f}')
+        if now_minute['change_rate'] <= bitcoin_out_signal:
+            op_mode = False
+    except:
+        pass
+    return df, op_mode
+
+
+# 1. 매수 Target 구하기 -> target_ticker_list
+def main_cal_target(tickers):
+    for i in tickers:
+        df = pyupbit.get_ohlcv(i, "minute1")
+        df.reset_index(inplace=True)
+        stoch_rsi()
+        supertrend()
+        now_minute = df.iloc[-1]
+        # print(now_minute)
+        target = now_minute['open'] * mesu_target
+        target_volume = now_minute['close'] * now_minute['volume']
+        # if now_minute['close'] >= target and target_volume >= volume_target:
+        if now_minute['close'] >= target and target_volume >= volume_target:
+            target_ticker_list.append(i)
+            print("%s target을 추가하였습니다." % target_ticker_list)
+            if now_minute['STOCHRSI_sign'] == 'BUY' and now_minute['ST_BUY_SELL'] == 'BUY':
+                main_target_ticker_list.append(i)
+
+        else:
+            print("target을 찾고 있습니다.")
+
+        time.sleep(0.3)
+    return target_ticker_list, main_target_ticker_list
+
+
+def sub_cal_target(tickers):
+    for i in tickers:
+        df = pyupbit.get_ohlcv(i, "minute1", count=2)
+        now_minute = df.iloc[0]
+        # print(now_minute)
+        target = now_minute['open'] * mesu_target
+        target_volume = now_minute['close'] * now_minute['volume']
+        # if now_minute['close'] >= target and target_volume >= volume_target:
+        if now_minute['close'] >= target and target_volume >= volume_target:
+            target_ticker_list.append(i)
+            print("%s target을 추가하였습니다." % target_ticker_list)
+        else:
+            print("target을 찾고 있습니다.")
+
+        time.sleep(0.3)
+    return target_ticker_list
+
+
+def mesu_priority(list):
+    global find_a
+    dfs = []
+    dfs1 = []
+    dfs2 = []
+
+    # btc_balance = upbit.get_balance("BTC")
+    # logging.debug("BTC 금액 : %s" % btc_balance)
+    krw_balance = upbit.get_balance("KRW")
+
+    if main_target_ticker_list != []:
+        for i in main_target_ticker_list:
+            df2 = pyupbit.get_ohlcv(i, "minute1", count=2)
+
+            for a in range(1, len(df2.close)):
+                df2['change_rate'] = df2.close[a] / df2.close[a - 1]
+                print(df2)
+                break
+            # dfs = df2.iloc[-1,-1]
+            # print(df2)
+            dfs = df2.iloc[:, 6:7].copy()
+            # print(dfs)
+            dfs['ticker'] = pd.Series([i, i], index=dfs.index)
+            dfs1.append(dfs)
+            # print(dfs1)
+            time.sleep(0.05)
+
+        dfs2 = pd.concat(dfs1)
+        # dfs2 = df2.sort_index()
+        # print(dfs2)
+
+        find_a = []
+
+        dfs2['change_rate_rank'] = dfs2['change_rate'].rank(method='min', ascending=False)
+        dfs2['change_rate_rank'] = dfs2['change_rate_rank'].astype(int)
+        dfs2.sort_values(by='change_rate_rank', axis=0, ascending=True, inplace=True)
+
+        # print(dfs2)
+        find_a = dfs2.iloc[0]
+        # print(find_a)
+    if target_ticker_list != []:
+
+        for i in target_ticker_list:
+            df2 = pyupbit.get_ohlcv(i, "minute1", count=2)
+
+            for a in range(1, len(df2.close)):
+                df2['change_rate'] = df2.close[a] / df2.close[a - 1]
+                # print(df2)
+                break
+            # dfs = df2.iloc[-1,-1]
+            # print(df2)
+            dfs = df2.iloc[:, 6:7].copy()
+            # print(dfs)
+            dfs['ticker'] = pd.Series([i, i], index=dfs.index)
+            dfs1.append(dfs)
+            # print(dfs1)
+            time.sleep(0.05)
+
+        dfs2 = pd.concat(dfs1)
+        # dfs2 = df2.sort_index()
+        # print(dfs2)
+
+        find_a = []
+
+        dfs2['change_rate_rank'] = dfs2['change_rate'].rank(method='min', ascending=False)
+        dfs2['change_rate_rank'] = dfs2['change_rate_rank'].astype(int)
+        dfs2.sort_values(by='change_rate_rank', axis=0, ascending=True, inplace=True)
+
+        # print(dfs2)
+        find_a = dfs2.iloc[0]
+
+        # print(find_a)
+    return find_a, df2, dfs, dfs1, dfs2
+
+
+def stoch_rsi():
+    RSI_n = 14
+    sto_N = 14
+    sto_m = 3
+    sto_t = 3
+    df['MA50'] = df['close'].rolling(50).mean()
+    df["change_rate"] = [df.loc[i, 'close'] - df.loc[i - 1, "close"] if i > 0 else 0 for i in range(len(df))]
+
+    df["RSI_U"] = df["change_rate"].apply(lambda x: x if x > 0 else 0)
+    df["RSI_D"] = df["change_rate"].apply(lambda x: x * (-1) if x < 0 else 0)
+    df["RSI_AU"] = df["RSI_U"].rolling(RSI_n).mean()
+
+    df["RSI_AD"] = df["RSI_D"].rolling(RSI_n).mean()
+    df["RSI"] = df.apply(lambda x: x["RSI_AU"] / (x["RSI_AU"] + x["RSI_AD"]) * 100 if x['RSI_AU'] != 0 else 0, axis=1)
+
+    df["max_RSI%d" % sto_N] = df['RSI'].rolling(sto_N).max()
+    df["min_RSI%d" % sto_N] = df['RSI'].rolling(sto_N).min()
+    df["STOCHRSI%K"] = df.apply(lambda x: 1 * (x['RSI'] - x["min_RSI%d" % sto_N]) /
+                                          (x["max_RSI%d" % sto_N] - x["min_RSI%d" % sto_N])
+    if (x["max_RSI%d" % sto_N] - x["min_RSI%d" % sto_N]) != 0 else 50, 1)
+
+    df["STOCHRSI_slow_%K"] = df["STOCHRSI%K"].rolling(sto_m).mean()
+    df["STOCHRSI_slow_%D"] = df["STOCHRSI_slow_%K"].rolling(sto_t).mean()
+
+    STOCHRSI_sign = []
+    for i in range(len(df)):
+        if df.loc[i, "STOCHRSI_slow_%K"] > df.loc[i, "STOCHRSI_slow_%D"] and df.loc[i, "close"] > df.loc[i, "MA50"]:
+            STOCHRSI_sign.append("BUY")
+        elif df.loc[i, "STOCHRSI_slow_%K"] < df.loc[i, "STOCHRSI_slow_%D"]:
+            if df.loc[i, "STOCHRSI_slow_%K"] > 0.75:
+                STOCHRSI_sign.append("SELL")
+            else:
+                STOCHRSI_sign.append("stand-by")
+        else:
+            STOCHRSI_sign.append("stand-by")
+    df["STOCHRSI_sign"] = STOCHRSI_sign
+
+    return df
+
+
+def supertrend():
+    df['tr0'] = abs(df["high"] - df["low"])
+    df['tr1'] = abs(df["high"] - df["close"].shift(1))
+    df['tr2'] = abs(df["low"] - df["close"].shift(1))
+    df["TR"] = df[['tr0', 'tr1', 'tr2']].max(axis=1)
+    df["ATR"] = 0.00
+    df['BUB'] = 0.00
+    df["BLB"] = 0.00
+    df["FUB"] = 0.00
+    df["FLB"] = 0.00
+    df["ST"] = 0.00
+
+    # Calculating ATR
+    for i, row in df.iterrows():
+        if i == 0:
+            df.loc[i, 'ATR'] = 0.00  # df['ATR'].iat[0]
+        else:
+            df.loc[i, 'ATR'] = ((df.loc[i - 1, 'ATR'] * 13) + df.loc[i, 'TR']) / 14
+
+    df['BUB'] = ((df["high"] + df["low"]) / 2) + (2 * df["ATR"])
+    df['BLB'] = ((df["high"] + df["low"]) / 2) - (2 * df["ATR"])
+
+    for i, row in df.iterrows():
+        if i == 0:
+            df.loc[i, "FUB"] = 0.00
+        else:
+            if (df.loc[i, "BUB"] < df.loc[i - 1, "FUB"]) | (df.loc[i - 1, "close"] > df.loc[i - 1, "FUB"]):
+                df.loc[i, "FUB"] = df.loc[i, "BUB"]
+            else:
+                df.loc[i, "FUB"] = df.loc[i - 1, "FUB"]
+
+    for i, row in df.iterrows():
+        if i == 0:
+            df.loc[i, "FLB"] = 0.00
+        else:
+            if (df.loc[i, "BLB"] > df.loc[i - 1, "FLB"]) | (df.loc[i - 1, "close"] < df.loc[i - 1, "FLB"]):
+                df.loc[i, "FLB"] = df.loc[i, "BLB"]
+            else:
+                df.loc[i, "FLB"] = df.loc[i - 1, "FLB"]
+
+    for i, row in df.iterrows():
+        if i == 0:
+            df.loc[i, "ST"] = 0.00
+        elif (df.loc[i - 1, "ST"] == df.loc[i - 1, "FUB"]) & (df.loc[i, "close"] <= df.loc[i, "FUB"]):
+            df.loc[i, "ST"] = df.loc[i, "FUB"]
+        elif (df.loc[i - 1, "ST"] == df.loc[i - 1, "FUB"]) & (df.loc[i, "close"] > df.loc[i, "FUB"]):
+            df.loc[i, "ST"] = df.loc[i, "FLB"]
+        elif (df.loc[i - 1, "ST"] == df.loc[i - 1, "FLB"]) & (df.loc[i, "close"] >= df.loc[i, "FLB"]):
+            df.loc[i, "ST"] = df.loc[i, "FLB"]
+        elif (df.loc[i - 1, "ST"] == df.loc[i - 1, "FLB"]) & (df.loc[i, "close"] < df.loc[i, "FLB"]):
+            df.loc[i, "ST"] = df.loc[i, "FUB"]
+
+    # Buy Sell Indicator
+    for i, row in df.iterrows():
+        if i == 0:
+            df["ST_BUY_SELL"] = "NA"
+        elif (df.loc[i, "ST"] < df.loc[i, "close"]):
+            df.loc[i, "ST_BUY_SELL"] = "BUY"
+        else:
+            df.loc[i, "ST_BUY_SELL"] = "SELL"
+
+    return df
+
+
+def bitcoin_status():
+    while True:
+        df = pyupbit.get_ohlcv("KRW-BTC", interval="minute1")
+        df['close_change_rate'] = df['close'] / df['open']
+        now_minute = df.iloc[-2]
+        global op_mode
+        # print("비트코인 급락 시그널 작동 중")
+        if now_minute['close_change_rate'] < bitcoin_out_signal:
+            op_mode = False
+            print(f'bitcoin 급락({bitcoin_out_signal})으로 인한 op_mode False 전환({now:%Y-%m-%d %H:%M})')
+            break
+        time.sleep(60)
+    return op_mode
+
+
+## 0. 객체 생성
+f = open("upbit.txt")
+lines = f.readlines()
+access = lines[0].strip()
+secret = lines[1].strip()
+f.close()
+upbit = pyupbit.Upbit(access, secret)
+
+## 변수 설정
+# op_mode = False  ## 동작 상태, True : 동작 조건 만족 -> 가능, False : 동작 조건 불만족 -> 불가능
+# hold = False  ## 보유 상태, True : 코인 보유 중 -> 매도 가능, False : 코인 미보유 중 -> 매수 가능
+
+tickers = pyupbit.get_tickers(fiat="KRW")
+# tickers = pyupbit.get_tickers(fiat="BTC")
+
+find_a = {}
+target_ticker_list = []  # 매수 가능 Target list (Second)
+main_target_ticker_list = []  # 매수 가능 Target list (Third)
+mesu_possible = 200000
+mesu_target = 1.015
+danta_mesu_target = 1.05
+volume_target = 30000000
+target_rank_list = {}
+bitcoin_out_signal = 0.995
+coin_fee_BTC = 0.0025
+coin_fee_KRW = 0.0005
+target_balance = 0
+
+
+krw_balance = upbit.get_balance("KRW")
+
+op_mode = True
+hold = False
+
+th = threading.Thread(target=bitcoin_status)
+th.daemon = True
+th.start()
+
+while True:
+    now = datetime.datetime.now()
+    target_ticker_list = []
+    krw_balance = upbit.get_balance('KRW')
+    try:
+
+        op_mode = True
+
+        if krw_balance >= mesu_possible:
+            # condition_check()
+            hold = False
+            print(f'시간 : {now:%Y-%m-%d %H:%M}, 동작상태: {op_mode}, 보유상태 : {hold}')
+        if krw_balance < mesu_possible:
+            hold = True
+            print(f'시간 : {now:%Y-%m-%d %H:%M}, 동작상태: {op_mode}, 보유상태 : {hold}')
+
+
+
+        if now.hour == 8 and 58 <= now.minute <= 59 and 30 <= now.second <= 59:
+            time.sleep(150)
+        ## 비트코인 변동성 확인 threding
+
+        ## 매수
+        if op_mode is True and hold is False:
+            main_target_ticker_list = []
+
+            for i in tickers:
+                time.sleep(0.05)
+                df = pyupbit.get_ohlcv(i, "minute1")
+
+                df.reset_index(inplace=True)
+                stoch_rsi()
+                supertrend()
+                # print(df)
+                now_minute = df.iloc[-2]
+                # print(now_minute)
+                target = now_minute['open'] * mesu_target
+                target_close = now_minute['close']
+                target_volume = now_minute['close'] * now_minute['volume']
+                # print(f' target volume : {target_volume}, now_close : {target_close}')
+                # if now_minute['close'] >= target and target_volume >= volume_target:
+                if now_minute['close'] <= 15:
+                    continue
+
+                if now_minute['close'] >= now_minute['open'] * mesu_target and target_volume >= volume_target:
+                    nmc = now_minute['close']/ now_minute['open']
+                    nmc_stochrsi = now_minute['STOCHRSI_sign']
+                    nmc_st = now_minute['ST_BUY_SELL']
+
+                    print(f'nmc:{nmc}, stoch:{nmc_stochrsi}, st:{nmc_st}')
+                    if now_minute['STOCHRSI_sign'] == 'BUY' and now_minute['ST_BUY_SELL'] == 'BUY':
+                        main_target_ticker_list.append(i)
+                        print("%s main target으로 추가하였습니다." % main_target_ticker_list)
+                        logging.debug(f' main_target_ticker_list : {i} ({nmc}) ')
+                else:
+                    # target_change_rate = now_minute['close'] / now_minute['open']
+                    # print(f'{i} {target_change_rate :.3f}')
+                    # print("target을 찾고 있습니다.")
+                    pass
+
+                time.sleep(0.36)
+
+
+            # th = threading.Thread(target=sub_cal_target)
+            # th.daemon = True
+            # th.start()
+
+            if main_target_ticker_list == []:
+                continue
+            if main_target_ticker_list != []:
+                print(main_target_ticker_list)
+                logging.debug("change_rate : %s, main_target_ticker_list : %s" % (nmc, main_target_ticker_list))
+
+                mesu_priority(main_target_ticker_list)
+                mesu_target_name = find_a['ticker']
+                target_coin_name = find_a['ticker'].split()
+                print(target_coin_name)
+                logging.debug("main_target list(rank) : %s(%s)" % (mesu_target_name, find_a['change_rate']))
+
+                krw_balance = upbit.get_balance("KRW")
+                print(upbit.buy_market_order(mesu_target_name, krw_balance * (1 - 1.1* coin_fee_KRW)))
+                mesu_price = pyupbit.get_current_price(mesu_target_name)
+                hold = True
+
+
+        ## 매도 시도
+        if op_mode is True and hold is True:
+            time.sleep(1)
+
+            print(upbit.get_balance(mesu_target_name))
+
+            ## 목표 도달 시 바로 매도
+
+            while True:
+                now_price = pyupbit.get_current_price(mesu_target_name)
+                target_balance = upbit.get_balance(mesu_target_name)
+                # print(mesu_target_name, now_price, target_balance)
+                if op_mode is False:
+
+                    print(upbit.sell_market_order(target_coin_name, target_balance))
+                    medo_price = pyupbit.get_current_price(mesu_target_name)
+                    hold = False
+                    print("%s를 매도하였습니다." % mesu_target_name)
+                    profit = medo_price / mesu_price
+                    logging.debug(f'{mesu_target_name} 비트코인 급락 - 매도 완료 : {medo_price}({profit})')
+
+                    time.sleep(5)
+                    break
+
+                # if medo_minute['close'] <= target_medo and target_volume_medo >= volume_target :
+                if op_mode is True:
+                    # print('매도 준비')
+                    # print(f'mesu_target_name {mesu_target_name},target_coin_name {target_coin_name} ')
+                    df = pyupbit.get_ohlcv(target_coin_name, "minute1")
+                    df.reset_index(inplace=True)
+                    stoch_rsi()
+                    supertrend()
+
+                    now_medo = df.iloc[-2]
+                    # print(now_medo)
+
+                    if now_medo['ST_BUY_SELL'] == 'SELL':
+                        medo_price = pyupbit.get_current_price(mesu_target_name)
+                        print(upbit.sell_market_order(mesu_target_name, target_balance))
+                        print("%s를 매도하였습니다." % mesu_target_name)
+                        logging.debug(
+                            "%s 를 매도 했습니다. 판매 금액: %s, 수익:%s" % (mesu_target_name, medo_price, medo_price / mesu_price))
+                        time.sleep(5)
+                        op_mode = False
+                        break
+
+                if target_balance == 0:
+                    time.sleep(5)
+                    break
+
+                else:
+                    # print("매도 target을 찾고 있습니다.")
+                    time.sleep(0.3)
+                    continue
+
+        if op_mode is False:
+            time.sleep(60)
+
+        op_mode = False
+        time.sleep(5)
+
+
+    except ZeroDivisionError as e:  # 숫자를 0으로 나눠서 에러가 발생했을 때 실행됨
+        print(now.strftime('%m-%d %H:%M:%S'), '숫자를 0으로 나눌 수 없습니다.', e)
+        logging.debug(e)
+        continue
+    except IndexError as e:  # 범위를 벗어난 인덱스에 접근하여 에러가 발생했을 때 실행됨
+        print(now.strftime('%m-%d %H:%M:%S'), '잘못된 인덱스입니다.', e)
+        logging.debug(e)
+        continue
+    except Exception as e:  # 모든 예외의 에러 메시지를 출력할 때는 Exception을 사용
+        print(now.strftime('%m-%d %H:%M:%S'), '예외가 발생했습니다.', e)
+        logging.debug(e)
+        continue
+
+
+
