@@ -38,11 +38,8 @@ dictConfig({
 
 
 ## Third(Main)
-## 매수 전략 : 1분봉 5%이상 상승 + 거래액 1억 이상 + STOCHRSI 매수신호 + SUPER TREND 매수신호
-## 매도 전략 : STOCHRSI 매수가능 -> 매도 전환 시점 청산
-## STOCHRSI 매수조건 : 1. STOCHRSI_slow_%K > STOCHRSI_slow_%D 전환 시점 2. close > MA50
-## STOCHRSI 매도조건 : 1. STOCHRSI_slow_%K < STOCHRSI_slow_%D 전환 시점 2. STOCHRSI_slow_%K >0.75
-
+## 매수 전략 : 1분봉 1%이상 상승 + 거래액 1억 이상 + stochastic_sign 매수신호 + BB sing(1.03이상) + SUPER TREND 매수신호 + SMA60 sign 매수신호
+## 매도 전략 : SMA60 sign 매도 신호
 
 def condition_check():
     time.sleep(1)
@@ -520,6 +517,9 @@ while True:
                 stoch_rsi()
                 supertrend()
                 bollinger_band()
+                
+                df['sma5'] = df['close'].rolling(5).mean()
+                df['sma60'] = df['close'].rolling(60).mean()
 
                 # print(df)
                 now_minute = df.iloc[-2]
@@ -532,7 +532,7 @@ while True:
                 if now_minute['close'] <= 15:
                     continue
 
-                if now_minute['close'] >= target and target_volume >= volume_target:
+                if now_minute['close'] >= target and target_volume >= volume_target and now_minute['close'] > now_minute['sma60'] :
                     nmc = now_minute['close']/ now_minute['open']
                     nmc_stochrsi = now_minute['STOCHRSI_sign']
                     nmc_st = now_minute['ST_BUY_SELL']
@@ -624,7 +624,7 @@ while True:
                     now_medo = df.iloc[-2]
                     # print(now_medo)
 
-                    if now_medo['wma60'] <= now_medo['sma60']:
+                    if now_medo['close'] <= now_medo['sma60']:
                         medo_price = pyupbit.get_current_price(mesu_target_name)
                         print(upbit.sell_market_order(mesu_target_name, target_balance))
                         print("%s를 매도하였습니다." % mesu_target_name)
