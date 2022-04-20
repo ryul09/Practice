@@ -1,0 +1,383 @@
+1. 4시간봉 실시간 BB 상 위치
+
+2. 시작점 분석
+ 1) 1분봉 3.4% 상승 3.6억
+ 2) sma5 > sma7 돌파
+ 3) wma5 > sma5 돌파
+ 4) RSI 90 돌파
+ 5) stochastic_sign BUY
+ 6) bb range 3.6 상향  bb sign BUY
+ 7) STOCHRSI_sign Stand by
+ 8) ST sign BUY
+ 
+ 
+ jigang
+ 022-04-16 13:52:15,211] change_rate : 1.01875, main_target_ticker_list : ['KRW-TT']
+[2022-04-16 13:52:15,424] main_target list(rank) : KRW-TT(
+[2022-04-16 13:52:16,991] shapes (60,) and (5,) not aligned: 60 (dim 0) != 5 (dim 0)
+[2022-04-16 18:10:24,432] 'NoneType' object has no attribute 'reset_index'
+[2022-04-16 19:36:58,041] 'NoneType' object has no attribute 'reset_index'
+[2022-04-16 20:11:19,892] 'NoneType' object has no attribute 'reset_index'
+[2022-04-16 20:58:49,665] 'NoneType' object has no attribute 'reset_index'
+[2022-04-16 21:49:05,943] 'NoneType' object has no attribute 'reset_index'
+[2022-04-16 22:28:37,865] '>=' not supported between instances of 'NoneType' and 'int'
+[2022-04-16 23:46:09,089] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 02:44:25,631] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 02:48:53,111]  main_target_ticker_list : KRW-BAT (1.0180275715800635) 
+[2022-04-17 02:49:48,763] change_rate : 1.0180275715800635, main_target_ticker_list : ['KRW-BAT']
+[2022-04-17 02:49:48,944] main_target list(rank) : KRW-BAT(
+[2022-04-17 03:46:01,246] KRW-BAT 를 매도 했습니다. 판매 금액: 969.0, 수익:1.0010330578512396
+[2022-04-17 05:46:50,168] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 09:04:35,756]  main_target_ticker_list : KRW-SSX (1.0153846153846153) 
+[2022-04-17 09:04:53,914] change_rate : 1.0153846153846153, main_target_ticker_list : ['KRW-SSX']
+[2022-04-17 09:04:54,190] main_target list(rank) : KRW-SSX(
+[2022-04-17 09:57:01,776] KRW-SSX 를 매도 했습니다. 판매 금액: 64.4, 수익:0.9817073170731709
+[2022-04-17 10:11:15,302]  main_target_ticker_list : KRW-TT (1.0119760479041915) 
+[2022-04-17 10:11:55,193] change_rate : 1.0119760479041915, main_target_ticker_list : ['KRW-TT']
+[2022-04-17 10:11:55,406] main_target list(rank) : KRW-TT(
+[2022-04-17 11:45:01,449] KRW-TT 를 매도 했습니다. 판매 금액: 17.4, 수익:1.0175438596491226
+[2022-04-17 14:06:47,975] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 16:04:27,690] '>=' not supported between instances of 'NoneType' and 'int'
+[2022-04-17 16:46:51,546] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 17:00:57,700] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 17:46:29,515] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 19:31:33,412] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 19:54:41,257]  main_target_ticker_list : KRW-MTL (1.0125448028673836) 
+[2022-04-17 19:56:00,363] change_rate : 1.0125448028673836, main_target_ticker_list : ['KRW-MTL']
+[2022-04-17 19:56:00,606] main_target list(rank) : KRW-MTL(
+[2022-04-17 21:17:01,614] KRW-MTL 를 매도 했습니다. 판매 금액: 2970.0, 수익:1.0607142857142857
+[2022-04-17 21:38:36,609] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 21:56:49,517] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 23:29:17,242]  main_target_ticker_list : KRW-FCT2 (1.01) 
+[2022-04-17 23:29:33,627] change_rate : 1.01, main_target_ticker_list : ['KRW-FCT2']
+[2022-04-17 23:29:33,839] main_target list(rank) : KRW-FCT2(
+[2022-04-18 00:07:02,063] KRW-FCT2 를 매도 했습니다. 판매 금액: 200.0, 수익:0.9950248756218906
+[2022-04-18 01:42:37,506] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 04:12:50,180] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 07:28:30,570] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 08:58:08,128]  main_target_ticker_list : KRW-TT (1.0133333333333332) 
+[2022-04-18 08:58:48,046] change_rate : 1.0133333333333332, main_target_ticker_list : ['KRW-TT']
+[2022-04-18 08:58:48,275] main_target list(rank) : KRW-TT(
+[2022-04-18 09:00:02,479] KRW-TT 를 매도 했습니다. 판매 금액: 15.0, 수익:0.9933774834437087
+[2022-04-18 09:03:20,748]  main_target_ticker_list : KRW-MED (1.0141843971631206) 
+[2022-04-18 09:03:39,764]  main_target_ticker_list : KRW-SSX (1.0158227848101267) 
+[2022-04-18 09:03:58,060] change_rate : 1.0103950103950103, main_target_ticker_list : ['KRW-MED', 'KRW-SSX']
+[2022-04-18 09:03:58,366] main_target list(rank) : KRW-MED(
+[2022-04-18 09:05:01,783] KRW-MED 를 매도 했습니다. 판매 금액: 55.4, 수익:0.9770723104056437
+[2022-04-18 09:06:54,112]  main_target_ticker_list : KRW-TT (1.012820512820513) 
+[2022-04-18 09:07:34,095] change_rate : 1.012820512820513, main_target_ticker_list : ['KRW-TT']
+[2022-04-18 09:07:34,308] main_target list(rank) : KRW-TT(
+[2022-04-18 09:40:02,279] KRW-TT 를 매도 했습니다. 판매 금액: 15.6, 수익:0.9873417721518987
+[2022-04-18 09:48:44,774]  main_target_ticker_list : KRW-TT (1.0125) 
+[2022-04-18 09:49:25,124] change_rate : 1.0125, main_target_ticker_list : ['KRW-TT']
+[2022-04-18 09:49:25,335] main_target list(rank) : KRW-TT(
+[2022-04-18 09:55:01,672] KRW-TT 를 매도 했습니다. 판매 금액: 15.7, 수익:0.9691358024691358
+[2022-04-18 10:08:07,617] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 13:00:08,670] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 15:45:16,540] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 15:49:11,923]  main_target_ticker_list : KRW-STX (1.013745704467354) 
+[2022-04-18 15:49:21,000] change_rate : 1.013745704467354, main_target_ticker_list : ['KRW-STX']
+[2022-04-18 15:49:21,228] main_target list(rank) : KRW-STX(
+[2022-04-18 16:44:02,274] KRW-STX 를 매도 했습니다. 판매 금액: 1540.0, 수익:1.0405405405405406
+[2022-04-18 16:47:30,290]  main_target_ticker_list : KRW-TON (1.0254323499491353) 
+[2022-04-18 16:47:55,589] change_rate : 1.0254323499491353, main_target_ticker_list : ['KRW-TON']
+[2022-04-18 16:47:55,819] main_target list(rank) : KRW-TON(
+[2022-04-18 17:05:01,913] KRW-TON 를 매도 했습니다. 판매 금액: 4765.0, 수익:0.918111753371869
+[2022-04-18 17:16:37,423]  main_target_ticker_list : KRW-TON (1.010183299389002) 
+[2022-04-18 17:17:02,517] change_rate : 1.010183299389002, main_target_ticker_list : ['KRW-TON']
+[2022-04-18 17:17:02,715] main_target list(rank) : KRW-TON(
+[2022-04-18 17:38:13,337] KRW-TON 를 매도 했습니다. 판매 금액: 4895.0, 수익:0.9949186991869918
+[2022-04-18 18:07:22,879]  main_target_ticker_list : KRW-SXP (1.0126984126984127) 
+[2022-04-18 18:07:47,454] change_rate : 1.0126984126984127, main_target_ticker_list : ['KRW-SXP']
+[2022-04-18 18:07:47,635] main_target list(rank) : KRW-SXP(
+[2022-04-18 19:03:01,865] KRW-SXP 를 매도 했습니다. 판매 금액: 1595.0, 수익:1.009493670886076
+[2022-04-18 19:37:48,627] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 19:39:05,426] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 20:31:42,726]  main_target_ticker_list : KRW-STX (1.0125786163522013) 
+[2022-04-18 20:31:51,678] change_rate : 1.0125786163522013, main_target_ticker_list : ['KRW-STX']
+[2022-04-18 20:31:51,922] main_target list(rank) : KRW-STX(
+[2022-04-18 20:40:01,943] KRW-STX 를 매도 했습니다. 판매 금액: 1570.0, 수익:0.98125
+[2022-04-18 21:16:26,556]  main_target_ticker_list : KRW-MTL (1.036624203821656) 
+[2022-04-18 21:17:44,621] change_rate : 1.036624203821656, main_target_ticker_list : ['KRW-MTL']
+[2022-04-18 21:17:44,804] main_target list(rank) : KRW-MTL(
+[2022-04-18 22:22:35,386] 'NoneType' object is not subscriptable
+[2022-04-18 23:09:01,953] KRW-MTL 를 매도 했습니다. 판매 금액: 3845.0, 수익:1.168693009118541
+[2022-04-18 23:32:45,837] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 00:01:08,208] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 00:21:05,430]  main_target_ticker_list : KRW-SXP (1.0246913580246915) 
+[2022-04-19 00:21:29,745] change_rate : 1.0246913580246915, main_target_ticker_list : ['KRW-SXP']
+[2022-04-19 00:21:29,928] main_target list(rank) : KRW-SXP(
+[2022-04-19 01:12:01,524] KRW-SXP 를 매도 했습니다. 판매 금액: 1670.0, 수익:0.9940476190476191
+[2022-04-19 01:18:37,567]  main_target_ticker_list : KRW-MTL (1.0162162162162163) 
+[2022-04-19 01:19:55,476] change_rate : 1.0162162162162163, main_target_ticker_list : ['KRW-MTL']
+[2022-04-19 01:19:55,719] main_target list(rank) : KRW-MTL(
+[2022-04-19 01:22:01,628] KRW-MTL 를 매도 했습니다. 판매 금액: 3745.0, 수익:1.0013368983957218
+[2022-04-19 03:27:35,189] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 04:14:10,103] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 05:54:37,574] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 06:33:43,435] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 07:41:27,315]  main_target_ticker_list : KRW-SXP (1.0144508670520231) 
+[2022-04-19 07:41:51,989] change_rate : 1.0144508670520231, main_target_ticker_list : ['KRW-SXP']
+[2022-04-19 07:41:52,232] main_target list(rank) : KRW-SXP(
+[2022-04-19 08:28:01,702] KRW-SXP 를 매도 했습니다. 판매 금액: 1735.0, 수익:0.9857954545454546
+[2022-04-19 08:49:15,355] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 09:01:31,768]  main_target_ticker_list : KRW-LSK (1.0452830188679245) 
+[2022-04-19 09:02:45,357] change_rate : 1.0131578947368423, main_target_ticker_list : ['KRW-LSK']
+[2022-04-19 09:02:45,569] main_target list(rank) : KRW-LSK(
+[2022-04-19 09:47:02,316] KRW-LSK 를 매도 했습니다. 판매 금액: 2705.0, 수익:0.9712746858168761
+[2022-04-19 09:59:14,102] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 10:00:11,031]  main_target_ticker_list : KRW-TON (1.0120240480961924) 
+[2022-04-19 10:00:36,301] change_rate : 1.0120240480961924, main_target_ticker_list : ['KRW-TON']
+[2022-04-19 10:00:36,499] main_target list(rank) : KRW-TON(
+[2022-04-19 10:07:02,312] KRW-TON 를 매도 했습니다. 판매 금액: 4910.0, 수익:0.9790628115653041
+[2022-04-19 10:22:27,712] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 10:47:26,371] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 10:56:32,723]  main_target_ticker_list : KRW-TON (1.012833168805528) 
+[2022-04-19 10:56:58,320] change_rate : 1.012833168805528, main_target_ticker_list : ['KRW-TON']
+[2022-04-19 10:56:58,532] main_target list(rank) : KRW-TON(
+[2022-04-19 11:42:01,614] KRW-TON 를 매도 했습니다. 판매 금액: 5345.0, 수익:1.031853281853282
+[2022-04-19 11:51:08,858]  main_target_ticker_list : KRW-DAWN (1.019271948608137) 
+[2022-04-19 11:51:19,338] change_rate : 1.019271948608137, main_target_ticker_list : ['KRW-DAWN']
+[2022-04-19 11:51:19,520] main_target list(rank) : KRW-DAWN(
+[2022-04-19 12:09:01,823] KRW-DAWN 를 매도 했습니다. 판매 금액: 2340.0, 수익:0.972972972972973
+[2022-04-19 13:11:08,270]  main_target_ticker_list : KRW-TON (1.016934046345811) 
+[2022-04-19 13:11:33,544] change_rate : 1.016934046345811, main_target_ticker_list : ['KRW-TON']
+[2022-04-19 13:11:33,741] main_target list(rank) : KRW-TON(
+[2022-04-19 13:42:03,540] KRW-TON 를 매도 했습니다. 판매 금액: 5595.0, 수익:0.9859030837004406
+[2022-04-19 14:18:43,993]  main_target_ticker_list : KRW-MTL (1.0136986301369864) 
+[2022-04-19 14:20:02,764] change_rate : 1.0136986301369864, main_target_ticker_list : ['KRW-MTL']
+[2022-04-19 14:20:02,990] main_target list(rank) : KRW-MTL(
+[2022-04-19 14:50:01,440] KRW-MTL 를 매도 했습니다. 판매 금액: 3660.0, 수익:0.9838709677419355
+[2022-04-19 15:45:41,424]  main_target_ticker_list : KRW-MTL (1.0115384615384615) 
+[2022-04-19 15:47:00,630] change_rate : 1.0115384615384615, main_target_ticker_list : ['KRW-MTL']
+[2022-04-19 15:47:00,906] main_target list(rank) : KRW-MTL(
+[2022-04-19 16:52:01,361] KRW-MTL 를 매도 했습니다. 판매 금액: 4175.0, 수익:1.0385572139303483
+[2022-04-19 16:57:02,052] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 19:54:57,440]  main_target_ticker_list : KRW-MTL (1.0121506682867558) 
+[2022-04-19 19:56:16,167] change_rate : 1.0121506682867558, main_target_ticker_list : ['KRW-MTL']
+[2022-04-19 19:56:16,499] main_target list(rank) : KRW-MTL(
+[2022-04-19 20:03:01,551] KRW-MTL 를 매도 했습니다. 판매 금액: 4045.0, 수익:0.982989064398542
+[2022-04-19 20:23:08,045] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 20:37:46,173]  main_target_ticker_list : KRW-TON (1.0143581081081081) 
+[2022-04-19 20:38:11,658] change_rate : 1.0143581081081081, main_target_ticker_list : ['KRW-TON']
+[2022-04-19 20:38:11,903] main_target list(rank) : KRW-TON(
+[2022-04-19 21:12:01,478] KRW-TON 를 매도 했습니다. 판매 금액: 6005.0, 수익:0.9925619834710744
+[2022-04-19 22:07:12,077] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 22:33:04,275]  main_target_ticker_list : KRW-AQT (1.011658031088083) 
+[2022-04-19 22:33:23,923] change_rate : 1.011658031088083, main_target_ticker_list : ['KRW-AQT']
+[2022-04-19 22:33:24,151] main_target list(rank) : KRW-AQT(
+[2022-04-19 22:58:01,799] KRW-AQT 를 매도 했습니다. 판매 금액: 3855.0, 수익:0.9846743295019157
+[2022-04-19 23:04:54,642]  main_target_ticker_list : KRW-STEEM (1.0227272727272727) 
+[2022-04-19 23:06:06,885] change_rate : 1.0227272727272727, main_target_ticker_list : ['KRW-STEEM']
+[2022-04-19 23:06:07,206] main_target list(rank) : KRW-STEEM(
+[2022-04-19 23:24:25,070] 'NoneType' object is not subscriptable
+[2022-04-19 23:36:02,242] KRW-STEEM 를 매도 했습니다. 판매 금액: 438.0, 수익:0.9501084598698482
+[2022-04-19 23:55:12,563] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 00:17:40,377] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 05:04:35,643] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 05:46:50,333] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 07:53:39,224] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 08:18:25,201]  main_target_ticker_list : KRW-STORJ (1.010204081632653) 
+[2022-04-20 08:19:33,335] change_rate : 1.010204081632653, main_target_ticker_list : ['KRW-STORJ']
+[2022-04-20 08:19:33,548] main_target list(rank) : KRW-STORJ(
+[2022-04-20 09:26:01,380] KRW-STORJ 를 매도 했습니다. 판매 금액: 1535.0, 수익:1.0267558528428093
+[2022-04-20 09:39:09,645]  main_target_ticker_list : KRW-PLA (1.0126582278481013) 
+[2022-04-20 09:39:32,949] change_rate : 1.0126582278481013, main_target_ticker_list : ['KRW-PLA']
+[2022-04-20 09:39:33,162] main_target list(rank) : KRW-PLA(
+[2022-04-20 09:56:02,464] KRW-PLA 를 매도 했습니다. 판매 금액: 1170.0, 수익:0.9790794979079498
+[2022-04-20 09:58:25,659] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 10:10:19,844]  main_target_ticker_list : KRW-TON (1.0287891617273497) 
+[2022-04-20 10:10:45,189] change_rate : 1.0287891617273497, main_target_ticker_list : ['KRW-TON']
+[2022-04-20 10:10:45,417] main_target list(rank) : KRW-TON(
+[2022-04-20 11:06:02,568] KRW-TON 를 매도 했습니다. 판매 금액: 6090.0, 수익:1.004950495049505
+[2022-04-20 14:03:13,917]  main_target_ticker_list : KRW-ZIL (1.013793103448276) 
+[2022-04-20 14:04:13,378] change_rate : 1.013793103448276, main_target_ticker_list : ['KRW-ZIL']
+[2022-04-20 14:04:13,560] main_target list(rank) : KRW-ZIL(
+[2022-04-20 14:46:32,014] 'NoneType' object is not subscriptable
+[2022-04-20 14:53:01,312] KRW-ZIL 를 매도 했습니다. 판매 금액: 148.0, 수익:1.0136986301369864
+[2022-04-20 16:47:53,209] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 17:47:12,413] 'NoneType' object has no attribute 'reset_index'
+
+gumi
+[2022-04-15 09:52:17,947] KRW-SSX 를 매수 했습니다. (65.3)
+[2022-04-15 09:59:12,934] KRW-SSX 매도 완료(조건1), 판매 금액: 63.5, 수익:0.9724349157733538
+[2022-04-15 10:01:01,822] target list(rank) : KRW-MTL(7764567.07799385)
+[2022-04-15 10:01:02,102] KRW-MTL 를 매수 했습니다. (2805.0)
+[2022-04-15 10:49:09,679] KRW-MTL 매도 완료(조건1), 판매 금액: 2645.0, 수익:0.9429590017825312
+[2022-04-15 14:13:02,505] target list(rank) : KRW-BTT(48157.33117343)
+[2022-04-15 14:13:02,764] KRW-BTT 를 매수 했습니다. (0.0025)
+[2022-04-15 14:13:04,627] KRW-BTT 매도 완료(조건5), 판매 금액: 0.0026, 수익:1.04
+[2022-04-15 14:16:23,164] KRW-BTT 매도 완료(조건1), 판매 금액: 0.0024, 수익:0.9599999999999999
+[2022-04-15 14:24:43,027] local variable 'target_min' referenced before assignment
+[2022-04-15 14:24:46,018] local variable 'target_min' referenced before assignment
+[2022-04-15 14:35:21,713] 'NoneType' object has no attribute 'reset_index'
+[2022-04-15 17:08:59,195] target list(rank) : KRW-TT(899498329.5137345)
+[2022-04-15 17:08:59,455] KRW-TT 를 매수 했습니다. (14.4)
+[2022-04-15 17:17:11,854] '>=' not supported between instances of 'NoneType' and 'int'
+[2022-04-15 20:23:17,701] 'NoneType' object has no attribute 'reset_index'
+[2022-04-15 20:30:24,664] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 16:04:27,705] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 16:46:51,500] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 17:00:57,654] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 17:46:29,470] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 19:31:33,368] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 19:52:30,050] target list(rank) : KRW-MTL(619745721.3828357)
+[2022-04-17 19:52:30,404] KRW-MTL 를 매수 했습니다. (2795.0)
+[2022-04-17 20:03:04,578] KRW-MTL 매도 완료(조건2), 판매 금액: 2735.0, 수익:0.9785330948121646
+[2022-04-17 20:13:08,091] target list(rank) : KRW-MTL(100829445.20246226)
+[2022-04-17 20:13:08,335] KRW-MTL 를 매수 했습니다. (2810.0)
+[2022-04-17 20:20:22,923] KRW-MTL 매도 완료(조건5), 판매 금액: 2895.0, 수익:1.0302491103202847
+[2022-04-17 20:22:08,681] target list(rank) : KRW-MTL(283490576.56974846)
+[2022-04-17 20:22:08,904] KRW-MTL 를 매수 했습니다. (2870.0)
+[2022-04-17 20:25:30,753] KRW-MTL 매도 완료(조건5), 판매 금액: 2960.0, 수익:1.0313588850174216
+[2022-04-17 20:35:00,612] target list(rank) : KRW-POLY(613856817.7581925)
+[2022-04-17 20:35:00,896] KRW-POLY 를 매수 했습니다. (548.0)
+[2022-04-17 20:42:03,833] KRW-POLY 매도 완료(조건2), 판매 금액: 545.0, 수익:0.9945255474452555
+[2022-04-17 20:48:26,289] target list(rank) : KRW-STRAX(309594171.6689181)
+[2022-04-17 20:48:26,528] KRW-STRAX 를 매수 했습니다. (1450.0)
+[2022-04-17 20:49:27,842] KRW-STRAX 매도 완료(조건1), 판매 금액: 1400.0, 수익:0.9655172413793104
+[2022-04-17 20:52:35,499] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 21:09:18,571] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 21:38:36,563] 'NoneType' object has no attribute 'reset_index'
+[2022-04-17 21:56:49,473] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 00:04:43,465] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 01:42:37,461] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 04:12:50,133] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 07:28:30,525] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 10:08:07,572] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 13:00:08,624] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 15:45:16,493] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 15:51:20,837] target list(rank) : KRW-STX(591199885.1109071)
+[2022-04-18 15:51:21,080] KRW-STX 를 매수 했습니다. (1510.0)
+[2022-04-18 16:02:12,745] KRW-STX 매도 완료(조건5), 판매 금액: 1565.0, 수익:1.0364238410596027
+[2022-04-18 16:24:34,476] target list(rank) : KRW-STX(812724910.7531445)
+[2022-04-18 16:24:34,758] KRW-STX 를 매수 했습니다. (1615.0)
+[2022-04-18 16:30:44,745] KRW-STX 매도 완료(조건5), 판매 금액: 1665.0, 수익:1.0309597523219813
+[2022-04-18 16:34:50,996] target list(rank) : KRW-DAWN(431300818.94684273)
+[2022-04-18 16:34:51,330] KRW-DAWN 를 매수 했습니다. (2455.0)
+[2022-04-18 16:43:04,857] KRW-DAWN 매도 완료(조건1), 판매 금액: 2380.0, 수익:0.9694501018329938
+[2022-04-18 16:47:57,173] target list(rank) : KRW-TON(762007579.8162651)
+[2022-04-18 16:47:57,458] KRW-TON 를 매수 했습니다. (5190.0)
+[2022-04-18 16:48:36,044] KRW-TON 매도 완료(조건1), 판매 금액: 4985.0, 수익:0.9605009633911368
+[2022-04-18 18:07:12,066] target list(rank) : KRW-SXP(191950976.72286555)
+[2022-04-18 18:07:12,356] KRW-SXP 를 매수 했습니다. (1590.0)
+[2022-04-18 18:18:41,331] KRW-SXP 매도 완료(조건5), 판매 금액: 1640.0, 수익:1.0314465408805031
+[2022-04-18 19:37:48,581] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 19:39:05,381] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 21:55:15,550] 'NoneType' object has no attribute 'reset_index'
+[2022-04-18 22:06:49,764] target list(rank) : KRW-MTL(2997299102.38977)
+[2022-04-18 22:06:50,285] KRW-MTL 를 매수 했습니다. (3785.0)
+[2022-04-18 22:11:35,090] KRW-MTL 매도 완료(조건1), 판매 금액: 3670.0, 수익:0.9696169088507266
+[2022-04-18 22:18:47,348] target list(rank) : KRW-MTL(6216300486.316201)
+[2022-04-18 22:18:47,601] KRW-MTL 를 매수 했습니다. (3875.0)
+[2022-04-18 22:37:55,264] KRW-MTL 매도 완료(조건1), 판매 금액: 3760.0, 수익:0.9703225806451613
+[2022-04-18 23:32:45,792] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 00:01:08,163] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 00:21:29,779] target list(rank) : KRW-SXP(1221511735.7889183)
+[2022-04-19 00:21:29,999] KRW-SXP 를 매수 했습니다. (1680.0)
+[2022-04-19 01:30:04,176] KRW-SXP 매도 완료(조건2), 판매 금액: 1665.0, 수익:0.9910714285714286
+[2022-04-19 03:27:35,144] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 04:14:10,057] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 05:54:37,529] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 06:33:43,390] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 08:49:15,310] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 09:42:40,274] target list(rank) : KRW-PLA(292894507.9599028)
+[2022-04-19 09:42:40,540] KRW-PLA 를 매수 했습니다. (1195.0)
+[2022-04-19 10:57:48,009] KRW-PLA 매도 완료(조건1), 판매 금액: 1155.0, 수익:0.9665271966527197
+[2022-04-19 10:58:49,278] target list(rank) : KRW-TON(543871168.8306979)
+[2022-04-19 10:58:49,639] KRW-TON 를 매수 했습니다. (5220.0)
+[2022-04-19 11:01:29,380] KRW-TON 매도 완료(조건5), 판매 금액: 5380.0, 수익:1.0306513409961686
+[2022-04-19 11:03:17,455] target list(rank) : KRW-TON(216911712.3552608)
+[2022-04-19 11:03:17,711] KRW-TON 를 매수 했습니다. (5490.0)
+[2022-04-19 11:05:01,841] KRW-TON 매도 완료(조건5), 판매 금액: 5665.0, 수익:1.0318761384335156
+[2022-04-19 11:06:03,252] target list(rank) : KRW-TON(17516790.06129265)
+[2022-04-19 11:06:03,515] KRW-TON 를 매수 했습니다. (5615.0)
+[2022-04-19 11:18:02,306] KRW-TON 매도 완료(조건2), 판매 금액: 5455.0, 수익:0.9715048975957258
+[2022-04-19 11:51:42,445] target list(rank) : KRW-DAWN(477314143.9058978)
+[2022-04-19 11:51:42,710] KRW-DAWN 를 매수 했습니다. (2420.0)
+[2022-04-19 12:03:01,487] KRW-DAWN 매도 완료(조건3), 판매 금액: 2380.0, 수익:0.9834710743801653
+[2022-04-19 12:45:19,844] target list(rank) : KRW-TON(217987759.9260214)
+[2022-04-19 12:45:20,069] KRW-TON 를 매수 했습니다. (5555.0)
+[2022-04-19 13:11:57,566] KRW-TON 매도 완료(조건5), 판매 금액: 5725.0, 수익:1.0306030603060305
+[2022-04-19 13:12:57,880] target list(rank) : KRW-TON(630608383.8946898)
+[2022-04-19 13:12:58,163] KRW-TON 를 매수 했습니다. (5710.0)
+[2022-04-19 13:30:03,606] KRW-TON 매도 완료(조건2), 판매 금액: 5580.0, 수익:0.9772329246935202
+[2022-04-19 16:37:07,904] target list(rank) : KRW-ICX(200259479.546424)
+[2022-04-19 16:37:08,232] KRW-ICX 를 매수 했습니다. (995.0)
+[2022-04-19 16:54:03,092] KRW-ICX 매도 완료(조건2), 판매 금액: 988.0, 수익:0.992964824120603
+[2022-04-19 16:57:02,006] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 17:00:50,879] target list(rank) : KRW-AQT(596485705.6752571)
+[2022-04-19 17:00:51,121] KRW-AQT 를 매수 했습니다. (3665.0)
+[2022-04-19 17:06:04,438] KRW-AQT 매도 완료(조건3), 판매 금액: 3615.0, 수익:0.9863574351978172
+[2022-04-19 19:03:30,685] target list(rank) : KRW-TON(464759835.4439349)
+[2022-04-19 19:03:31,052] KRW-TON 를 매수 했습니다. (5685.0)
+[2022-04-19 19:08:39,429] KRW-TON 매도 완료(조건5), 판매 금액: 5860.0, 수익:1.0307827616534742
+[2022-04-19 19:09:40,193] target list(rank) : KRW-TON(1167583973.4366112)
+[2022-04-19 19:09:40,432] KRW-TON 를 매수 했습니다. (5890.0)
+[2022-04-19 19:14:46,367] KRW-TON 매도 완료(조건5), 판매 금액: 6070.0, 수익:1.0305602716468591
+[2022-04-19 19:15:47,998] target list(rank) : KRW-TON(2165092057.8153963)
+[2022-04-19 19:15:48,305] KRW-TON 를 매수 했습니다. (5990.0)
+[2022-04-19 19:25:18,364] KRW-TON 매도 완료(조건1), 판매 금액: 5820.0, 수익:0.9716193656093489
+[2022-04-19 19:55:15,155] target list(rank) : KRW-MTL(993366480.3453304)
+[2022-04-19 19:55:15,442] KRW-MTL 를 매수 했습니다. (4115.0)
+[2022-04-19 20:03:02,333] KRW-MTL 매도 완료(조건2), 판매 금액: 4045.0, 수익:0.982989064398542
+[2022-04-19 20:23:07,999] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 20:30:45,652] target list(rank) : KRW-TON(1838879319.6128848)
+[2022-04-19 20:30:45,924] KRW-TON 를 매수 했습니다. (6000.0)
+[2022-04-19 20:40:31,009] KRW-TON 매도 완료(조건5), 판매 금액: 6175.0, 수익:1.0291666666666666
+[2022-04-19 20:42:19,361] target list(rank) : KRW-TON(1056998118.0099709)
+[2022-04-19 20:42:19,751] KRW-TON 를 매수 했습니다. (6230.0)
+[2022-04-19 20:56:24,168] KRW-TON 매도 완료(조건1), 판매 금액: 6040.0, 수익:0.9695024077046549
+[2022-04-19 20:57:26,043] target list(rank) : KRW-AQT(445158112.0598461)
+[2022-04-19 20:57:26,329] KRW-AQT 를 매수 했습니다. (3850.0)
+[2022-04-19 21:30:04,131] KRW-AQT 매도 완료(조건2), 판매 금액: 3790.0, 수익:0.9844155844155844
+[2022-04-19 22:07:12,030] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 22:35:44,055] target list(rank) : KRW-AQT(1164957535.6493218)
+[2022-04-19 22:35:44,323] KRW-AQT 를 매수 했습니다. (3980.0)
+[2022-04-19 22:57:03,993] KRW-AQT 매도 완료(조건2), 판매 금액: 3870.0, 수익:0.9723618090452262
+[2022-04-19 23:07:29,816] target list(rank) : KRW-STEEM(171050935.21277478)
+[2022-04-19 23:07:30,048] KRW-STEEM 를 매수 했습니다. (459.0)
+[2022-04-19 23:09:02,231] KRW-STEEM 매도 완료(조건3), 판매 금액: 451.0, 수익:0.9825708061002179
+[2022-04-19 23:24:25,086] 'NoneType' object has no attribute 'reset_index'
+[2022-04-19 23:55:12,518] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 00:17:40,332] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 05:04:35,598] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 05:46:50,288] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 07:53:39,178] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 09:20:02,067] target list(rank) : KRW-IOST(38937481.12045268)
+[2022-04-20 09:20:02,400] KRW-IOST 를 매수 했습니다. (39.5)
+[2022-04-20 09:24:00,432] KRW-IOST 매도 완료(조건5), 판매 금액: 40.7, 수익:1.0303797468354432
+[2022-04-20 09:25:02,514] target list(rank) : KRW-IOST(64875270.29784018)
+[2022-04-20 09:25:02,769] KRW-IOST 를 매수 했습니다. (41.8)
+[2022-04-20 09:26:20,163] KRW-IOST 매도 완료(조건1), 판매 금액: 40.5, 수익:0.9688995215311006
+[2022-04-20 09:31:13,615] target list(rank) : KRW-IOST(238126724.81991577)
+[2022-04-20 09:31:13,903] KRW-IOST 를 매수 했습니다. (40.7)
+[2022-04-20 09:33:03,037] KRW-IOST 매도 완료(조건3), 판매 금액: 40.0, 수익:0.9828009828009827
+[2022-04-20 09:48:49,422] target list(rank) : KRW-STORJ(1177450846.8230176)
+[2022-04-20 09:48:49,671] KRW-STORJ 를 매수 했습니다. (1630.0)
+[2022-04-20 09:53:37,688] KRW-STORJ 매도 완료(조건5), 판매 금액: 1675.0, 수익:1.0276073619631902
+[2022-04-20 09:56:11,481] target list(rank) : KRW-STORJ(135470962.3891468)
+[2022-04-20 09:56:11,855] KRW-STORJ 를 매수 했습니다. (1690.0)
+[2022-04-20 10:15:35,170] KRW-STORJ 매도 완료(조건1), 판매 금액: 1635.0, 수익:0.9674556213017751
+[2022-04-20 10:32:51,000] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 11:19:23,515] target list(rank) : KRW-STORJ(292471510.8593126)
+[2022-04-20 11:19:23,766] KRW-STORJ 를 매수 했습니다. (1710.0)
+[2022-04-20 11:45:02,330] KRW-STORJ 매도 완료(조건2), 판매 금액: 1690.0, 수익:0.9883040935672515
+[2022-04-20 14:36:44,803] target list(rank) : KRW-ZIL(300209577.5632818)
+[2022-04-20 14:36:45,070] KRW-ZIL 를 매수 했습니다. (152.0)
+[2022-04-20 14:53:51,696] KRW-ZIL 매도 완료(조건1), 판매 금액: 147.0, 수익:0.9671052631578947
+[2022-04-20 16:47:53,164] 'NoneType' object has no attribute 'reset_index'
+[2022-04-20 17:47:12,367] 'NoneType' object has no attribute 'reset_index'
+[2022-04-21 00:10:29,195] 'NoneType' object has no attribute 'reset_index'
+[2022-04-21 00:54:48,347] target list(rank) : KRW-EOS(958018428.4062971)
+[2022-04-21 00:54:48,633] KRW-EOS 를 매수 했습니다. (3570.0)
+[2022-04-21 01:03:04,027] KRW-EOS 매도 완료(조건2), 판매 금액: 3535.0, 수익:0.9901960784313726
+[2022-04-21 04:30:47,056] 'NoneType' object has no attribute 'reset_index'
+[2022-04-21 06:51:46,799] target list(rank) : KRW-ZRX(571901647.4568537)
+[2022-04-21 06:51:47,042] KRW-ZRX 를 매수 했습니다. (1090.0)
+[2022-04-21 06:53:10,681] KRW-ZRX 매도 완료(조건1), 판매 금액: 1055.0, 수익:0.9678899082568807
+[2022-04-21 06:57:59,175] target list(rank) : KRW-ZRX(685629511.6191168)
+[2022-04-21 06:57:59,436] KRW-ZRX 를 매수 했습니다. (1115.0)
+[2022-04-21 07:04:04,305] KRW-ZRX 매도 완료(조건1), 판매 금액: 1080.0, 수익:0.968609865470852
+
+
