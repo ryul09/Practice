@@ -1,0 +1,78 @@
+import numpy as np
+import pandas as pd
+import os
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Flatten, Dense
+from tensorflow.keras.optimizers import SGD, Adam
+import requests
+import pyupbit
+import matplotlib.pyplot as plt
+import time
+import datetime
+import pandas as pd
+from logging.config import dictConfig
+import logging
+import numpy as np
+import threading
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+
+
+## Data 형성
+data = pd.read_csv('220528_BTC.csv')
+print(data)
+x_data = data[:,0:-1]
+y_data = data[:,[-1]]
+
+print("x_data.shape = ", x_data.shape)
+print("y_data.shape = ", y_data.shape)
+
+## 모델 구축
+model = Sequential()
+model.add(Dense(y_data.shape[1], input_shape=(x_data.shape[1], ), activation='sigmoid'))
+
+## 모델 컴파일
+model.compile(optimizer=SGD(learning_rate=0.01), loss='binary_crossentropy', metrics=['accuracy'])
+model.summary()
+
+
+## 모델 학습
+hist = model.fit(x_data, y_data, epochs=500, validation_split=0.2, verbose=2)
+
+## 모델 (정확도) 평가
+model.evaluate(x_data, y_data)
+
+## 손실 그래프
+plt.title('Loss')
+plt.xlabel('epochs')
+plt.ylabel('loss')
+plt.grid()
+
+plt.plot(hist.history['loss'], label='train loss')
+plt.plot(hist.history['val_loss'], label='validation loss')
+
+plt.legend(loc='best')
+
+plt.show()
+
+## 정확도 그래프
+plt.title('Accuracy')
+plt.xlabel('epochs')
+plt.ylabel('accuracy')
+plt.grid()
+
+plt.plot(hist.history['accuracy'], label='train accuracy')
+plt.plot(hist.history['val_accuracy'], label='validation accuracy')
+
+plt.legend(loc='best')
+
+plt.show()
+
+# X_train, x_test, y_train, y_test = train_test_split(data[''])
+
+# model = LogisticRegression(max_iter=30000).fit(x_train, y_train)
+# model.score(x_train, y_train), model.score(x_test,y_test)
+# model.predict(x_test)[:-1]
+# model.predict_proba(X_test)[:-1]
+# model.decision_function(x_test)[:-1]
