@@ -1,0 +1,364 @@
+import requests
+import pyupbit
+import matplotlib.pyplot as plt
+import time
+import datetime
+import pandas as pd
+from logging.config import dictConfig
+import logging
+import numpy as np
+import sys
+import matplotlib
+
+
+ticker = "KRW-BTC"
+# ticker = "BTC-PCI"
+time_criteria = "minute1"
+
+dfs = []
+df = pyupbit.get_ohlcv(ticker, interval=time_criteria)
+dfs.append(df)
+
+for i in range(100):
+    df = pyupbit.get_ohlcv(ticker, interval=time_criteria, to=df.index[0])
+    dfs.append(df)
+    time.sleep(0.2)
+
+df = pd.concat(dfs)
+df = df.sort_index()
+
+df['close_change_rate'] = df['close'] / df['open']
+df['real_volume'] = df['open'] * df['volume']
+
+# df.to_excel(excel_writer= 'BFC_0824.xlsx')
+df.reset_index(inplace=True)
+
+# df = pd.read_excel('BFC_0824.xlsx')
+
+## 이동 평균선, 단순 이동평균 SMA (Simple Moving Average)
+
+df['sma5'] = df['close'].rolling(5).mean()
+df['sma7'] = df['close'].rolling(7).mean()
+df['sma10'] = df['close'].rolling(10).mean()
+df['sma15'] = df['close'].rolling(15).mean()
+df['sma20'] = df['close'].rolling(20).mean()
+df['sma30'] = df['close'].rolling(30).mean()
+df['sma50'] = df['close'].rolling(50).mean()
+df['sma60'] = df['close'].rolling(60).mean()
+df['sma100'] = df['close'].rolling(100).mean()
+df['sma120'] = df['close'].rolling(120).mean()
+df['sma200'] = df['close'].rolling(200).mean()
+df['sma365'] = df['close'].rolling(365).mean()
+
+## 지수 이동평균 EMA (Exponetial Moving Average)
+'''보다 최근의 값에 가중치를 두면서 이동평균을 계산하는 방법입니다.
+금일의 지수이동평균 = (금일 종가 * EP) + (전일의 지수 이동평균 * (1 - EP))
+EP(평활 계수 : Exponential Percentage) = 2 / (기간 + 1)'''
+
+
+df['ema5'] = df['close'].ewm(5).mean()
+df['ema10'] = df['close'].ewm(10).mean()
+df['ema15'] = df['close'].ewm(15).mean()
+df['ema20'] = df['close'].ewm(20).mean()
+df['ema60'] = df['close'].ewm(60).mean()
+df['ema100'] = df['close'].ewm(100).mean()
+df['ema120'] = df['close'].ewm(120).mean()
+df['ema200'] = df['close'].ewm(200).mean()
+
+
+## 가중 이동평균 WMA(Weighted Moving Average)
+
+'''현재에 가까운 가격 데이터가 과거의 가격 데이터보다 더 중요하다는 전제로 합니다. 
+선형 가중 이동평균(Linearly Weighted Moving Average)을 보면 동일한 값 1(4일 전) 2(3일 전) 3(2일 전) 
+4(1일 전) 5(금일)의 가격이라면 금일의 종가에 가중치를 부여하여 1*1 + 2*2 + 3*3 + 4*4 + 5*5 = 55
+계산에서 사용된 값 (1 + 2 + 3 + 4 + 5 = 15)
+55 / 15 = 3.67을 5개의 값의 평균으로 사용하는 것입니다.
+
+WMA의 문제점은 여전히 이용한 기간 값의 가격 데이터만을 평균으로 반영하기 때문에 실제로는 잘 사용되지 않습니다.
+
+출처: https://wendys.tistory.com/178 [웬디의 기묘한 이야기]'''
+
+
+def weighted_mean(weight_array):
+    def inner(x):
+        return (weight_array * x).mean()
+    return inner
+
+weights = np.arange(1,6)
+wma5 = df['close'].rolling(5).apply(lambda prices: np.dot(prices, weights)/weights.sum(), raw=True)
+weights = np.arange(1,16)
+wma15 = df['close'].rolling(15).apply(lambda prices: np.dot(prices, weights)/weights.sum(), raw=True)
+weights = np.arange(1,21)
+wma20 = df['close'].rolling(20).apply(lambda prices: np.dot(prices, weights)/weights.sum(), raw=True)
+weights = np.arange(1,61)
+wma60 = df['close'].rolling(60).apply(lambda prices: np.dot(prices, weights)/weights.sum(), raw=True)
+weights = np.arange(1,101)
+wma100 = df['close'].rolling(100).apply(lambda prices: np.dot(prices, weights)/weights.sum(), raw=True)
+weights = np.arange(1,121)
+wma120 = df['close'].rolling(120).apply(lambda prices: np.dot(prices, weights)/weights.sum(), raw=True)
+weights = np.arange(1,201)
+wma200 = df['close'].rolling(200).apply(lambda prices: np.dot(prices, weights)/weights.sum(), raw=True)
+
+df['wma5'] = wma5
+df['wma15'] = wma15
+df['wma20'] = wma20
+df['wma60'] = wma60
+df['wma100'] = wma100
+df['wma120'] = wma120
+df['wma200'] = wma200
+
+### 1. RSI
+
+# 상승, 하락분을 알기위해 현재 종가에서 전일 종가를 빼서 데이터프레임에 추가하겠습니다.
+RSI_n = 14
+
+# for i in range(len(df)):
+#     if i > 0:
+#         df["change_rate"] = df.loc[i, 'close'] - df.loc[i - 1, "close"]
+#
+df["change_rate"] = [df.loc[i, 'close'] - df.loc[i - 1, "close"] if i > 0 else 0 for i in range(len(df))]
+# i가 0일때는 전일값이 없어서 제외함, i는 데이터프레임의 index값
+
+# U(up): n일 동안의 종가 상승 분
+df["RSI_U"] = df["change_rate"].apply(lambda x: x if x > 0 else 0)
+
+# D(down): n일 동안의 종가 하락 분 --> 음수를 양수로 바꿔줌
+df["RSI_D"] = df["change_rate"].apply(lambda x: x * (-1) if x < 0 else 0)
+
+# AU(average ups): U값의 평균
+df["RSI_AU"] = df["RSI_U"].rolling(RSI_n).mean()
+
+# DU(average downs): D값의 평균
+df["RSI_AD"] = df["RSI_D"].rolling(RSI_n).mean()
+df["RSI"] = df.apply(lambda x: x["RSI_AU"] / (x["RSI_AU"] + x["RSI_AD"]) * 100 if x['RSI_AU'] != 0 else 0, axis=1)
+
+# df[["등락","RSI_U","RSI_D","RSI_AU","RSI_AD","RSI"]].fillna(0, inplace=True)
+
+# RSI값이 30 이하일 때 BUY, 80 이상일 때 SELL하도록 설정해보겠습니다.
+# 좀 더 최적화된 값은 다음 시간에 찾아보께요.
+df["RSI_sign"] = df["RSI"].apply(lambda x: "BUY" if x < 20 else ("SELL" if x > 80 else "STAND-BY"))
+
+df[['RSI']].plot.line(subplots=False, figsize=(15, 5))
+
+
+## 2. STOCHASTIC
+
+
+sto_N = 14
+sto_m = 3
+sto_t = 3
+df['MA50'] =df['close'].rolling(50).mean()
+# 스토캐스틱 %K (fast %K) = (현재가격-N일중 최저가)/(N일중 최고가-N일중 최저가) ×100
+df["max%d" % sto_N] = df['high'].rolling(sto_N).max()
+df["min%d" % sto_N] = df['low'].rolling(sto_N).min()
+df["stochastic%K"] = df.apply(lambda x: 1 * (x['close'] - x["min%d" % sto_N]) /
+                                        (x["max%d" % sto_N] - x["min%d" % sto_N])
+if (x["max%d" % sto_N] - x["min%d" % sto_N]) != 0 else 50, 1)
+# 스토캐스틱 %D (fast %D) = m일 동안 %K 평균 = Slow %K
+# slow %K = 위에서 구한 스토캐스틱 %D
+df["slow_%K"] = df["stochastic%K"].rolling(sto_m).mean()
+# slow %D = t일 동안의 slow %K 평균
+df["slow_%D"] = df["slow_%K"].rolling(sto_t).mean()
+stochastic_sign = []
+for i in range(len(df)):
+    if df.loc[i, "slow_%K"] > df.loc[i, "slow_%D"] and df.loc[i, "close"] > df.loc[i, "MA50"]:
+        if df.loc[i, "slow_%K"] < 0.2:
+            stochastic_sign.append("STAND-BY")
+        else:
+            stochastic_sign.append("BUY")
+    elif df.loc[i, "slow_%K"] < df.loc[i, "slow_%D"] and df.loc[i, "close"] < df.loc[i, "MA50"]:
+        if df.loc[i, "slow_%K"] > 0.8:
+            stochastic_sign.append("STAND-BY")
+        else:
+            stochastic_sign.append("SELL")
+    else:
+        stochastic_sign.append("STAND-BY")
+df["stochastic_sign"] = stochastic_sign
+df[['slow_%K', 'slow_%D']].plot.line(subplots=False, figsize=(15, 5))
+# print(df)
+
+
+## STOCHASTIC RSI
+
+
+# 스토캐스틱 %K (fast %K) = (현재가격-N일중 최저가)/(N일중 최고가-N일중 최저가) ×100
+df["max_RSI%d" % sto_N] = df['RSI'].rolling(sto_N).max()
+df["min_RSI%d" % sto_N] = df['RSI'].rolling(sto_N).min()
+df["STOCHRSI%K"] = df.apply(lambda x: 1 * (x['RSI'] - x["min_RSI%d" % sto_N]) /
+                                        (x["max_RSI%d" % sto_N] - x["min_RSI%d" % sto_N])
+if (x["max_RSI%d" % sto_N] - x["min_RSI%d" % sto_N]) != 0 else 50, 1)
+# 스토캐스틱 %D (fast %D) = m일 동안 %K 평균 = Slow %K
+# slow %K = 위에서 구한 스토캐스틱 %D
+df["STOCHRSI_slow_%K"] = df["STOCHRSI%K"].rolling(sto_m).mean()
+# slow %D = t일 동안의 slow %K 평균
+df["STOCHRSI_slow_%D"] = df["STOCHRSI_slow_%K"].rolling(sto_t).mean()
+
+## 기존 BUY/SELL 공식
+# STOCHRSI_sign = []
+# for i in range(len(df)):
+#     if df.loc[i, "STOCHRSI_slow_%K"] > df.loc[i, "STOCHRSI_slow_%D"] and df.loc[i, "close"] > df.loc[i, "MA50"]:
+#         if df.loc[i, "STOCHRSI_slow_%K"] < 0.2:
+#             STOCHRSI_sign.append("STAND-BY")
+#         else:
+#             STOCHRSI_sign.append("BUY")
+#     elif df.loc[i, "STOCHRSI_slow_%K"] < df.loc[i, "STOCHRSI_slow_%D"] and df.loc[i, "close"] < df.loc[i, "MA50"]:
+#         if df.loc[i, "STOCHRSI_slow_%K"] > 0.8:
+#             STOCHRSI_sign.append("STAND-BY")
+#         else:
+#             STOCHRSI_sign.append("SELL")
+#     else:
+#         STOCHRSI_sign.append("STAND-BY")
+# df["STOCHRSI_sign"] = STOCHRSI_sign
+# df[['STOCHRSI_slow_%K', 'STOCHRSI_slow_%D']].plot.line(subplots=False, figsize=(15, 5))
+
+## 신규 BUY/SELL 공식 K>D BUY가능, K<D SELL
+STOCHRSI_sign = []
+for i in range(len(df)):
+    if df.loc[i, "STOCHRSI_slow_%K"] > df.loc[i, "STOCHRSI_slow_%D"] and df.loc[i, "close"] > df.loc[i, "MA50"]:
+        STOCHRSI_sign.append("BUY")
+    elif df.loc[i, "STOCHRSI_slow_%K"] < df.loc[i, "STOCHRSI_slow_%D"] :
+        if df.loc[i, "STOCHRSI_slow_%K"] > 0.75:
+            STOCHRSI_sign.append("SELL")
+        else:
+            STOCHRSI_sign.append("STAND-BY")
+    else:
+        STOCHRSI_sign.append("STAND-BY")
+df["STOCHRSI_sign"] = STOCHRSI_sign
+
+
+
+
+w = 20  # 기준 이동평균일
+k = 2  # 기준 상수
+
+# 중심선 (MBB) : n일 이동평균선
+df["mbb"] = df["close"].rolling(w).mean()
+df["MA20_std"] = df["close"].rolling(w).std()
+
+# 상한선 (UBB) : 중심선 + (표준편차 × K)
+# 하한선 (LBB) : 중심선 - (표준편차 × K)
+df["ubb"] = df.apply(lambda x: x["mbb"] + k * x["MA20_std"], 1)
+df["lbb"] = df.apply(lambda x: x["mbb"] - k * x["MA20_std"], 1)
+df["bb_range"] =df["ubb"]/df["lbb"]
+
+# df[['종가','mbb', 'ubb', 'lbb']][-200:].plot.line()
+
+# df[["mbb","MA20_std","ubb","lbb"]].fillna(0, inplace=True)
+
+# 밴드를 이탈했다가 진입할 때 거래
+# 상향 돌파 & 변동폭 커질 때 BUY
+bb_sign = []
+bb_range_target = 1.015
+
+for i in range(len(df)):
+    if i < 20:
+        bb_sign.append("STAND-BY")
+    # elif df.loc[i - 1, "close"] >= df.loc[i - 1, "ubb"] and df.loc[i, "close"] < df.loc[i, "ubb"]:
+    #     bb_sign.append("SELL")
+    # elif df.loc[i - 1, "close"] < df.loc[i - 1, "lbb"] and df.loc[i, "close"] < df.loc[i, "lbb"]:
+    #     bb_sign.append("BUY")
+    elif df.loc[i - 1, "close"] >= df.loc[i - 1, "ubb"] and df.loc[i, "bb_range"] / df.loc[i-1 , "bb_range"] > bb_range_target:
+        bb_sign.append("BUY")
+    else:
+        bb_sign.append("STAND-BY")
+
+df["bb_sign"] = bb_sign
+df[['mbb','ubb','lbb','close']].plot.line(subplots=False)
+
+# plt.show
+
+
+### Super Trend
+
+df['tr0'] = abs(df["high"] - df["low"])
+df['tr1'] = abs(df["high"] - df["close"].shift(1))
+df['tr2'] = abs(df["low"]- df["close"].shift(1))
+df["TR"] = df[['tr0', 'tr1', 'tr2']].max(axis=1)
+df["ATR"]=0.00
+df['BUB']=0.00
+df["BLB"]=0.00
+df["FUB"]=0.00
+df["FLB"]=0.00
+df["ST"]=0.00
+
+# Calculating ATR
+for i, row in df.iterrows():
+    if i == 0:
+        df.loc[i,'ATR'] = 0.00#df['ATR'].iat[0]
+    else:
+        df.loc[i,'ATR'] = ((df.loc[i-1,'ATR'] * 13)+df.loc[i,'TR'])/14
+
+df['BUB'] = ((df["high"] + df["low"]) / 2) + (2 * df["ATR"])
+df['BLB'] = ((df["high"] + df["low"]) / 2) - (2 * df["ATR"])
+
+
+# FINAL UPPERBAND = IF( (Current BASICUPPERBAND < Previous FINAL UPPERBAND) or (Previous Close > Previous FINAL UPPERBAND))
+#                     THEN (Current BASIC UPPERBAND) ELSE Previous FINALUPPERBAND)
+
+
+for i, row in df.iterrows():
+    if i==0:
+        df.loc[i,"FUB"]=0.00
+    else:
+        if (df.loc[i,"BUB"]<df.loc[i-1,"FUB"])|(df.loc[i-1,"close"]>df.loc[i-1,"FUB"]):
+            df.loc[i,"FUB"]=df.loc[i,"BUB"]
+        else:
+            df.loc[i,"FUB"]=df.loc[i-1,"FUB"]
+
+# FINAL LOWERBAND = IF( (Current BASIC LOWERBAND > Previous FINAL LOWERBAND) or (Previous Close < Previous FINAL LOWERBAND))
+#                     THEN (Current BASIC LOWERBAND) ELSE Previous FINAL LOWERBAND)
+
+for i, row in df.iterrows():
+    if i==0:
+        df.loc[i,"FLB"]=0.00
+    else:
+        if (df.loc[i,"BLB"]>df.loc[i-1,"FLB"])|(df.loc[i-1,"close"]<df.loc[i-1,"FLB"]):
+            df.loc[i,"FLB"]=df.loc[i,"BLB"]
+        else:
+            df.loc[i,"FLB"]=df.loc[i-1,"FLB"]
+
+
+
+# SUPERTREND = IF((Previous SUPERTREND = Previous FINAL UPPERBAND) and (Current Close <= Current FINAL UPPERBAND)) THEN
+#                 Current FINAL UPPERBAND
+#             ELSE
+#                 IF((Previous SUPERTREND = Previous FINAL UPPERBAND) and (Current Close > Current FINAL UPPERBAND)) THEN
+#                     Current FINAL LOWERBAND
+#                 ELSE
+#                     IF((Previous SUPERTREND = Previous FINAL LOWERBAND) and (Current Close >= Current FINAL LOWERBAND)) THEN
+#                         Current FINAL LOWERBAND
+#                     ELSE
+#                         IF((Previous SUPERTREND = Previous FINAL LOWERBAND) and (Current Close < Current FINAL LOWERBAND)) THEN
+#                             Current FINAL UPPERBAND
+
+
+for i, row in df.iterrows():
+    if i==0:
+        df.loc[i,"ST"]=0.00
+    elif (df.loc[i-1,"ST"]==df.loc[i-1,"FUB"]) & (df.loc[i,"close"]<=df.loc[i,"FUB"]):
+        df.loc[i,"ST"]=df.loc[i,"FUB"]
+    elif (df.loc[i-1,"ST"]==df.loc[i-1,"FUB"])&(df.loc[i,"close"]>df.loc[i,"FUB"]):
+        df.loc[i,"ST"]=df.loc[i,"FLB"]
+    elif (df.loc[i-1,"ST"]==df.loc[i-1,"FLB"])&(df.loc[i,"close"]>=df.loc[i,"FLB"]):
+        df.loc[i,"ST"]=df.loc[i,"FLB"]
+    elif (df.loc[i-1,"ST"]==df.loc[i-1,"FLB"])&(df.loc[i,"close"]<df.loc[i,"FLB"]):
+        df.loc[i,"ST"]=df.loc[i,"FUB"]
+
+# Buy Sell Indicator
+for i, row in df.iterrows():
+    if i==0:
+        df["ST_BUY_SELL"]="NA"
+    elif (df.loc[i,"ST"]<df.loc[i,"close"]) :
+        df.loc[i,"ST_BUY_SELL"]="BUY"
+    else:
+        df.loc[i,"ST_BUY_SELL"]="SELL"
+
+# buy_target = []
+#
+# if df['STOCHRSI_sign'] == 'BUY' and df['ST_BUY_SELL'] == 'BUY' and df['bb_sign'] == 'BUY' and df['stochastic_sign'] =='BUY' :
+# df["buy_target"] = buy_target
+
+
+
+# file_date = datetime.datetime.now().strftime("%Y-%m-%d)
+df.to_csv(ticker + '_back_data_1min_220528.csv', index=False, mode='w', encoding='utf-8-sig')
