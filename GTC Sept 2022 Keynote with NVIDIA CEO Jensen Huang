@@ -1,0 +1,2387 @@
+Computing is advancing at incredible speeds.
+
+The engine propelling this rocket is accelerated computing, and its fuel is AI.
+
+Today, we will show you new advances in NVIDIA RTX, NVIDIA AI, and NVIDIA Omniverse
+
+How these platforms propel new breakthroughs in AI, new applications of AI,
+
+and the next wave of AI for science and industry
+
+We will announce new chips that power these new applications,
+
+and, for the first time, cloud services to extend the
+reach of NVIDIA platforms.
+
+I want to thank all the sponsors, partners, researchers, developers, and customers
+
+who joined us to make this event amazing.
+
+Welcome to GTC!
+
+I want to show you something amazing.
+
+RacerX is a fully interactive simulation built with NVIDIA Omniverse.
+
+RacerX is physically simulated.
+
+The lighting, reflections, and refractions are ray traced - nothing is pre-rendered and baked in.
+
+The parts and joints of the cars are individually modeled.
+
+Their physical properties affect driving dynamics.
+
+Things in the environment are not static props, but rigid body, cloth, and fluid simulations.
+
+Smoke, fire, and dust are volumetric simulations.
+
+RacerX is a simulation.
+
+Future games will not have pre-baked worlds.
+
+Future games will be simulations.
+
+RacerX is running one single GPU.
+
+Let me tell you how we did it.
+
+We introduced the programmable shading GPU nearly a quarter of a century ago.
+
+GPUs revolutionized 3D graphics and created a medium with an infinite palette for artists.
+
+At Siggraph 2018, we launched NVIDIA RTX,
+a new GPU architecture
+
+that extended programmable shaders with two new processors.
+
+RT cores accelerate real-time ray tracing.
+
+Tensor cores process matrix operations central to deep learning.
+
+RTX opened a new frontier for computer scientists
+and a flood of new algorithms have appeared.
+
+A new era of RTX neural rendering has started.
+
+Today, we're announcing Ada Lovelace, our 3rd generation RTX.
+
+One Ada GPU powers RacerX.
+
+This generation is named after mathematician Ada Lovelace
+
+who is often regarded as the world's first computer programmer.
+
+NVIDIA engineers worked closely with TSMC to create
+the 4N process optimized for GPUs.
+
+This process lets us integrate 76 billion transistors and
+over 18,000 CUDA cores, 70% more than the Ampere generation.
+
+Ada evolves all three RTX processors:
+
+First, a new streaming multiprocessor with 90 Teraflops—over 2x the previous generation.
+
+Ada's SM includes a major new technology, called Shader Execution Reordering, which reschedules work on the fly
+
+giving a 2-3x speed-up for ray tracing.
+
+SER is as big an innovation as out-of-order execution
+was for CPUs.
+
+Second, a new RT Core, with twice the ray-triangle intersection throughput and two important new hardware units.
+
+A new Opacity Micromap Engine speeds up ray tracing of alpha-test geometry by a factor of 2x
+
+and a new Micro-Mesh Engine, which increases geometric richness without the BVH build and storage cost.
+
+And third, a new Tensor Core with the Hopper FP8 Transformer Engine and 1.4 petaFLOPs of tensor processing.
+
+Raw ray tracing horsepower is not enough to ensure high frame rates.
+
+Ray tracing is notoriously hard to parallelize because rays bounce in every direction
+
+and intersect surfaces of various types.
+
+GPUs are highly parallel and most efficient when
+processing similar work at the same time.
+
+Ray tracing workloads lead to different threads processing different shaders
+
+or accessing memory that is hard to coalesce or cache.
+
+Shader Execution Reordering (SER) improves execution efficiency 
+
+by rescheduling shading workloads on the fly
+
+to better utilize the GPU's resources.
+
+We're seeing up to 2-3x increase in ray tracing and 25% in overall game performance.
+
+Like accelerated computing, computer graphics is a full-stack challenge.
+
+Breakthroughs require innovation in architecture and design, as well as algorithms.
+
+For example, NVIDIA's RTXGI uses ray tracing to do real-time, multi-bounce indirect lighting.
+
+RTXDI uses ray tracing to do direct illumination from millions of lights, casting shadows from all lights.
+
+RTXDI is used for emissive surfaces such as billboards, TV screens, and neon tubes.
+
+NVIDIA Real-Time Denoisers (NRD) is a spatio-temporal denoising technique that takes an incomplete ray-traced image
+
+and infers the ground-truth, reducing the number of rays needed.
+
+And DLSS, Deep Learning Super Resolution, is one of our greatest achievements.
+
+Ray tracing requires insane amounts of computation.
+
+Each frame of a CGI movie takes hours to render.
+
+We want to do this in real-time.
+
+NVIDIA RTX opened the world to real-time ray tracing.
+
+RT Cores do BVH traversal and ray-triangle intersection testing, which saves the SMs
+
+from spending thousands of instructions on each ray.
+
+But even with RT Cores, frame rates were too low for games.
+
+We needed another breakthrough.
+
+Enter deep learning.
+
+DLSS uses a convolutional autoencoder AI model and takes the low-resolution current frame and the high-resolution
+
+previous frame, to predict, on a pixel-by-pixel basis, a higher resolution current frame.
+
+The AI model is trained to predict an ultra-high resolution 16K reference image.
+
+The difference between the predicted and reference image is used to train the neural network.
+
+The process is repeated tens of thousands of times until the network can predict a high-quality image.
+
+Ada introduces DLSS 3, a new AI that generates entirely new frames, rather than just pixels.
+
+DLSS 3 has four components - a new Optical Flow Accelerator, game engine motion vectors, a convolutional autoencoder AI
+
+frame generator, and our Reflex super-low-latency pipeline.
+
+DLSS 3 processes the new frame and the prior frame to discover how the scene is changing.
+
+The Optical Flow Accelerator provides the neural network with the direction and velocity of pixels from frame to frame.
+
+Pairs of frames from the game, along with the geometry and pixel motion vectors, are then fed into a neural network
+
+that generates the intermediate frames.
+
+DLSS 3 generates entirely new frames, without processing the graphics pipeline, boosting game performance by up to 4X
+
+over brute-force rendering.
+
+Because DLSS 3 generates a new frame without involving the game, it benefits both GPU- and CPU-limited games.
+
+For CPU-limited games, like physics-heavy or large-world games, DLSS 3 allows the Ada GPU
+
+to render the game at a much higher framerate
+than the CPU is able to compute the game.
+
+DLSS 3 is one of our greatest neural rendering inventions.
+
+Here is Cyberpunk 2077 shown in an all new Max Ray Tracing Mode with SER and DLSS 3.
+
+Pushing state-of-the-art graphics into the future takes an incredible amount of computational horsepower.
+
+In a modern game like Cyberpunk, we run over 600 ray tracing calculations for every pixel just to determine the lighting.
+
+That's a 16x increase from the time we first introduced
+real-time ray tracing 4 years ago.
+
+Yet the number of transistors we have available in a GPU
+
+ to do these calculations has not increased at this rate.
+
+That's the power of RTX—
+
+we can deliver a 16x increase in 4 years with AI.
+
+Some pixels are calculated, most are predicted.
+
+Let's enjoy Microsoft Flight Simulator, a game that is CPU-limited
+
+because of the realistic physics and the giant worlds.
+
+It is one of the longest running franchises.
+
+This is Flight Sim's 40th anniversary!
+
+With Ada and DLSS 3, Flight Simulator is silky smooth.
+
+I am thrilled to announce Portal RTX.
+
+NVIDIA Lightspeed Studios used Omniverse to remaster one of the most celebrated games in history.
+
+Portal was developed by Valve and released in 2007. 
+
+It was GDC's Game of the Year and exhibited at the Smithsonian.
+
+Portal RTX is both nostalgic and futuristic at the same time.
+
+Let's take a look.
+
+Portal with RTX is a mod. 
+
+We did it with Omniverse.
+
+Modding is a massive culture.
+
+Everyone is a creator.
+
+There are millions of modders
+
+and billions of mods are downloaded each year.
+
+In fact, 9 of the 10 most popular competitive games owe their existence to mods
+
+We created an Ominverse application
+called RTX Remix for game modding.
+
+Start the game and capture the game into USD, which is loaded into Omniverse.
+
+Here, we're using Elder Scrolls Morrowind from Bethesda, one of the top modded games of all time.
+
+Once in RTX Remix, the AI-assisted toolset has deep learning models to up-res textures and assets
+
+and an AI model to convert materials
+to have physically accurate properties.
+
+The rich Omniverse ecosystem of creative tools can then be used to enhance the game assets.
+
+When done, export the RTX Mod pack and play the game with the RTX renderer.
+
+RTX Remix is incredible tech and the most advanced game modding tool ever created.
+
+Portal RTX and RTX Remix will be available shortly after Ada launch.
+
+RTX neural rendering algorithms run on programmable shaders, RT cores, and Tensor Cores to create amazing images.
+
+The total processing throughput of Ada is a massive leap over the Ampere generation and the performance shows.
+
+For rasterized games, Ada is up to 2x faster and it's 4x faster for ray-traced games.
+
+Ada is incredibly energy efficient - over twice the performance at the same power compared to Ampere.
+
+And you can really push Ada - we've overclocked Ada
+past 3GHz in our labs.
+
+RTX reinvented graphics.
+
+Now Ada is paving the way for future games to be fully simulated worlds, like RacerX.
+
+Today, we are announcing our highly anticipated
+NVIDIA Ada Lovelace GPU
+
+The GeForce RTX 4090
+
+NVIDIA engineers pushed technologies on every front:
+
+New SM with Shader Execution Reordering
+
+New RT Core with Opacity Micromap and Micro-Mesh Engines
+
+New Tensor Core with FP8 Transformer Engine
+
+And a pixel processing 300 TOPS
+Optical Flow Accelerator for DLSS 3
+
+Overall, 4x more processing throughput.
+
+Compared to the world's reigning GPU champion, the 3090Ti
+
+4090 is 2x faster on Microsoft Flight Simulator...
+
+3x faster on Portal RTX...
+
+and 4x faster on RacerX.
+
+The GeForce RTX 4090, the new heavyweight champ, is $1,599.
+
+Available October 12th.
+
+The GeForce RTX 4080 comes in 16GB and 12GB versions.
+
+4080 is three times the performance of 3080 Ti on RacerX.
+
+4080 starts at $899.
+
+The best gaming platform in the world just got better.
+
+Our 30-Series, starting at $329, are the best GPUs in the world serving mainstream gamers.
+
+RTX 4090 and 4080 GPUs,
+
+starting at $899, deliver the ultimate performance to enthusiasts.
+
+The Ada Lovelace generation advances all three RTX processors, the engines of neural rendering.
+
+Ada is a quantum leap for gamers and paves the way for creators of fully simulated worlds, like Omniverse.
+
+Welcome to the Omniverse!
+
+The next evolution of the internet, called the metaverse,
+will be extended with 3D.
+
+Today's internet connects websites described in HTML
+and viewed through a browser.
+
+The metaverse, the 3D internet, connects virtual 3D worlds described in USD and viewed through a simulation engine.
+
+Omniverse is a platform for building and operating metaverse applications.
+
+Omniverse is useful wherever digital and physical worlds meet.
+
+One of the most essential uses of Omniverse is robotics,
+the next wave of AI,
+
+where AI interacts with the physical world.
+
+Omniverse is like nothing ever built.
+
+Omniverse is a real-time, large-scale 3D database.
+It is a shared 3D world.
+
+Omniverse is a network built on USD. It connects 3D worlds.
+
+Omniverse is a computing platform.
+
+You can write applications that run on Omniverse.
+
+These applications are like portals into the Omniverse virtual world.
+
+We've written some Omniverse applications
+like Create and View for collaboration,
+
+Replicator for synthetic data generation, and Isaac Sim
+and Drive Sim for digital twin simulations.
+
+We are releasing a major update to Omniverse:
+
+Support for Ada Lovelace GPUs, with a giant leap in ray tracing
+and large-scene performance.
+
+New GAN-based and Diffusion model-based neural rendering tools.
+
+OmniGraph is a graph execution engine to procedurally
+control behavior, motion, and action.
+
+A major update of Omniverse physics to process kinematics of complex multi-part objects.
+
+New Cloud XR for Ada's amazing raytracing in VR.
+
+The world's first SimReady asset library for Synthetic Data Generation and Digital Twin simulations.
+
+One of the most popular applications of Omniverse is Replicator, which is used to generate synthetic data
+
+to train self-driving cars, robots, and all kinds
+of computer vision models.
+
+New Omniverse JT Connector. This is big.
+
+Siemens invented JT, the industry-standard language
+of product lifecycle management
+
+and the interoperability format of CAD systems,
+like NX, Creo, Catia, and Inventor.
+
+The JT Connector opens the industrial and
+manufacturing worlds to Omniverse.
+
+Omniverse is an enterprise platform that is useful from the beginning of design and styling,
+
+through engineering and manufacturing, marketing to operations—
+
+the entire product lifecycle.
+
+At the core of making movies or games, 
+
+building cars or any consumer product,
+
+or building and operating factories and warehouses, is a super complex 3D pipeline.
+
+Let's take a look at the creative and design process.
+
+Many specialized tools are used by expert designers, artists, and engineers working in different teams,
+
+organizations, or geographies, passing work around.
+
+Different data formats are stored all over the company.
+
+A visual effects pipeline can use 5 to 7 tools; each specializes in a certain aspect of the workflow,
+
+such as modeling, rigging, animation, or simulations.
+
+DNEG, an award-winning visual effects and animation studio,
+
+uses Autodesk Maya, SideFX Houdini, Adobe Substance 3D,
+
+and Foundry Nuke in their workflow.
+
+Just as the internet connects websites, Omniverse connects 3D worlds.
+
+Omniverse lets DNEG's creators bring in data from different tools
+
+in their full fidelity and collaborate interactively
+
+in a shared Omniverse world.
+
+Teams can create a Custom 3D Pipeline
+
+to orchestrate and manage the complex workflow
+
+using simple out-of-the-box Omniverse tools.
+
+These Omniverse capabilities are valuable to nearly every industry.
+
+NVIDIA RacerX was created by 30 artists, using 11 tools collaborating across 12 time zones, and done in only 3 months.
+
+The team used Omniverse to connect and collaborate
+and created a Custom 3D Pipeline
+
+to orchestrate and manage their work.
+
+The architectural design process commonly uses apps like Revit, Rhino, SketchUp, ArchiCAD, and 3ds Max.
+
+KPF, an award-winning architectural design firm
+
+connects architects, designers, and clients in Omniverse.
+
+Clients can review progress by interacting with a full-fidelity
+
+and photo-realistically rendered model.
+
+Auto and other physical product makers commonly use Siemens, Autodesk, Ansys, and PTC tools.
+
+GM is creating a digital twin
+
+of their Michigan Design Studio in Omniverse
+
+where designers, engineers, and marketers can collaborate.
+
+Omniverse gives them a single source of truth
+
+that is physically simulated and faithfully rendered.
+
+Omniverse is a virtual world used to design, build,
+and operate things in the physical world.
+
+In the future, everything made will have a digital twin,
+
+used by the makers to emulate the behavior and performance of a product in the physical world.
+
+No physical product operated by software can be deployed in large numbers
+
+without testing the software on its digital twin.
+
+Let me give you some examples.
+
+Telcos will deploy millions of 5G microcells and towers
+over the next 5 years.
+
+Optimizing the placement and operations of new and existing cells and towers can save billions
+
+for the 2 trillion dollar telecom industry.
+
+Charter, a $50 billion dollar telecommunications provider
+
+and HeavyAI, a super cool interactive data analytics platform company,
+
+are using Omniverse to create digital twins
+
+of their 4 and 5G networks at metro and nationwide scales.
+
+HeavyAI uses Omniverse to combine multi-billion-point LIDAR scans, satellite imagery, buildings, trees, and surroundings
+
+and their RF propagation model to simulate the performance of Charter's radio network in real time.
+
+Lowe's is one of the world's largest home improvement retailers
+
+with over 2,000 stores and 300,000 retail associates.
+
+Lowe's is using Omniverse to design, build, and operate digital twins of their stores to optimize operations
+
+and enhance the shopping experience.
+
+And with the amazing Magic Leap 2 headset
+connected to Omniverse,
+
+associates can enter a mixed physical and Omniverse world
+
+to explore new store designs.
+
+The $300 billion-dollar global railroad market helps move the world
+
+a critical part of the global supply chain.
+
+Deutsche Bahn, the national railway company of Germany
+
+uses Omniverse to build and operate a digital twin of 5,700 stations
+
+and 33,000 km of track.
+
+Omniverse is also used to train AI models that can continuously monitor the railways and trains and recognize hazards
+
+and situations that can affect network operations.
+
+Deutsche Bahn expects to increase capacity and efficiency of the railway, and reduce its carbon footprint without
+
+building new tracks.
+
+Each of these stories are amazing.
+
+ Be sure to check
+their videos on the NVIDIA homepage.
+
+There are many great examples of how companies use Omniverse to create digital twins of factories, logistics warehouses,
+
+automated manufacturing lines, and industrial plants.
+
+Let's take a look.
+
+Connections to Omniverse are growing fast.
+
+There are already 150 connectors to Omniverse.
+
+These are the tools and platforms used
+by the world's $100 trillion industries.
+
+These connectors open Omniverse to companies that span the largest industries 
+
+from retail, transportation,
+
+telecommunications, manufacturing, 
+
+media and entertainment, consumer and luxury goods, 
+
+to supply chain and logistics.
+
+Here are some examples of companies who are using Omniverse to connect their teams,
+
+visualize their data in full fidelity,
+
+ generate synthetic data to train AI models, and simulate digital twins.
+
+Omniverse is a new computing platform and requires a new computer system.
+
+There are three elements to the Omniverse computer:
+
+RTX computers for creators, designers, and engineers.
+
+OVX servers to host connections to the Nucleus database and run virtual world simulations.
+
+And third, the NVIDIA GDN, portals into the Omniverse.
+
+Through GeForce Now, we've built a global GDN, 
+
+a Graphics Delivery Network, 
+
+that reaches 100 regions
+
+with super-fast and responsive RTX graphics.
+
+Whereas a Content Delivery Network, or CDN, 
+
+allows internet video to be streamed efficiently,
+
+NVIDIA GDN can stream interactive graphics efficiently.
+
+Between NVIDIA RTX PCs, NVIDIA GPUs in the cloud, and NVIDIA GDN,
+
+we can build an Omniverse Computer that covers the planet.
+
+Let me show you how Rimac, a hypercar and advanced EV platform company, 
+
+uses Omniverse to connect their design,
+
+engineering, and marketing pipelines to create the amazing Nevera.
+
+Rimac designs on RTX workstations and publishes the Omniverse-based
+
+car configurator application to run on NVIDIA GDN,
+
+which is then streamed to be enjoyed on any device.
+
+NVIDIA Omniverse Cloud is a suite of software and infrastructure-as-a-service 
+
+for designing, publishing,
+
+and experiencing metaverse applications
+from anywhere, on any device.
+
+Let's see how Rimac, technology pioneer of AI-enabled hypercars and advanced electric solutions,
+
+can enable collaborative workflows for their 3D teams,
+
+and deliver advanced 3D experiences
+to their audiences with Omniverse Cloud.
+
+The 3D models of cars such as Rimac's are designed by large teams
+of uniquely skilled individuals
+
+each using their own specialized tools.
+
+Here, designers connect to Omniverse Nucleus Cloud,
+their shared database engine.
+
+With USD workflows, they can aggregate full CAD fidelity datasets from their favorite tools
+
+including Autodesk Alias, Houdini, Adobe Substance 3D Painter, and Omniverse Create.
+
+Each designer either works on their individual RTX computers
+
+or streams Omniverse apps from OVX servers in the cloud.
+
+Once complete, Rimac integrates the ground-truth USD model
+
+into an advanced, real-time 3D configurator and publishes it
+
+to the NVIDIA Graphics Delivery Network—
+
+a planetary-scale network of distributed data centers
+
+that stream high-performance,
+low-latency 3D experiences to edge devices.
+
+Today's configurators are limited by pre-rendered options
+that can only be shown in a single scene.
+
+With the end-to-end USD pipeline, 
+
+Rimac fans and consumers
+are configuring the actual engineering dataset—
+
+not a simplified model—
+
+in full fidelity with physically accurate materials
+ and real-time RTX ray tracing.
+
+This unlocks all possible design permutations, 
+
+without Rimac having to manually render every option as a layer.
+
+Omniverse Cloud connects 3D artists, designers, 
+
+and metaverse viewers at every edge of the planet 
+
+and delivers the possibility to build and operate advanced
+3D internet applications on any device.
+
+Today we're announcing NVIDIA Omniverse Cloud, an infrastructure-as-a-service that connects Omniverse applications
+
+running in the cloud, on-prem, or on a device.
+
+In addition, Replicator and Farm will also be available in the cloud.
+
+Farm is a scaling engine for a render farm.
+
+Omniverse Cloud, Replicator, and Farm containers
+are available on AWS today.
+
+We are also offering them as managed services.
+
+Sign up today for early access.
+
+Robotics is the next wave of AI.
+
+Breakthroughs in deep learning have opened the door
+
+ to creating systems that can perceive their surroundings,
+
+plan a sequence of actions, and perform useful tasks,
+
+in real-time, every time.
+
+Everything from the way software is developed
+to how it runs is completely different.
+
+A new type of processor had to be created.
+
+NVIDIA Xavier was the world's first robotics processor
+designed for deep learning.
+
+Since then, every two years, we've announced
+a giant leap in performance.
+
+The driving force of the increased performance is the simultaneous increase in number and resolution of sensors,
+
+and more sophisticated AI models needed to expand driving domains and improve safety.
+
+Safety is the #1 priority in robotics, and it demands diversity and redundancy in sensors and algorithms.
+
+All of that demands more processing.
+
+Last year we introduced Atlan, a 1,000 TOPS SOC.
+
+Today, we are announcing that Atlan is no more...
+
+And will be replaced by Thor—
+
+twice the throughput of Atlan and more than twice the delivered performance.
+
+There are three big reasons we did that:
+
+Grace, Hopper, and Ada Lovelace.
+
+The incredible transformer engine of Hopper, 
+
+and the fast evolution of Vision Transformers, 
+
+is too important not to include
+in our next robotics processor.
+
+The invention of multi-instance-GPU in Ada
+
+ is a great opportunity to centralize the car computer,
+
+reducing hundreds of dollars of cost.
+
+And the CPU of Grace is too amazing to pass up.
+
+As all parallel processing algorithms are off-loaded
+and accelerated by our GPU,
+
+the remaining workload tends to be
+
+single-thread limited.
+
+Grace has excellent single-threaded performance.
+
+So, engineers at NVIDIA scrambled to create Thor.
+
+The amount of new technology in Thor is insane.
+
+Thor can be configured in multiple ways.
+
+can dedicate all of its 2,000 TOPS
+
+and 2,000 TFLOPS to an autonomous driving pipeline.
+
+Or, it can be configured to use a portion for
+cabin AI and infotainment
+
+and a portion for driver assistance.
+
+Thor's multi-compute-domain isolation
+
+lets concurrent time-critical processes run without interruption.
+
+On one computer, you can simultaneously
+run Linux, QNX, and Android.
+
+Thor centralizes numerous computers and simultaneously offers a leap in capability while reducing cost and power.
+
+Today, parking, active safety, 
+
+driver monitoring, camera mirrors, cluster, 
+
+and infotainment are different computers.
+
+In the future, these functions will no longer be separate computers, 
+
+but will delivered by software that runs on Thor
+
+and improves over time.
+
+Building robotic computers requires two computers:
+
+an AI factory in the datacenter that processes data, 
+
+trains the AI, simulates the digital twin, and maps the world,
+
+and an AI computer in the car 
+
+that processes the sensors to perceive the environment,
+ stay clear of obstacles,
+
+and drive the car to its destination.
+
+NVIDIA DRIVE is an end-to-end platform 
+
+for autonomous vehicle development and deployment.
+
+For development, DRIVE includes Replicator Synthetic Data Generation, 
+
+NVIDIA AI infrastructure,
+
+DRIVE Sim, and DRIVE Map.
+
+For deployment, DRIVE includes the full-stack driving
+and in-cabin AI applications,
+
+the AI computer, and the Hyperion reference
+autonomous vehicle system.
+
+Let me show you some new, exciting capabilities
+in the NVIDIA DRIVE platform.
+
+First, an AI pipeline called Neural Reconstruction Engine
+that came out of NVIDIA research
+
+is now a major feature in Drive Sim.
+
+Creating scenarios for simulation is laborious and difficult to scale.
+
+Our researchers have developed an AI pipeline that constructs a 3D scene from recorded sensor data.
+
+The 3D scene is imported into DRIVE Sim and can be augmented with human-created content or AI-generated content.
+
+This video-to-3D-geometry pipeline runs on NVIDIA OVX systems
+
+and enables us to create simulation scenarios on a global scale.
+
+Let's take a look.
+
+We're supercharging DRIVE Sim with a Neural reconstruction Engine,
+
+to enhance simulation with AI
+and data captured by the fleet.
+
+In a matter of minutes, the neural reconstruction engine can reconstruct a full 3D digital twin
+
+of a recorded drive from sensor data.
+
+Objects are harvested and reconstructed using AI.
+
+Large scale asset and scene libraries
+are created from real world drives.
+
+The reconstructed scenes and assets are loaded into Omniverse
+
+ and are ready to use in DRIVE Sim.
+
+Using NVIDIA DRIVE Map, we can place
+dynamic objects such as vehicles
+
+As well as pedestrians.
+
+Recorded data can now be turned into fully reactive
+and modifiable simulation environments 
+
+for closed loop testing.
+
+New scenarios can be authored using synthetic
+and harvested scenes and assets.
+
+We can generate synthetic ground truth data
+to train perception networks.
+
+These authored scenarios can be used for end-to-end testing
+
+Including challenging scenarios
+
+NVIDIA DRIVE Sim, powered by Omniverse and AI.
+
+DRIVE Sim is essential to building our driving system from beginning to fleet operations.
+
+It's an integral part of our CI/CD,
+
+continuous integration/continuous deployment,
+ engineering process.
+
+One of the important DRIVE Sim features is Hardware-in-the-Loop, 
+
+which lets us run the entire in-car software stack
+
+right there in the AI factory.
+
+The AI car computer has no idea 
+it's actually inside a simulation 
+
+and not in the car and driving on the road.
+
+DRIVE Sim with Hardware-in-the-Loop
+can also simulate the inside of the car.
+
+Future cars will not just have simple dashboards, 
+
+but surround displays where digital and physical design come together.
+
+Car designers, software engineers, and electronics engineers
+can collaborate in DRIVE Sim
+
+while running all the actual computers and software stacks.
+
+DRIVE Sim will be their virtual design studio.
+
+Let me show it to you.
+
+We are extending NVIDIA DRIVE SIM's platform to create
+a digital twin of the car's interior,
+
+with full hardware-in-the-loop support.
+
+NVIDIA Omniverse is the platform that brings this all together.
+
+Designers and engineers can work side by side
+
+to perfectly integrate the physical design 
+
+with the digital interface before the actual car exists.
+
+- Let's try a new cluster layout
+
+- Sure.
+
+- Can you resize the screen?
+
+- Ok, lets try this.
+
+- This looks good.
+
+DRIVE Sim, built on Omniverse,
+
+will accelerate the development of
+new AI cockpit and in-vehicle infotainment systems,
+
+plus improve usability by testing them in a digital twin of future cars.
+
+Safety is the number one priority in robotics.
+
+And as I mentioned, building robotics systems
+requires building two computers.
+
+An AI Factory in the datacenter, and an AI computer in the car.
+
+Safety architecture, design, and methodologies
+
+ are pervasive throughout our systems, from datacenter to the car.
+
+NVIDIA has invested 15,000 engineering years in safety systems and processes.
+
+Five million lines of code have been safety-assessed.
+
+Our DRIVE chips and platform are designed
+for ASIL D operation and ISO 26262 safety.
+
+We've dedicated ourselves to an end-to-end safety approach
+
+ that extends from the AI factory to the fleet.
+
+We're making excellent progress developing the DRIVE
+end-to-end autonomous driving system.
+
+Let me show you our progress
+
+ from Replicator synthetic data generation to AI model advances,
+
+DRIVE Sim with hardware-in-the-loop, 
+
+DRIVE Map autonomous fleet mapping, 
+
+urban and highway driving, and parking.
+
+Let's take a look.
+
+- Hi Pavithra, you have an event
+at Plaza de Cesar Chavez Park at 6pm.
+
+Would you like me to navigate there?
+
+- Yes, please.
+
+- Beginning drive pilot.
+
+- You have arrived.
+
+Robotic computers are the newest types of computers.
+
+These are real-time systems that sense the environment,
+reason about their surroundings,
+
+and plan actions consistent with their goals.
+
+Orin is our second-generation processor, designed specifically
+for robotics, and it is a homerun.
+
+Orin is the computing engine of autonomous vehicles 
+
+and has been selected by over 40 companies
+
+building cars, trucks, robotaxis, and shuttles.
+
+The fundamental processing pipeline for autonomous vehicles 
+
+can be applied to all kinds of robotics systems.
+
+Jetson is our robotics computer
+
+ with a million developers and used by
+some 6,000 companies, 
+
+including 1,000 startups.
+
+Amazon, Boeing, Canon, Microsoft, Shopify, and Teradyne
+
+ are among the many companies building robots with Jetson.
+
+We are working with the industry on amazing robots—
+
+from pick-n-pack robotic arms,
+
+to agriculture robots,
+
+ AMRs (autonomous mobile robots),
+
+to last-mile delivery robots.
+
+Today, we are announcing the Jetson Orin Nano,
+a tiny robotics computer
+
+that is 80x faster than our previous super-popular Jetson Nano.
+
+Jetson Orin Nano runs the NVIDIA Isaac robotics stack 
+
+and features the ROS 2 GPU-accelerated framework.
+
+There are robots that move, 
+
+and there are robotic systems
+that watch things that move.
+
+Metropolis is our edge AI platform.
+
+It's been downloaded 1 million times 
+
+and has more than 1,000 application partners around the world.
+
+Metropolis makes sense of cameras, lidar, and other IoT sensors
+to make warehouses, factories, retail stores,
+
+and cities safer and more efficient.
+
+Orin is also the robotics processor of our industrial-grade
+IGX Edge AI platform that Metropolis runs on.
+
+Today, we're announcing that Siemens,
+
+the world's largest industrial automation company,
+is adopting Metropolis
+
+and Orin IGX for their industrial edge computing platform.
+
+Each year, two million medical devices
+are made by 16,000 companies.
+
+In the past, medical instruments were built from bespoke sensor-processing chips dedicated to one function.
+
+Driven by the same breakthroughs
+that have enabled self-driving cars and robots, 
+
+future medical instruments will also be
+
+software-defined and powered by artificial intelligence.
+
+The same fundamental robotics pipeline of sensor processing, 
+
+environment reconstruction, detection and segmentation
+
+applies to medical imaging systems.
+
+Orin IGX is also an ideal computing platform
+for medical imaging and robotics.
+
+And running on Orin IGX is NVIDIA Clara Holoscan,
+a low-latency imaging processing platform.
+
+Clara Holoscan, like all NVIDIA robotics platforms, 
+
+includes libraries for data processing, AI model training,
+
+simulation, and the robotics application.
+
+More than 70 leading medical device companies—
+
+including Siemens Healthineers, Intuitive, and Olympus—
+
+startups and medical centers are developing on Clara Holoscan.
+
+Today we're announcing that Activ Surgical, Proximie, and Moon Surgical 
+
+will build their surgical robotics systems
+
+on NVIDIA Clara Holoscan running on the Orin IGX Platform.
+
+There are no robots with universal skills, but building robotic systems share common methods and tools.
+
+Robotics requires two computer systems:
+
+one being the AI factory for developing the robot AI,
+
+and the other an AI computer to operate the robot.
+
+For several fast-growing application domains, 
+
+we created platforms that include domain-specific libraries
+
+for data generation, AI training, simulation, mapping, and the runtime stack.
+
+We've built one called Isaac for AMRs, autonomous mobile robots.
+
+AMRs can be used to move things in warehouses, distribution centers, and factories, or be autonomous cleaning,
+
+roaming security, hospitality, and last-mile delivery bots.
+
+AMRs don't need fixed, pre-programmed tracks, 
+
+and can autonomously navigate from waypoint to waypoint,
+
+avoiding and maneuvering around obstacles.
+
+AMRs are basically self-driving cars for unstructured environments.
+
+The Isaac platform consists of useful tools
+that can benefit all AMR developers:
+
+Sim Ready Asset libraries of things that are often found in warehouses and factories;
+
+Replicator for synthetic data generation;
+
+Isaac Sim with connectors to the ROS
+and other popular robotics ecosystems;
+
+Isaac ROS engine with AI and computer vision algorithms 
+
+and runtime that connects with the ROS Bridge;
+
+and cuOpt, a real-time fleet task-assignment
+and route-planning engine.
+
+CuOpt is an amazing GPU-accelerated optimization engine.
+
+It's like having a pre-Quantum computer.
+
+Let's take a look at the Isaac Platform in action.
+
+Making the right operational decisions for your warehouse environment
+is key to maximizing output
+
+while minimizing both upfront and ongoing costs.
+
+Using NVIDIA cuOpt in Isaac Sim on Omniverse Cloud,
+you can make dynamic, data-driven decisions
+
+at any point during the layout and operation of your warehouse.
+
+Isaac Sim in the cloud lets us tap into the
+accelerated performance of NVIDIA OVX 
+
+to generate thousands of environments and layouts
+in a fraction of the time that it would take using a single-GPU system.
+
+CuOpt can then provide optimized task assignments and routing solutions 
+
+informed by a collision-based occupancy map that
+
+will dictate the movement of the Autonomous Mobile Robot,
+ or AMR, fleet within the warehouse.
+
+Distributed teams can access designs from any device and easily vary parameters such as budget, speed of delivery,
+
+and robustness to identify the ideal layout
+for their operational needs.
+
+High volumes of synthetic data,
+generated by Isaac Replicator in the cloud, 
+
+are then used to train the AMR's perception model.
+
+Navigation is validated with software-in-the-loop
+in a true-to-life, simulated environment.
+
+Once the AMRs are operating in the physical warehouse, 
+
+cuOpt can reoptimize as obstructions
+
+and environmental changes are identified.
+
+Explore how you can accelerate your logistics planning 
+
+and optimization workflows with NVIDIA cuOpt in Isaac Sim
+
+ on the cloud today.
+
+Today, we are announcing that Isaac is going to the cloud.
+
+On NGC, you can get the cloud-ready 
+Omniverse VMI (virtual machine image)
+
+ and Isaac containers
+
+and deploy it on any public cloud.
+
+For AWS, we've gone one step further 
+
+and are publishing optimized Omniverse AMI
+and Isaac containers in the Marketplace.
+
+For ROS developers using Robomaker, 
+
+you can pull the Isaac container from the Marketplace
+
+and connect Isaac Sim
+
+to your ROS ecosystem and robotics simulation
+and scale your CI/CD pipeline.
+
+Isaac will run on the many options of NVIDIA GPU instances
+in AWS, Azure, GCP, and OCI.
+
+NVIDIA is dedicated to advancing science and industry with accelerated computing.
+
+The days of no-work performance scaling are over.
+
+Unaccelerated software will no longer enjoy performance scaling 
+
+without a disproportionate increase in cost.
+
+With nearly three decades of a singular focus,
+
+NVIDIA is expert at accelerating software
+
+and scaling compute by a Million-X, going well beyond Moore's law.
+
+Accelerated computing is a full-stack challenge,
+
+demands deep understanding of the problem domain,
+
+optimizing across every layer of computing, 
+
+and all three chips: CPU, GPU, and DPU.
+
+Scaling across multi-GPUs and multi-nodes
+is a datacenter-scale challenge 
+
+and requires treating the network and storage
+
+as part of the computing fabric.
+
+And developers and customers want 
+to run software in many places—
+
+from PCs to supercomputing centers,
+
+enterprise datacenters, cloud, to edge.
+
+Different applications want to run in different locations
+and in different ways.
+
+Today, we are going to talk about
+accelerated computing across the stack:
+
+New chips and how they will boost performance
+
+far beyond the number of transistors.
+
+New libraries and how it accelerates critical workloads
+to science and industry.
+
+New domain-specific frameworks to help develop
+performant and easily deployable software.
+
+And new platforms to let you deploy your software securely, safely, and with order-of-magnitude gains.
+
+The NVIDIA platform now boasts 3.5 million developers.
+
+12,000 start-ups are founding their companies on NVIDIA.
+
+We accelerate some 3,000 apps through 550 SDKs and AI models.
+
+And, collectively, the industries we serve
+represent some $100 trillion of value.
+
+Over the past 12 months, we updated more than 100 SDKs and introduced 25 new ones.
+
+With each new update, we enhance the performance
+and throughput of our fleet of computers.
+
+With each addition, we solve new challenges for developers 
+
+and extend accelerated computing into new opportunities.
+
+Omniverse Cloud, 
+
+new OV Connectors like JT, 
+
+Drive Sim, 
+
+Isaac ROS and Isaac Sim, 
+
+Sim Ready Assets and Replicator,
+
+and Clara Holoscan
+
+open new worlds to accelerated computing.
+
+Let me update you on a few more of our most
+popular and newest acceleration libraries.
+
+RAPIDS is our open-source suite of SDKs
+that accelerate data science and data engineering.
+
+With RAPIDS, developers process DataFrames,
+SQL arrays, machine learning, and graph analytics
+
+and do in minutes what used to take hours,
+or process 10-100x the amount of data.
+
+and do in minutes what used to take hours,
+or process 10-100x the amount of data.
+
+More than a quarter of the world's
+top companies are using RAPIDS.
+
+There are over 100 integrations with popular
+open-source and commercial software toolkits.
+
+And RAPIDS is the foundation of Merlin, Morpheus, cuOpt,
+Clara, Triton, and other NVIDIA SDKs.
+
+We are expanding the reach of RAPIDS.
+
+10 million Python developers on Windows can now
+access RAPIDS through WSL.
+
+And RAPIDS now supports the Arm Server Based System Architecture.
+
+Apache Spark is the most popular data processing engine 
+
+and is used by 80% of Fortune 500 companies.
+
+NVIDIA RAPIDS has a plugin for Spark 3 and
+integration with Delta Lake and Apache Iceberg.
+
+Enterprises can transparently accelerate
+Spark dataframe and SQL operations.
+
+AT&T is using RAPIDS-accelerated Spark 
+
+to reduce processing time for their advertising pipeline.
+
+AT&T sped up processing by 4x and reduced cost by 70%.
+
+IRS is using RAPIDS-accelerated Spark
+
+ to speed processing by 20x while reducing cost in half.
+
+Adobe Intelligent Services platform
+was able to reduce cost by two thirds.
+
+Data processing is a giant part of cloud spend—
+
+tens of billions of dollars each year
+
+and billions of kilowatts of power.
+
+NVIDIA RAPIDS-accelerated Spark
+is now integrated into GCP Data Proc
+
+and ready to help save millions on your data processing spend.
+
+Triton is our open-source hyperscale inference serving software
+
+that supports any AI model; supports GPUs, x86 and Arm CPUs,
+
+and AWS Inferentia; and supports all major frameworks.
+
+Triton has been downloaded over three million times,
+
+an increase of 300% from last year.
+
+Available in all major public clouds and integrated
+into the top MLOPS platforms,
+
+Triton is used by over 35,000 companies.
+
+Airtel, the 2nd largest wireless provider in India, 
+
+uses Triton to serve ASR and speech analytics for customer service.
+
+Nio, the leading premium EV car company in China, 
+
+uses Triton to test their autonomous driving models
+
+against 100TB of data daily.
+
+GE Healthcare has standardized on Triton
+for their datacenter and embedded systems.
+
+Microsoft uses Triton to process real-time grammar checking.
+
+Amazon uses Triton to process real-time
+spell-checking on their sites.
+
+We introduced over 50 new features in the last year.
+
+New model orchestration to automatically load models on demand, 
+
+efficiently allocating GPU and memory resources.
+
+A major new feature is large language model inference 
+
+with multi-GPU and multi-node execution.
+
+Inference time is accelerated from many minutes to a second.
+
+Graph databases store objects and their relationships
+as nodes and edges in a graph.
+
+Whether for fraud detection, drug discovery,
+supply chain optimization, product recommendation, 
+
+contact tracing, customer 360 journey analysis, 
+or social media, 
+
+it is all about finding patterns and relationships.
+
+The largest companies in financial services,
+retail, healthcare, and manufacturing
+
+have their most valuable data stored in graph databases.
+
+Graph sizes can easily reach trillions of nodes and edges.
+
+And now with deep learning, we can learn 
+patterns and relationships on a giant scale
+
+and train a predictive model for that database.
+
+NVIDIA now accelerates two of the most
+popular graph neural network frameworks
+
+Deep Graph Library and PyTorch Geometric.
+
+Amazon, American Express, Entos life sciences,
+Meituan, and Pinterest
+
+are among the leading users of this
+fast-growing deep learning approach.
+
+Over 80% of internet traffic is video.
+
+Increasingly, AI and computer graphics will augment the video.
+
+What used to be just streaming encoded video will include
+image processing like relighting, reposing,
+
+blurring backgrounds, super resolution,
+AI inference, and computer graphics for AR.
+
+Special effects that used to require offline processing
+are now going into the cloud for live video.
+
+These operations are ideal for GPUs and can tap into the NVIDIA GPUs already in cloud datacenters for AI inference.
+
+But we need a new cloud-native library.
+
+CV-CUDA is an open-source, GPU-accelerated library for
+imaging and computer vision.
+
+CV-CUDA provides a set of highly performant computer vision kernels,
+with zero-copy interfaces
+
+to integrate efficiently with other libraries
+and deep learning frameworks.
+
+CV-CUDA can accelerate the end-to-end
+processing throughput by over 10X.
+
+Early access application is now online.
+
+To advance quantum computing research, the community needs a platform to design and validate
+
+the quantum hardware and algorithms.
+
+The community needs a superfast pre-quantum computer
+that produces known-good results.
+
+NVIDIA's cuQuantum is an SDK for quantum circuit simulation.
+
+With cuQuantum, a 32-node DGX Pod
+
+can simulate a 40 qubits quantum computer.
+
+cuQuantum has been adopted broadly—
+
+from AWS, Google, IBM, Oracle,
+startups all over the world,
+
+ and supercomputing centers.
+
+AWS integrated cuQuantum into its Braket quantum computing service 
+
+and saw 900x speed-up and 3.5x reduction in cost.
+
+Oracle is building a quantum simulation
+virtual machine for OCI cloud.
+
+When quantum computing arrives, it will likely be an extension of classical accelerated computing.
+
+NVIDIA QODA is an open, quantum processor-agnostic
+
+platform for hybrid quantum-accelerated computing.
+
+Just as accelerated computing required
+a decade-long reformulation of software and algorithms
+
+quantum-accelerated computing will need the same.
+
+QODA offers researchers a programming model for quantum-accelerated computing
+
+that researchers can use to discover new science today.
+
+QODA running on DGX with cuQuantum fully emulates a quantum-accelerated computer.
+
+We're working with world-class quantum researchers to develop systems and new algorithms on QODA.
+
+AI continues to make exponential advances with new algorithms
+and new frameworks to develop them.
+
+The rich programmability, performance, 
+and availability of NVIDIA 
+
+makes our platform ideal for AI research.
+
+JAX has become a super popular library
+for machine learning research.
+
+JAX has the familiarity of Python and NumPy
+
+and the ability to define and compose differentiable functions
+
+needed for machine learning.
+
+JAX has an ecosystem of 300+ libraries
+
+spanning NLU, RL, drug discovery,
+neural rendering, and physics simulation.
+
+DeepMind's groundbreaking AlphaFold was done with JAX.
+
+NVIDIA engineers are hard at work with Google Research and DeepMind
+
+ to optimize JAX for a major release coming in Q4.
+
+The NVIDIA AI for JAX container 
+
+will be optimized for multi-GPU and multi-node scaling, 
+
+optimized for all CSP platforms,
+
+support for Hopper's FP8 Transformer Engine,
+
+and all with an easy one-command to run.
+
+Go to NGC and sign-up for NVIDIA AI for JAX.
+
+Large language models are the most important AI models today.
+
+Based on the Transformer architecture, 
+
+large language models are giant and learn to
+understand the meaning of language
+
+from the corpus of human knowledge, 
+
+without supervision and without labeled datasets.
+
+Research in Transformers and large language models is the most vibrant in AI, 
+
+with over ten thousand research papers
+published already this year.
+
+Unlike CNNs, Transformers can learn patterns and relationships 
+
+across great spans of space and time.
+
+Transformers led to the breakthroughs 
+
+in natural language processing and large language models.
+
+There are several things that make
+large language models so remarkable:
+
+A single pre-trained model can perform
+multiple tasks, like question answering,
+
+document summarization, text generation,
+
+translation, and even software programming.
+
+Models can be tuned with just a few examples
+to perform tasks for which they were never trained.
+
+Large language models follow the scaling law, and their performance continues to scale
+
+as you increase the size of the model.
+
+Large language models can learn the representation of almost any complex sequences,
+
+for example, even the language of chemistry and biology.
+
+Large language models are excellent few-shot learners.
+
+The same pre-trained model, when asked the same question
+ in different contexts, can produce a different response.
+
+With just a few examples, we can direct the model
+to be aware of our context and better perform its task.
+
+There are endless possible applications for large language models—
+
+summarize a story, report breaking news,
+
+paraphrase for different audiences,
+or even searching for documents.
+
+Retraining the entire large model for each task
+would be understandably costly.
+
+Another method, called prompt learning, 
+
+is an effective way to direct a 
+pre-trained large language model
+
+to perform specific tasks by training
+a companion model with only a few examples.
+
+NVIDIA NeMo LLM is a prompt learning framework.
+
+Using the large language model's natural ability
+to fill in the blanks, we provide Nemo some examples,
+
+or a few shots of learning, to learn an additional token, 
+
+a prompt, that when prepended to an input phrase,
+
+will produce the desired output phrase for that context.
+
+NeMo, given a small set of examples, trains a prompt encoder.
+
+And only the prompt embeddings are updated.
+
+The pre-trained large language model's parameters
+
+are frozen during prompt learning,
+which substantially reduces the cost
+
+and time of fine tuning the language model for each task.
+
+Today, we are announcing NeMo LLM service,
+a cloud service that trains a large language model
+
+to perform a task from examples you provide.
+
+Nemo includes a selection of pre-trained,
+community-built foundation models.
+
+The NeMo API produces the learned prompt
+embeddings and an optimized microservice 
+
+that can be deployed on-prem,
+
+in any cloud, for one GPU or multi-GPU, multi-node.
+
+The Nemo Service will make it easier for researchers,
+developers, and enterprises
+
+to apply these incredible large language model.
+
+Come try it.
+
+Sign up now for early access in October.
+
+We used NeMo to create the Megatron 530B Cloud API.
+
+530B is an NVIDIA managed-service, 
+running on our DGX SuperPod, 
+
+that you can connect to your application.
+
+It has already been prompt-tuned for a few tasks:
+
+summarization, paraphrasing, and story generation.
+
+Early access starts in October.
+
+Transformers and large language models are
+ also at the core of the digital biology revolution.
+
+Just as Transformers can learn the relationships of words and sentences
+and understand human language,
+
+Transformers can learn to read and write in the native language
+of biology and chemistry.
+
+MegaMolBART learned the language of chemistry.
+
+ESM-1 and ProtT5 learned the language of proteins.
+
+Once the language is learned, biochemical large language models
+
+can be prompt-tuned to generate chemicals of certain
+
+properties and proteins within a family.
+
+These generated target proteins and drug candidates
+can then be virtually screened.
+
+The drug discovery space is practically infinite. 
+
+The combination of proteins and chemicals is unimaginably large.
+
+Only about 50 drugs are approved each year,
+costing an average of a billion dollars to discover.
+
+Large language models give us a new tool to explore
+the infinite world of drug discovery.
+
+But setting up environments to train these models is hard
+and processing the data and training can take weeks to months
+
+Today, we are announcing BioNemo large language model Service, 
+
+a digital biology framework
+
+for researchers and developers
+to create large language models
+
+ that understand chemicals, proteins, DNA and RNA sequences.
+
+Included in the service are pre-trained ESM-1,
+ProtT5, and MegaMolBART.
+
+The output of BioNeMo can be used for downstream tasks
+such as generating new proteins and chemicals,
+
+or predicting structure, function, or reaction properties.
+
+Early access for BioNeMo is in October.
+
+The Broad is one of the top medical research institutes in the world
+
+and the largest producer of human genomic information.
+
+The Broad Institute and NVIDIA are announcing today
+
+that the NVIDIA Clara libraries are now available
+
+on Broad's Terra Cloud Platform.
+
+With NVIDIA Parabricks, whole genome sequencing can be
+sped up from over 24 hours to just one hour,
+
+while cutting the compute cost by more than half.
+
+Researchers using the Genome Analysis Toolkit, GATK,
+can get improved accuracy with deep learning.
+
+The new NVIDIA BioNeMo will also be available on Terra Cloud.
+
+Using BioNeMo, NVIDIA and Broad researchers
+
+are collaborating to create large language models for genomics.
+
+We're excited that NVIDIA's Clara engines will 
+turbocharge the work of Terra Cloud's 25,000+ users.
+
+Large language models have set the stage for Hopper.
+
+Named after Grace Hopper, a computer scientist in the U.S. Navy, 
+
+who pioneered computer programming in the '50s
+
+and first coined the term "bug," 
+
+Hopper is the engine of large language model AI factories.
+
+One of the most amazing breakthroughs of Hopper
+is a new Transformer Engine.
+
+A new Tensor Core and software
+that uses FP8 and FP16 numerical formats
+
+dynamically processes layers of a Transformer network.
+
+And the performance is incredible.
+
+The training time goes from days to hours,
+or on larger models, from a month to a week.
+
+And prompt-tuning on models such as 530B using H100
+and Nemo LLM service is 5x faster than A100.
+
+And as Kirk said to Spock, "Hours instead of days,
+minutes instead of hours."
+
+H100 inference is magnitudes faster
+than A100 for large language models.
+
+For instance, when serving large language model chatbots,
+with less than 1 second latency, on equivalent scale systems,
+
+Ampere can serve 100 users while Hopper can serve more than 3,000—30x more.
+
+Hopper will make large language models,
+the most important AI of our time, accessible to everyone.
+
+The more you buy, the more you save.
+
+Hopper H100 is the new engine of the AI factory.
+
+H100 is available now on NVIDIA LaunchPad.
+
+DGX H100 systems, with NVIDIA Base Command orchestration, can be ordered now.
+
+OEM partners will ship H100 systems starting next month.
+
+And all major cloud providers are making H100
+available in just a few months.
+
+Hopper is in full production.
+
+Recommenders run the digital economy.
+
+They are the engines behind social media,
+digital advertising, e-commerce, and search.
+
+Recommenders process a gigantic amount of data.
+
+Compared to large language models, the amount of data
+moved for every unit of computation
+
+is an order of magnitude larger.
+
+Here's a chart that has Compute Intensity on the vertical axis,
+and Fast Memory Capacity on the horizontal axis.
+
+You can see that Recommender systems require an order
+of magnitude more Fast Memory Capacity.
+
+Large language models will continue to grow exponentially
+and require more computation over time.
+
+Recommender systems will also grow exponentially
+and will require more Fast Memory Capacity over time.
+
+Large language models and Recommender systems
+are the two most important AI models today,
+
+and they have diverging computing requirements.
+
+Recommenders can scale to billions of users and billions of items.
+
+For example, every article, video, and social media item
+ has a learned numerical representation called embedding.
+
+Each embedding table can be 10s of TBs of data
+that requires multiple GPUs to process.
+
+Processing Recommenders requires
+data parallelism in parts of the network,
+
+and model parallelism in other parts of the network,
+stressing every part of the computer.
+
+Grace Hopper is ideally suited for recommender systems.
+
+Whereas Hopper HGX systems are rich in tensor processing,
+each HGX node, with 8 GPUs,
+
+is limited to 640 GB of Fast Memory.
+
+On the other hand, a single Grace Hopper Superchip can be
+ configured for 580 GB of Fast Memory.
+
+500 GB connected to Grace. And 80 GB connected to Hopper.
+
+The two chips are connected by a superfast chip-to-chip NVlink
+
+Eight Grace Hoppers have the same tensor-throughput of Hopper HGX,
+but over 7X more Fast Memory capacity.
+
+Now with just a 120-node Grace Hopper system, you can process
+a 70 TB state-of-the-art recommender system.
+
+Grace Hopper will be a giant leap for recommender systems.
+
+The amazing Grace CPU is the magic behind Grace Hopper.
+
+Let me tell you about it.
+
+Grace uses the Arm Neoverse V2 CPU core that delivers
+high single-threaded performance
+
+and twice the energy efficiency of server CPUs.
+
+72 CPU cores are connected by a Scalable Coherency Fabric
+that delivers 3.2TB/s of bisectional bandwidth.
+
+117 MB of L3 cache are distributed across the mesh fabric.
+
+Grace system memory is LPDDR5X, which delivers 1.5X
+the bandwidth of DDR5, but most importantly at 1/8 the power.
+
+And finally, Grace is connected to Hopper
+through a chip-to-chip NVLink
+
+that gives Hopper high-speed access to Grace's large memory.
+
+Grace and Grace Hopper Superchips are designed
+for high performance computing applications
+
+that process a giant amount of data, like data analytics
+and recommender systems.
+
+NVIDIA and the world's leading system makers
+
+are building a broad array of servers.
+
+NVIDIA's bringing the full stack of our HPC, AI,
+
+and Omniverse platforms to Grace and Grace Hopper.
+
+Systems will be available in the first half of 2023.
+
+Artificial intelligence is the most important
+technology force of our time,
+
+and is creating capabilities never before possible.
+
+In just a few years, AI has delivered breakthroughs
+in computer vision, speech recognition,
+
+natural language understanding, and recommender systems.
+
+These AI models still have to be built into applications—
+
+like self-driving cars, customer service chatbots,
+
+and e-commerce sites—
+
+and workflows that adapt the AIs to specific use-cases
+and help the models learn from experience.
+
+To make AI accessible to industries, we've developed domain-specific frameworks
+
+that companies can use to make AI applications.
+
+All of these application frameworks are built on NVIDIA HPC,
+NVIDIA AI, and NVIDIA Omniverse platforms.
+
+Let me give you a few examples.
+
+NVIDIA MONAI is the most popular medical imaging AI framework.
+
+15 of the top 20 academic medical centers and pharmaceutical companies, like Bayer and GSK,
+
+have adopted MONAI for radiology and pathology.
+
+NVIDIA Merlin is a framework that helps you easily build an end-to-end recommender system
+
+that is performant and scalable.
+
+Companies including Capital One, Tencent WeChat,
+and Fidelity are building recommenders
+
+to improve the quality and engagement of their services.
+
+NVIDIA cuOpt is an Operations Research optimization API
+using AI to help developers
+
+create complex, real-time fleet routing.
+
+AT&T, BMW, and Domino's are using CuOpt.
+
+BMW has said that using cuOpt has saved 20%
+on their factory fleet orchestration & planning—millions of dollars.
+
+NVIDIA Morpheus is a GPU-accelerated SDK enabling cybersecurity developers to build AI pipelines that detect anomalies
+
+by filtering, processing, and classifying
+giant volumes of real-time data.
+
+We're partnering with Booz Allen Hamilton
+to bring a Morpheus-powered cybersecurity platform
+
+to the public and private sectors.
+
+Artificial intelligence is impacting a large number
+of application domains
+
+and requires two basic approaches to computing.
+
+We are helping customers develop and deploy these AI applications in secure multi-cloud environments,
+
+whether it's scale-up batch processing AI factories,
+or scale-out interactive cloud services.
+
+For scale-up AI factories, we are in full production with Hopper.
+
+For scale-out inference, interactive Metaverse applications, and Omniverse simulations, we have the OVX computer.
+
+In Omniverse simulation mode, one session runs on multiple GPUs.
+
+In inference and multimedia modes,
+multiple sessions can run on one GPU.
+
+Today, we're announcing the OVX computer with the new
+Ada Lovelace L40 datacenter GPU.
+
+With a massive 48 GB framebuffer, OVX with eight L40s will be able to process giant Omniverse virtual world simulations.
+
+L40 OVX computers will be available from the world's leading computer makers and cloud providers.
+
+L40 GPUs are in full production.
+
+80% of the world's internet traffic is video.
+
+User-generated content, like video conferencing or
+short-form videos, makes up a lot of it.
+
+Increasingly, these video streams will also be augmented by AI special effects and computer graphics.
+
+And emerging metaverse applications, like avatars, will do computer vision, speech AI, language understanding,
+
+and computer graphics in real-time and at cloud scale.
+
+Nothing like this has ever been done before.
+
+To make this possible, we've been building acceleration libraries like CV-CUDA, 
+
+pre-trained AI models in our Avatar Cloud Engine
+like Riva and Audio2Face,
+
+ and a zero-code application framework and cloud runtime engine called UCF,
+
+universal computing framework.
+
+Using UCF, we created a reference application called Tokkio
+for building customer service avatars.
+
+All of this is running on AWS.
+
+Let me show it to you.
+
+Interactive avatars are growing in popularity and use,
+from providing customer and sales support
+
+to marketing tools and teaching aids.
+
+But creating interactive avatars is very hard
+and typically requires expensive equipment,
+
+specific expertise, and time-consuming workflows.
+
+NVIDIA ACE is a collection of cloud native AI-microservices
+that make it easier to create, customize,
+
+and deploy intelligent and engaging avatars 
+built on any engine and deployable on any cloud.
+
+An interactive avatar needs to understand and communicate with you. From the more common text-driven chatbots
+
+that help users with site- or subject-specific queries
+
+to real-time fully-animated 3D avatars that can see and hear you.
+
+And ACE has all the necessary
+AI building blocks to bring them to life.
+
+- Hi, I am Violet. How can I help you?
+
+This is Violet, she is a fully rigged avatar
+with some basic animation.
+
+To make her interactive, we use
+NVIDIA's Unified Compute Framework,
+
+or UCF Studio, to build a graph of microservices
+that we can deploy in the cloud.
+
+For Violet to be able to hear and talk to us,
+we include the Riva ASR and TTS components.
+
+And we use Audio2Face to provide the necessary animation.
+
+Each microservice component has color coded
+inputs/outputs for easy connection and error checking
+
+to avoid incompatible connections.
+
+We then connect to a food ordering dataset
+to handle customer orders and queries.
+
+- Do you have any low-calorie options?
+
+- I found these four options for low-calorie: market salad,
+fruit salad, diet cola, and lemonade.
+
+- I'd like a market salad, please.
+
+- OK, I have added one regular market salad to your cart. What else would you like?
+
+- Do you have any orange juice?
+
+- I cannot find orange juices, but I found a similar item: one small lemonade is...
+
+- I just learned about the Lemon Slice Nebula today!
+
+- That's cool!
+
+- Please ask me about items in the menu.
+
+- Can I have one small french fries please?
+
+Now, let's make Violet smarter.
+
+The Tokkio application framework comes with a customizable
+pre-trained Natural Language Processing model.
+
+However, we do want Violet to be able to answer questions
+that don't relate to food orders.
+
+To do this we added a pre-deployed Megatron LLM
+microservice and update the Inference Model settings
+
+for open domain question answering.
+
+- Hello! I am Violet. Ask me anything!
+
+- What do you know about the Lemon Slice Nebula?
+
+- The Lemon Slice Nebula is a planetary nebula
+located in the constellation Camelopardalis.
+
+- How far is it from Earth?
+
+- 4,500 light-years away.
+
+Let's switch our avatar to one from another engine.
+
+For this we'll use Unreal Engine 5 and MetaHuman to power Violet.
+
+All we need to do is, go back to UCF studio and switch the microservice output of audio2face
+
+ from Omniverse to Unreal engine.
+
+We then relaunch and now we meet Ultra Violet.
+
+And she all the same intelligent capabilities as the previous Violet.
+
+- Hi, I'm Ultra Violet. I'm a digital avatar. I have been
+brought to life by Avatar Cloud Engine, or ACE for short.
+
+Omniverse ACE powers my speech, animation, and intelligence.
+I can even answer challenging questions using
+
+the power of a large language model. Ask me anything.
+
+We're really excited about Omniverse Avatar Cloud Engine,
+and we can't wait to see what you create.
+
+We have a rich suite of domain specific application frame works.
+
+Now we need an army of experts to help customers apply
+these AI frameworks to automate their businesses.
+
+Today, we are announcing that Deloitte,
+the world's largest professional services firm,
+
+ is bringing new services
+
+built on NVIDIA AI and NVIDIA Omniverse
+to the world's enterprises.
+
+Deloitte's 350,000 professionals 
+
+will help the world's enterprises use NVIDIA application frameworks
+
+to build modern multi-cloud applications
+for customer service, cybersecurity,
+
+industrial automation, warehouse and retail automation, and more.
+
+Deloitte is a major new addition to our ecosystem
+of software developers and go-to-market partners.
+
+Today, we announced new chips, new advances to our platforms, 
+and, for the very first time, new cloud services.
+
+The Ada Lovelace generation advances all three RTX processors, 
+
+the engines of neural rendering.
+
+Ada is a quantum leap for gamers and paves the way 
+for creators of fully simulated worlds, like RacerX.
+
+LLMs and Recommender systems are the two most
+important AI models today.
+
+Hopper, with its Transformer Engine, will make
+large language models accessible to everyone.
+
+Hopper is in full production and coming soon
+to power the world's AI factories.
+
+Recommenders run the digital economy.
+
+Grace Hopper, with 7X increase in fast-memory capacity,
+will be a giant leap for recommender systems.
+
+Systems will be available in the first half of 2023.
+
+OVX is the Omniverse computer and ideal
+to scale-out Metaverse applications.
+
+Our 2nd-generation OVX is powered by
+Ada Lovelace L40 data center GPUs.
+
+L40 is in full production.
+
+Combining the transformer engine of Hopper, the GPU of Ada,
+and the amazing CPU of Grace,
+
+Thor will power the centralized car computers of
+autonomous vehicles starting in 2025.
+
+And like Orin, Thor will be the processor for robotics, 
+
+medical instruments, industrial automation and edge AI systems.
+
+We have more than 3.5 million developers creating some 3,000 accelerated apps 
+
+using our 550 SDKs and AI models.
+
+New SDKs increase the capability and performance
+of systems our customers already own,
+
+while opening new markets for accelerated computing.
+
+Over the past 12 months, we updated more than 100 SDKs
+and introduced 25 new ones.
+
+The NeMo large language model Service is a NVIDIA-managed cloud service
+to adapt pre-trained LLMs
+
+to perform specific tasks.
+
+The BioNeMo LLM is a service to create LLMs that
+understand chemicals, proteins, DNA and RNA sequences.
+
+NVIDIA Omniverse Cloud is an infrastructure-as-a-service 
+
+that connects Omniverse applications running in the cloud,
+
+on-prem, or on a device.
+
+New Omniverse containers: 
+
+Replicator for synthetic data generation,
+Farm for scaling render farms,
+
+and Isaac Sim for building and training AI robots
+are now available for cloud deployment.
+
+For ROS developers using AWS Robomaker,
+Isaac containers are in the Marketplace.
+
+80% of the world's internet traffic is video,
+and user-generated video streams
+
+will be increasingly augmented by
+AI special effects and computer graphics.
+
+Avatars will do computer vision, speech AI,
+language understanding,
+
+and computer animation in real-time and at cloud scale.
+
+To make this possible, we've been building acceleration libraries
+like CV-CUDA, a cloud runtime engine called UCF
+
+Unified Computing Framework, and Omniverse ACE
+Avatar Cloud Engine,
+
+and a sample application called Tokkio
+for customer service avatars.
+
+The world's largest professional services firm is
+bringing new services built on NVIDIA AI
+
+and NVIDIA Omniverse to the world's enterprises.
+
+Deloitte's 350,000 professionals will help the world's enterprises
+use NVIDIA application frameworks 
+
+to build modern multi-cloud applications for customer service,
+ cybersecurity, industrial automation,
+
+warehouse and retail automation, and more.
+
+We have a great GTC for you,
+
+ with over 200 talks from the brightest minds in science and industry.
+
+You are going to see amazing advances powered by accelerated computing and AI.
+
+Enjoy!
+
+I am an explorer
+
+traveling across the Atlantic to unlock its mysteries
+
+And back in time to understand the origins of the universe
+
+I am a visionary
+
+bringing sharper focus to researchers
+
+And brilliant clarity to surgeons
+
+I am a healer
+
+making treatments as unique as every patient
+
+And giving new life the chance to thrive
+
+I am a guardian
+
+looking out for dangers around us
+
+And in the depths below
+
+I am a helper
+
+enabling healthier more sustainable crops
+
+bringing them to market faster
+
+And preparing them for the table
+
+I am a creator
+
+building virtual worlds to help robots to learn faster
+
+and make our connections stronger
+
+I am even an avatar,
+
+and you can ask me any question
+
+- Who made this song?
+
+- Aiva used artificial intelligence to write this song
+and it was recorded by the London Symphony Orchestra
+
+I am AI brought to life by NVIDIA,
+deep learning, and brilliant minds everywhere.
+
