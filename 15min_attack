@@ -515,7 +515,7 @@ find_a = {}
 target_ticker_list = []  # 매수 가능 Target list (Second)
 main_target_ticker_list = []  # 매수 가능 Target list (Third)
 mesu_possible = 100000
-mesu_target = 1.023
+mesu_target = 1.02
 danta_mesu_target = 1.05
 volume_target = 3000000000
 medo_volume_target = 1000000000
@@ -527,6 +527,9 @@ volume_attack_target = 10
 ikjul_target = 1.03
 sonjul_target = 0.97
 bb_medo_target = 1.8
+medo_fast_signal_target = 0.97
+plus_count = 0
+coin_status_criteria = 30
 
 krw_balance = upbit.get_balance("KRW")
 
@@ -563,100 +566,130 @@ while True:
         if now.hour == 8 and 58 <= now.minute <= 59 and 30 <= now.second <= 59:
             time.sleep(150)
         ## 비트코인 변동성 확인 threding
-
+        plus_count = 0
         ## 매수
         if op_mode is True and hold is False:
             main_target_ticker_list = []
 
             for i in tickers:
-
-                df = pyupbit.get_ohlcv(i, "minute1")
-                time.sleep(0.2)
-                df.reset_index(inplace=True)
-                rsi()
-                stoch()
-                stoch_rsi()
-                supertrend()
-                bollinger_band()
-
-                df['sma5'] = df['close'].rolling(5).mean()
-                df['sma60'] = df['close'].rolling(60).mean()
-                df['real_volume'] = df['volume'] * df['close']
-                df['vol_avg_180'] = df['real_volume'].rolling(180).mean()
-
+                df = pyupbit.get_ohlcv(i, "day", count=2)
                 # print(df)
-                now_minute = df.iloc[-2]
-                criteria_minute = df.iloc[-16]
-                before_minute = df.iloc[-3]
-                # print(now_minute)
-                target = now_minute['open'] * mesu_target
-                target_close = now_minute['close']
-                target_volume = now_minute['close'] * now_minute['volume']
+                time.sleep(0.2)
+                now_minute = df.iloc[-1]
+                # print(now_minute['close'],now_minute['open'])
+                if now_minute['close'] > now_minute['open']:
+                    plus_count = plus_count + 1
 
-                # print(f' target volume : {target_volume}, now_close : {target_close}')
-                # if now_minute['close'] >= target and target_volume >= volume_target:
+                    # print(plus_count)
+            # print(plus_count)
 
-                if now_minute['close'] <= 15:
-                    continue
-
-                # if now_minute['close'] >= target and target_volume >= volume_target and now_minute['close'] > \
-                #         now_minute['sma60']:
-
-                if target_volume >= volume_target and target_close >= target:
-                    #230122
-                    nmc = now_minute['close'] / now_minute['open']
-                    nmc_rsi = now_minute['RSI_sign']
-                    nmc_sc = now_minute['stochastic_sign']
-                    nmc_stochrsi = now_minute['STOCHRSI_sign']
-                    nmc_st = now_minute['ST_BUY_SELL']
-                    nmc_bb = now_minute['bb_sign']
-                    nmc_ubb = now_minute['ubb']
-                    nmc_lbb = now_minute['lbb']
-                    nmc_bb_range = nmc_ubb/nmc_lbb
-
-                    main_target_ticker_list.append(i)
-                    print("%s main target으로 추가하였습니다." % main_target_ticker_list)
-                    logging.debug(f' main_target_ticker_list : {i} ({nmc}) ')
-                    now = datetime.datetime.now()
-                    print(f'TIME :{now:%Y-%m-%d %H:%M:%S}, ticker:{i}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume:.f}')
-                    logging.debug(
-                        f'Main Target list, TIME :{now:%Y-%m-%d %H:%M:%S}, ticker:{i}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume:.f}, bb_range:{nmc_bb_range}')
-
-                # if target_volume >= volume_target and now_minute["RSI_sign"] == 'STAND-BY' and slow_%D :
-                # #221227 변경만들다가 stop
-                #
-                #
-                #     nmc = now_minute['close'] / now_minute['open']
-                #     nmc_rsi = now_minute['RSI_sign']
-                #     nmc_sc = now_minute['stochastic_sign']
-                #     nmc_stochrsi = now_minute['STOCHRSI_sign']
-                #     nmc_st = now_minute['ST_BUY_SELL']
-                #     nmc_bb = now_minute['bb_sign']
-                #
-                #     main_target_ticker_list.append(i)
-                #     print("%s main target으로 추가하였습니다." % main_target_ticker_list)
-                #     logging.debug(f' main_target_ticker_list : {i} ({nmc}) ')
-                #
-                #     print(f'TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
-                #     logging.debug(
-                #         f'Main Target list, TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
+            if plus_count < coin_status_criteria:
+                print("전제조건, coin_status_criteria 미만족으로 인한 skip")
+                time.sleep(10)
 
 
+            if plus_count >= coin_status_criteria:
+                for i in tickers:
+
+                    df = pyupbit.get_ohlcv(i, "minute1")
+                    time.sleep(0.08)
+                    df.reset_index(inplace=True)
+                    rsi()
+                    stoch()
+                    stoch_rsi()
+                    supertrend()
+                    bollinger_band()
+
+                    df['sma5'] = df['close'].rolling(5).mean()
+                    df['sma60'] = df['close'].rolling(60).mean()
+                    df['real_volume'] = df['volume'] * df['close']
+                    df['vol_avg_180'] = df['real_volume'].rolling(180).mean()
+
+                    # print(df)
+                    now_minute = df.iloc[-2]
+                    if now_minute['close'] <= 15:
+                        continue
+                    criteria_minute = df.iloc[-16]
+                    before_minute = df.iloc[-3]
+                    before_minute2 = df.iloc[-4]
+                    before_minute3 = df.iloc[-5]
+                    before_minute4 = df.iloc[-6]
+
+                    # print(now_minute)
+                    target = criteria_minute['open'] * mesu_target
+                    target_close = now_minute['close']
+                    # target_volume = now_minute['close'] * now_minute['volume']
+                    target_volume = df['real_volume'][-16:-1].sum()
+
+                    # print(f' target volume : {target_volume}, now_close : {target_close}')
+                    # if now_minute['close'] >= target and target_volume >= volume_target:
 
 
-                    # logging.debug(f'매수 후보, TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
-                    # if now_minute['stochastic_sign'] == 'BUY' and now_minute['ST_BUY_SELL'] == 'BUY' and now_minute[
-                    #     'bb_sign'] == 'BUY' and before_minute['ST_BUY_SELL'] == 'SELL':
+                    # if now_minute['close'] >= target and target_volume >= volume_target and now_minute['close'] > \
+                    #         now_minute['sma60']:
+
+                    # if target_volume >= volume_target and target_close >= target and\
+                    #         now_minute['close']>= now_minute['sma5'] and \
+                    #         before_minute['close']>= before_minute['sma5']  and \
+                    #         before_minute2['close'] >= before_minute2['sma5'] and \
+                    #         before_minute3['close'] >= before_minute3['sma5'] and \
+                    #         before_minute4['close'] >= before_minute4['sma5']:
+                    if target_volume >= volume_target and target_close >= target:
+                        #230129
+                        nmc = now_minute['close'] / now_minute['open']
+                        nmc_rsi = now_minute['RSI_sign']
+                        nmc_sc = now_minute['stochastic_sign']
+                        nmc_stochrsi = now_minute['STOCHRSI_sign']
+                        nmc_st = now_minute['ST_BUY_SELL']
+                        nmc_bb = now_minute['bb_sign']
+                        nmc_ubb = now_minute['ubb']
+                        nmc_lbb = now_minute['lbb']
+                        nmc_5 = now_minute['sma5']
+                        nmc_bb_range = nmc_ubb/nmc_lbb
+
+                        main_target_ticker_list.append(i)
+                        print("%s main target으로 추가하였습니다." % main_target_ticker_list)
+                        logging.debug(f' main_target_ticker_list : {i} ({nmc:.3f}) ')
+                        now = datetime.datetime.now()
+                        print(f'TIME :{now:%Y-%m-%d %H:%M:%S}, ticker:{i}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
+                        logging.debug(
+                            f'Main Target list, TIME :{now:%Y-%m-%d %H:%M:%S}, ticker:{i}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume:.0f}, bb_range:{nmc_bb_range:.2f}, sma5:{nmc_5:.2f}')
+
+                    # if target_volume >= volume_target and now_minute["RSI_sign"] == 'STAND-BY' and slow_%D :
+                    # #221227 변경만들다가 stop
+                    #
+                    #
+                    #     nmc = now_minute['close'] / now_minute['open']
+                    #     nmc_rsi = now_minute['RSI_sign']
+                    #     nmc_sc = now_minute['stochastic_sign']
+                    #     nmc_stochrsi = now_minute['STOCHRSI_sign']
+                    #     nmc_st = now_minute['ST_BUY_SELL']
+                    #     nmc_bb = now_minute['bb_sign']
+                    #
                     #     main_target_ticker_list.append(i)
                     #     print("%s main target으로 추가하였습니다." % main_target_ticker_list)
                     #     logging.debug(f' main_target_ticker_list : {i} ({nmc}) ')
-                else:
-                    # target_change_rate = now_minute['close'] / now_minute['open']
-                    # print(f'{i} {target_change_rate :.3f}')
-                    # print("target을 찾고 있습니다.")
-                    pass
+                    #
+                    #     print(f'TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
+                    #     logging.debug(
+                    #         f'Main Target list, TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
 
-                time.sleep(1)
+
+
+
+                        # logging.debug(f'매수 후보, TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
+                        # if now_minute['stochastic_sign'] == 'BUY' and now_minute['ST_BUY_SELL'] == 'BUY' and now_minute[
+                        #     'bb_sign'] == 'BUY' and before_minute['ST_BUY_SELL'] == 'SELL':
+                        #     main_target_ticker_list.append(i)
+                        #     print("%s main target으로 추가하였습니다." % main_target_ticker_list)
+                        #     logging.debug(f' main_target_ticker_list : {i} ({nmc}) ')
+                    else:
+                        # target_change_rate = now_minute['close'] / now_minute['open']
+                        # print(f'{i} {target_change_rate :.3f}')
+                        # print("target을 찾고 있습니다.")
+                        pass
+
+                    time.sleep(0.3)
 
             # th = threading.Thread(target=sub_cal_target)
             # th.daemon = True
@@ -710,7 +743,7 @@ while True:
                     # print('매도 준비')
                     # print(f'mesu_target_name {mesu_target_name},target_coin_name {target_coin_name} ')
 
-                    df = pyupbit.get_ohlcv(target_coin_name, "minute15")
+                    df = pyupbit.get_ohlcv(target_coin_name, "minute1")
                     df.reset_index(inplace=True)
                     rsi()
                     stoch()
@@ -720,9 +753,12 @@ while True:
 
                     df['sma5'] = df['close'].rolling(5).mean()
                     df['sma10'] = df['close'].rolling(10).mean()
+                    df['sma15'] = df['close'].rolling(15).mean()
+                    df['sma20'] = df['close'].rolling(20).mean()
                     df['sma30'] = df['close'].rolling(30).mean()
                     df['sma60'] = df['close'].rolling(60).mean()
-                    # weights = np.arange(1, 6)
+                    df['sma100'] = df['close'].rolling(100).mean()
+                    # weighs = np.arange(1, 6)
                     # wma5 = df['close'].rolling(5).apply(lambda prices: np.dot(prices, weights) / weights.sum(),
                     #                                     raw=True)
                     # df['wma5'] = wma5
@@ -733,11 +769,14 @@ while True:
                     # print(df)
                     time.sleep(0.1)
                     now_medo = df.iloc[-2]
+                    now_medo_before = df.iloc[-3]
+                    now_medo_before2 = df.iloc[-4]
                     # print(now_medo)
 
                     target_medo_volume = now_medo['close'] * now_medo['volume']
 
                     nm = now_medo['close'] / now_medo['open']
+                    nmc = now_medo['close']
                     nm_rsi = now_medo['RSI_sign']
                     nm_sc = now_medo['stochastic_sign']
                     nm_stochrsi = now_medo['STOCHRSI_sign']
@@ -745,35 +784,53 @@ while True:
                     nm_bb = now_medo['bb_sign']
                     nm_bb_range = now_medo['ubb']/now_medo['lbb']
                     nm_st = now_medo['ST_BUY_SELL']
+                    nm_sma = now_medo['sma100']
                     # print(now_medo)
                     # print(nm_st)
 
+                    df1 = pyupbit.get_ohlcv(mesu_target_name, "minute1", count=2)
+                    medo_signal_check = df1.iloc[-1]
+                    msc = medo_signal_check['low'] / medo_signal_check['open']
+
                     ### 기존 거
 
-                    if now_medo['close'] <= now_medo['sma10']:
+                    if now_medo['close'] < now_medo['sma100']:
                         medo_price = pyupbit.get_current_price(mesu_target_name)
                         print(upbit.sell_market_order(mesu_target_name, target_balance))
                         print("%s를 매도하였습니다." % mesu_target_name)
                         now = datetime.datetime.now()
                         logging.debug(
-                            f'{now:%Y-%m-%d %H:%M:%S},{mesu_target_name}매도,(SMA_SIGN) 판매 금액:{medo_price},수익:{((medo_price / mesu_price - 1)*100):.2f}%')
+                            f'{now:%Y-%m-%d %H:%M:%S},{mesu_target_name}매도,(SMA_SIGN) 매도단가:{medo_price},수익:{((medo_price / mesu_price - 1)*100):.2f}%, close:{nmc:.2f}, sma:{nm_sma:.2f}')
 
                         time.sleep(5)
                         op_mode = False
                         break
 
-                    if nm_bb_range >= bb_medo_target:
+                    if now_medo['ubb'] < now_medo_before['ubb'] and now_medo_before['ubb'] < now_medo_before2['ubb']:
+                        nmu = now_medo['ubb']
+                        nmub = now_medo_before['ubb']
+                        nmub2 = now_medo_before2['ubb']
                         medo_price = pyupbit.get_current_price(mesu_target_name)
                         print(upbit.sell_market_order(mesu_target_name, target_balance))
                         print("%s를 매도하였습니다." % mesu_target_name)
                         now = datetime.datetime.now()
                         logging.debug(
-                            f'{now:%Y-%m-%d %H:%M:%S},{mesu_target_name}매도,(BB_SIGN) 판매 금액:{medo_price},수익:{((medo_price / mesu_price - 1) * 100):.2f}%')
+                            f'{now:%Y-%m-%d %H:%M:%S},{mesu_target_name}매도,(BB_SIGN) 매도단가:{medo_price},수익:{((medo_price / mesu_price - 1) * 100):.2f}%, ubb:{nmu:.2f} {nmub:.2f} {nmub2:.2f}')
 
                         time.sleep(5)
                         op_mode = False
                         break
-
+                    if msc <= medo_fast_signal_target:
+                        medo_price = pyupbit.get_current_price(mesu_target_name)
+                        print(upbit.sell_market_order(mesu_target_name, target_balance))
+                        print("%s를 매도하였습니다.(급락매도)" % mesu_target_name)
+                        now = datetime.datetime.now()
+                        logging.debug(
+                            f'{now:%Y-%m-%d %H:%M:%S},{mesu_target_name}매도, (급락매도) 매도단가: {medo_price}, 수익:{(medo_price / mesu_price - 1) * 100:.2f}%')
+                        time.sleep(5)
+                        op_mode = False
+                        target_version = 0
+                        break
 
                     #
                     # if now_medo['ST_BUY_SELL'] == 'SELL':
