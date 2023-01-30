@@ -24,7 +24,7 @@ dictConfig({
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'debug_gumi2',
+            'filename': 'debug_gumi2_1',
             'formatter': 'default',
         },
     },
@@ -739,8 +739,9 @@ while True:
 
         if now.hour == 8 and 58 <= now.minute <= 59 and 30 <= now.second <= 59:
             time.sleep(150)
+        plus_count = 0
         ## 비트코인 변동성 확인 threding
-
+        
         ## 매수
         if op_mode is True and hold is False:
             main_target_ticker_list = []
@@ -842,132 +843,134 @@ while True:
                 if plus_count < coin_status_criteria:
                     print("2nd 전제조건, coin_status_criteria 미만족으로 인한 skip")
                     time.sleep(10)
-                    continue
+                   
 
-                mesu_priority(tickers)
-                # mesu_target_name = find_b['ticker']
-                # target_coin_name = find_b['ticker'].split()
-                # print(find_b)
-                # print(find_b['ticker'])
-                for i in find_b['ticker']:
-                    df = pyupbit.get_ohlcv(i, "minute3")
-                    # print(df)
-                    time.sleep(0.1)
-                    df.reset_index(inplace=True)
-                    rsi()
-                    stoch()
-                    stoch_rsi()
-                    supertrend()
-                    bollinger_band()
+                if plus_count >= coin_status_criteria:
+                
+                    mesu_priority(tickers)
+                    # mesu_target_name = find_b['ticker']
+                    # target_coin_name = find_b['ticker'].split()
+                    # print(find_b)
+                    # print(find_b['ticker'])
+                    for i in find_b['ticker']:
+                        df = pyupbit.get_ohlcv(i, "minute3")
+                        # print(df)
+                        time.sleep(0.1)
+                        df.reset_index(inplace=True)
+                        rsi()
+                        stoch()
+                        stoch_rsi()
+                        supertrend()
+                        bollinger_band()
 
-                    # df['real_volume'] = df['volume'] * df['close']
-                    # df['vol_avg_15'] = df['real_volume'].rolling(15).mean()
-                    # df['sma60'] = df['close'].rolling(60).mean()
+                        # df['real_volume'] = df['volume'] * df['close']
+                        # df['vol_avg_15'] = df['real_volume'].rolling(15).mean()
+                        # df['sma60'] = df['close'].rolling(60).mean()
 
-                    # print(df)
-                    now_minute = df.iloc[-2]
-                    # print(now_minute)
-                    if now_minute['close'] <= 3:
-                        continue
-                    before_minute = df.iloc[-3]
-                    before_minute2 = df.iloc[-4]
-                    # print(now_minute)
-                    target = now_minute['close'] / now_minute['open']
-                    before_target = before_minute['close']/before_minute['open']
-                    before2_target = before_minute2['close']/before_minute2['open']
-                    target_close = now_minute['close']
-                    target_volume = now_minute['close'] * now_minute['volume']
+                        # print(df)
+                        now_minute = df.iloc[-2]
+                        # print(now_minute)
+                        if now_minute['close'] <= 3:
+                            continue
+                        before_minute = df.iloc[-3]
+                        before_minute2 = df.iloc[-4]
+                        # print(now_minute)
+                        target = now_minute['close'] / now_minute['open']
+                        before_target = before_minute['close']/before_minute['open']
+                        before2_target = before_minute2['close']/before_minute2['open']
+                        target_close = now_minute['close']
+                        target_volume = now_minute['close'] * now_minute['volume']
 
-                    avg_3close_value = (target + before_target + before2_target)/3
-                    avg_2close_value = (before_target + before2_target)/2
+                        avg_3close_value = (target + before_target + before2_target)/3
+                        avg_2close_value = (before_target + before2_target)/2
 
-                    nmc = now_minute['close'] / now_minute['open']
-                    nmc_rsi = now_minute['RSI_sign']
-                    nmc_sc = now_minute['stochastic_sign']
-                    nmc_stochrsi = now_minute['STOCHRSI_sign']
-                    nmc_st = now_minute['ST_BUY_SELL']
-                    nmc_bb = now_minute['bb_sign']
+                        nmc = now_minute['close'] / now_minute['open']
+                        nmc_rsi = now_minute['RSI_sign']
+                        nmc_sc = now_minute['stochastic_sign']
+                        nmc_stochrsi = now_minute['STOCHRSI_sign']
+                        nmc_st = now_minute['ST_BUY_SELL']
+                        nmc_bb = now_minute['bb_sign']
 
-                    # if now_minute['close'] >= target and target_volume >= volume_target and now_minute['close'] > \
-                    #         now_minute['sma60']:
+                        # if now_minute['close'] >= target and target_volume >= volume_target and now_minute['close'] > \
+                        #         now_minute['sma60']:
 
-                    #230119
-                    # if target >= mesu_target_1:
-                    #
-                    #     main_target_ticker_list.append(i)
-                    #     print("%s 매수조건 1 추가하였습니다." % main_target_ticker_list)
-                    #     logging.debug(f' main_target_ticker_list : {i} ({nmc}) ')
-                    #
-                    #     print(f'TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
-                    #     logging.debug(
-                    #         f'매수조건1, TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
-                    #     target_version = 1
-                    #     print(target_version, '매수조건1')
+                        #230119
+                        # if target >= mesu_target_1:
+                        #
+                        #     main_target_ticker_list.append(i)
+                        #     print("%s 매수조건 1 추가하였습니다." % main_target_ticker_list)
+                        #     logging.debug(f' main_target_ticker_list : {i} ({nmc}) ')
+                        #
+                        #     print(f'TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
+                        #     logging.debug(
+                        #         f'매수조건1, TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
+                        #     target_version = 1
+                        #     print(target_version, '매수조건1')
 
-                    #230122
-                    if avg_3close_value >= mesu_target_2:
-                        now = datetime.datetime.now()
-                        print(f'TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
-                        logging.debug(
-                            f'전제조건2, 매수조건2, TIME :{now}, ticker:{i}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
+                        #230122
+                        if avg_3close_value >= mesu_target_2:
+                            now = datetime.datetime.now()
+                            print(f'TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
+                            logging.debug(
+                                f'전제조건2, 매수조건2, TIME :{now}, ticker:{i}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
 
-                        target_version = 2
-                        print(target_version, '매수조건2')
+                            target_version = 2
+                            print(target_version, '매수조건2')
 
-                        mesu_target_name = i
-                        krw_balance = upbit.get_balance("KRW")
-                        print(upbit.buy_market_order(mesu_target_name, krw_balance * (1 - 1.1 * coin_fee_KRW)))
-                        mesu_price = pyupbit.get_current_price(mesu_target_name)
-                        logging.debug(
-                            f'매수, TIME :{now:%Y-%m-%d %H:%M:%S}, ticker:{mesu_target_name}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}, price:{mesu_price}')
-                        print("매수 가격 : ", mesu_price)
-                        hold = True
-                        time.sleep(1)
-
-
-                    elif target > 0 and before_target > 0 and avg_2close_value >= mesu_target_3:
-                        now = datetime.datetime.now()
-                        print(f'TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
-                        logging.debug(
-                            f'전제조건2, 매수조건3, TIME :{now}, ticker:{i}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
-                        target_version = 2
-                        print(target_version, '매수조건3')
-
-                        mesu_target_name = i
-                        krw_balance = upbit.get_balance("KRW")
-                        print(upbit.buy_market_order(mesu_target_name, krw_balance * (1 - 1.1 * coin_fee_KRW)))
-                        mesu_price = pyupbit.get_current_price(mesu_target_name)
-                        logging.debug(
-                            f'매수, TIME :{now:%Y-%m-%d %H:%M:%S}, ticker:{mesu_target_name}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}, price:{mesu_price}')
-                        print("매수 가격 : ", mesu_price)
-                        hold = True
-                        time.sleep(1)
+                            mesu_target_name = i
+                            krw_balance = upbit.get_balance("KRW")
+                            print(upbit.buy_market_order(mesu_target_name, krw_balance * (1 - 1.1 * coin_fee_KRW)))
+                            mesu_price = pyupbit.get_current_price(mesu_target_name)
+                            logging.debug(
+                                f'매수, TIME :{now:%Y-%m-%d %H:%M:%S}, ticker:{mesu_target_name}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}, price:{mesu_price}')
+                            print("매수 가격 : ", mesu_price)
+                            hold = True
+                            time.sleep(1)
 
 
-                    elif target >= mesu_target_4:
-                        now = datetime.datetime.now()
-                        print(f'TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
-                        logging.debug(
-                            f'전제조건2, 매수조건4, TIME :{now}, ticker:{i}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
-                        target_version = 2
-                        print(target_version, '매수조건4')
+                        elif target > 0 and before_target > 0 and avg_2close_value >= mesu_target_3:
+                            now = datetime.datetime.now()
+                            print(f'TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
+                            logging.debug(
+                                f'전제조건2, 매수조건3, TIME :{now}, ticker:{i}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
+                            target_version = 2
+                            print(target_version, '매수조건3')
 
-                        mesu_target_name = i
-                        krw_balance = upbit.get_balance("KRW")
-                        print(upbit.buy_market_order(mesu_target_name, krw_balance * (1 - 1.1 * coin_fee_KRW)))
-                        mesu_price = pyupbit.get_current_price(mesu_target_name)
-                        logging.debug(
-                            f'매수, TIME :{now:%Y-%m-%d %H:%M:%S}, ticker:{mesu_target_name}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}, price:{mesu_price}')
-                        print("매수 가격 : ", mesu_price)
-                        hold = True
-                        time.sleep(1)
+                            mesu_target_name = i
+                            krw_balance = upbit.get_balance("KRW")
+                            print(upbit.buy_market_order(mesu_target_name, krw_balance * (1 - 1.1 * coin_fee_KRW)))
+                            mesu_price = pyupbit.get_current_price(mesu_target_name)
+                            logging.debug(
+                                f'매수, TIME :{now:%Y-%m-%d %H:%M:%S}, ticker:{mesu_target_name}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}, price:{mesu_price}')
+                            print("매수 가격 : ", mesu_price)
+                            hold = True
+                            time.sleep(1)
 
-                else:
-                    # target_change_rate = now_minute['close'] / now_minute['open']
-                    # print(f'{i} {target_change_rate :.3f}')
-                    # print("target을 찾고 있습니다.")
-                    pass
-                    time.sleep(0.36)
+
+                        elif target >= mesu_target_4:
+                            now = datetime.datetime.now()
+                            print(f'TIME :{now}, ticker:{i}, nmc:{nmc}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
+                            logging.debug(
+                                f'전제조건2, 매수조건4, TIME :{now}, ticker:{i}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}')
+                            target_version = 2
+                            print(target_version, '매수조건4')
+
+                            mesu_target_name = i
+                            krw_balance = upbit.get_balance("KRW")
+                            print(upbit.buy_market_order(mesu_target_name, krw_balance * (1 - 1.1 * coin_fee_KRW)))
+                            mesu_price = pyupbit.get_current_price(mesu_target_name)
+                            logging.debug(
+                                f'매수, TIME :{now:%Y-%m-%d %H:%M:%S}, ticker:{mesu_target_name}, nmc:{nmc:.2f}, sr:{nmc_stochrsi}, st:{nmc_st}, bb:{nmc_bb}, sc:{nmc_sc}, RSI:{nmc_rsi}, volume:{target_volume}, price:{mesu_price}')
+                            print("매수 가격 : ", mesu_price)
+                            hold = True
+                            time.sleep(1)
+
+                    else:
+                        # target_change_rate = now_minute['close'] / now_minute['open']
+                        # print(f'{i} {target_change_rate :.3f}')
+                        # print("target을 찾고 있습니다.")
+                        pass
+                        time.sleep(0.36)
 
             # th = threading.Thread(target=sub_cal_target)
             # th.daemon = True
