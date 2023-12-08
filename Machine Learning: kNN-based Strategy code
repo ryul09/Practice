@@ -1,0 +1,266 @@
+#// This source code is subject to the terms of the Mozilla Public License 2.0 at
+#// © capissimo
+#study("Machine Learning: kNN-based Strategy (update)", '', true, precision=4
+#// kNN-based Strategy (FX and Crypto)
+# converted by Sam4Cok@Samer800    - 09/2023 - Not Exact Conversion.
+#//-------------------- Inputs
+input sampleSize = 200;
+input kValue     = 63;#,    'K Value for kNN Model |5..n|'
+input Indicator  = {"RSI", "ROC", "CCI", "MOM", default "All"};# 'Indicator'
+input FastPeriod = 14;#    'Fast Period |1..n|'
+input SlowPeriod = 28;#    'Slow Period |2..n|'
+input FilterType = {"Volatility", "Volume", default "Both" , "None"};#'Filter Signals by
+input HoldingPeriod  = 5;#,     'Holding Period |1..n|
+
+def na = Double.NaN;
+def barConfrimed = !isNaN(close);
+def k  = Floor(Sqrt(kValue));
+def size = sampleSize;
+DefineGlobalColor("uphi", CreateColor(0,128,255));
+DefineGlobalColor("upmd", CreateColor(0,89,177));
+DefineGlobalColor("uplo", CreateColor(0,49,98));
+DefineGlobalColor("dnhi", CreateColor(255,0,128));
+DefineGlobalColor("dnmd", CreateColor(177,0,89));
+DefineGlobalColor("dnlo", CreateColor(98,0,49));
+
+Script dCol {
+input g = 0;
+    def cAqua = if g >= 7 then 2 else
+                if g > 4 then 1 else 0;
+    plot out = cAqua;
+}
+script nCCI {
+    input price = close;
+    input length = 14;
+    def linDev = LinDev(price, length);
+    def avg = Average(price, length);
+    def CCI = if linDev then (price - avg) / linDev / 0.015 else 0;
+    plot out = CCI;
+}
+script scale {
+    input x = close;
+    input p = 63;
+    def hh = Highest(x, p);
+    def ll = Lowest(x, p);
+    def scale = (x - ll) / (hh - ll);# //-- scale to the range of [0..1]
+    plot out = scale;
+}
+#volumeBreak(thres) => 
+def rsivol = RSI(Price = volume, Length = 14);
+def hVol   = HullMovingAvg(rsivol, 10);
+def volumeBreak = hVol > 49;
+#VolatilityBreak(volmin, volmax) =>
+def volmin = ATR(Length = 1);
+def volmax = ATR(Length = 10);
+def VolatilityBreak = volmin > volmax;
+
+def filt;
+Switch (FilterType) {
+Case "Volatility" :
+    filt = volatilityBreak;
+Case "Volume" :
+    filt = volumeBreak;
+Case "None" :
+    filt = yes;
+Default :
+    filt = (volatilityBreak and volumeBreak);
+}
+def filter = filt;
+#//-------------------- Logic
+#// 4 pairs of predictor indicators, long and short each
+
+def rs = RSI(Price = close, Length = SlowPeriod);
+def rf = RSI(Price = close, Length = FastPeriod);
+def cs = nCCI(close, SlowPeriod);
+def cf = nCCI(close, FastPeriod);
+def os = RateOfChange(Price = close, Length = SlowPeriod);
+def of = RateOfChange(Price = close, Length = FastPeriod);
+#// added mom as a feature:
+#// it requires scaling to the range of [0,...,100]
+#// the choice of 63 is arbitrary, needs optimizing
+def momLow = close - close[SlowPeriod];
+def momFast = close - close[FastPeriod];
+def ms = scale(momLow, 63) * 100;
+def mf = scale(momFast, 63) * 100;
+
+#// TOADD or TOTRYOUT:
+def AvgS = (rs + os + cs + ms) / 4;
+def AvgF = (rf + of + cf + mf) / 4;
+
+def ind1;def ind2;
+Switch (Indicator) {
+Case "RSI" :
+    ind1 = rs;
+    ind2 = rf;
+Case "ROC" :
+    ind1 = os;
+    ind2 = of;
+Case "CCI" :
+    ind1 = cs;
+    ind2 = cf;
+Case "MOM" :
+    ind1 = ms;
+    ind2 = mf;
+Default    :
+    ind1 = AvgS;
+    ind2 = AvgF;
+}
+
+def f1 = ind1;
+def f2 = ind2;
+
+#// Classification data, what happens on the next bar
+def class = if close[1]<close[0] then -1 else
+            if close[1]>close[0] then  1 else 0;
+
+def maxdis = fold i=0 to size with p=-999 do
+    Max(p, sqrt(power(f1 - GetValue(f1,size-i),2) + power(f2 - GetValue(f2,size-i), 2)));
+def maxdist = maxdis;
+def val; def cnt;
+if maxdist > maxdist[1] {
+    cnt = if cnt[1] >= k then 0 else cnt[1] + 1;
+    val = if cnt then val[1] + class else class[1];
+    } else {
+    cnt = cnt[1];
+    val = val[1];
+}
+#def tt = fold j=0 to size with q do
+#         if maxdist[j] > GetValue(maxdist, j + 1) then
+#         fold j1 = j to j + k with q1=class do
+#         if GetValue(maxdist, j1) > GetValue(maxdist, j1 + 1) then
+#         q1 + GetValue(class, j1) else  q1 else  GetValue(class, j);
+
+#// Get the overall prediction of k nearest neighbours
+def prediction = val;   
+
+def sig = if prediction > 0 and barConfrimed and filter then 1 else
+          if prediction < 0 and barConfrimed and filter then -1 else sig[1];
+def signal = sig;
+def changed = (signal-signal[1]);
+def hp_counter = if changed then 0 else hp_counter[1] + 1;
+
+def startLongTrade  = changed and signal==1;
+def startShortTrade = changed and signal==-1;
+def entr  = (open+high+low)/3;
+def bidask = entr[-1];
+def hh = highest(bidask, 5);
+def ll = lowest(bidask, 5);
+def tr = TrueRange(hh, bidask, ll);
+def nATR = WildersAverage(tr, 14);
+
+def minB = nATR;#(bidask - ll + nATR) /2;
+def minS = nATR;#(hh - bidask + nATR) /2;
+
+def stopL   = if startLongTrade then bidask - minB else stopL[1];
+def profitL = if startLongTrade then bidask + minB * 1.5 else profitL[1];
+def stopS   = if startShortTrade then bidask + minS else stopS[1];
+def profitS = if startShortTrade then bidask - minS * 1.5 else profitS[1];
+
+def condL = startShortTrade or
+            ((close crosses below stopL) or (high crosses above profitL));
+def condS = startLongTrade or
+            ((close crosses Above stopS) or (low crosses below profitS));
+def inTradeLong; def inTradeShort;
+if startLongTrade {
+    inTradeLong  = yes;
+    inTradeShort = no;
+    } else
+if startShortTrade {
+    inTradeLong  = no;
+    inTradeShort = yes;
+    } else {
+    inTradeLong  = inTradeLong[1];
+    inTradeShort = inTradeShort[1];
+}
+def endLongTrade  = #!inTradeLong and inTradeLong[1];
+                    (startShortTrade ) or
+                   (!changed and signal==1 and hp_counter==HoldingPeriod);
+def endShortTrade = #!inTradeShort and inTradeShort[1];
+                    (startLongTrade ) or
+                    (!changed and signal==-1 and hp_counter==HoldingPeriod);
+
+def colUp = dCol(prediction * 5);
+def colDn = dCol(-prediction * 5);
+AddChartBubble(startLongTrade, low, "Buy", if colUp==2 then GlobalColor("uphi") else
+               if colUp==1 then GlobalColor("upmd") else GlobalColor("uplo"), no);
+AddChartBubble(startShortTrade, high, "Sell", if colDn==2 then GlobalColor("dnhi") else
+               if colDn==1 then GlobalColor("dnmd") else GlobalColor("dnlo"));
+
+plot exitLong = if endLongTrade then high else na;    # 'StopBuy'
+plot exitShort = if endShortTrade then low else na;   # 'StopSell'
+exitLong.SetPaintingStrategy(PaintingStrategy.BOOLEAN_WEDGE_UP);
+exitShort.SetPaintingStrategy(PaintingStrategy.BOOLEAN_WEDGE_DOWN);
+exitLong.SetDefaultColor(GlobalColor("upmd"));
+exitShort.SetDefaultColor(GlobalColor("dnmd"));
+#//-------------------- Backtesting
+
+input show_info = yes;     # '===Information==='
+input lot_size  = 0.01;    # 'Lot Size'
+
+def bar = BarNumber();
+def start_long_trade;
+def long_trades;
+def start_short_trade;
+def short_trades;
+def wins;
+def trade_count;
+def diff;
+#def sdiff;
+if !show_info {
+    start_long_trade = na;
+    } else
+if startLongTrade {
+    start_long_trade = bidask;
+    } else {
+    start_long_trade = if start_long_trade[1] then start_long_trade[1] else bidask;
+}
+if !show_info {
+    start_short_trade = na;
+    } else
+if startShortTrade {
+    start_short_trade = bidask;
+    } else {
+    start_short_trade = if start_short_trade[1] then start_short_trade[1] else bidask;
+}
+
+if endLongTrade and bar > 0{
+    diff         = (bidask - start_long_trade);
+    long_trades  = long_trades[1] + diff * lot_size;
+    short_trades = short_trades[1];
+    wins         = if diff > 0 then wins[1] + 1 else wins[1];
+    trade_count  = trade_count[1] + 1;
+    } else
+if endShortTrade and bar > 0 {
+    diff         = (start_short_trade - bidask);
+    long_trades  = long_trades[1];
+    short_trades = short_trades[1] + diff * lot_size ;
+    wins         = if diff > 0 then wins[1] + 1 else wins[1];
+    trade_count  = trade_count[1] + 1;
+    } else {
+    diff         = 0;
+    long_trades  = long_trades[1];
+    short_trades = short_trades[1];
+    wins         = wins[1];
+    trade_count  = trade_count[1];
+}
+    
+def cumreturn = (long_trades) + (short_trades);
+def totaltrades = (trade_count);
+def totalwins   = (wins);
+def totallosses = if totaltrades - totalwins == 0 then 1 else totaltrades - totalwins;
+def kVal = Round(k, 0);
+def Return  = Round(cumreturn, 2);
+def winLoss = Round(totalwins/totallosses, 2);
+def winPer  = Round(totalwins/totaltrades, 2) * 100;
+
+AddLabel(show_info, "K Value: " + kValue + "(" + kVal + ")" +
+                    " HPeriod: " + "(" + HoldingPeriod + ")", Color.WHITE);
+AddLabel(show_info, "CR= " + "(" + Return + ")",
+        if Return>0 then Color.GREEN else if Return<0 then Color.RED else Color.GRAY);
+AddLabel(show_info, "Trades: "   + "(" + totaltrades + ")", Color.WHITE);
+AddLabel(show_info, "Win/Loss: " + "(" + winLoss + ")",
+        if winLoss>1 then Color.GREEN else if winLoss<1 then Color.RED else Color.GRAY);
+AddLabel(show_info, "Winrate: "  + "(" + winPer + "%)",
+        if winPer>50 then Color.GREEN else if winPer<50 then Color.RED else Color.GRAY);
+
+#-- End o fCode
