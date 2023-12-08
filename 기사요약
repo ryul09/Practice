@@ -1,0 +1,24 @@
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
+from collections import defaultdict
+from string import punctuation
+from heapq import nlargest
+
+def summarize(text, n):
+    # 텍스트를 문장 단위로 분리
+    sentences = sent_tokenize(text)
+    
+    # 불용어 제거
+    words = word_tokenize(text.lower())
+    _stopwords = set(stopwords.words('english') + list(punctuation))
+    words = [word for word in words if word not in _stopwords]
+    
+    # 단어 빈도수 계산
+    freq = defaultdict(int)
+    for word in words:
+        freq[word] += 1
+    
+    # 문장별 가중치 계산
+    ranking = defaultdict(int)
+    for i, sentence in enumerate(sentences):
+        for word in word_tokenize(sentence.lower()):
